@@ -24,6 +24,7 @@ import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 import { useGlobalCollectTemplate } from '@/hooksFn/useDesignerApplication/core/template/collectTemplate';
 import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 import { useContextmenu, useHover } from '@/views/designerApp/hooks/common';
+import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
 // components
 import TabCard from '../../../../components/Tab/TabCard.vue';
 import TabBody from '../../../../components/Tab/TabBody.vue';
@@ -45,9 +46,10 @@ const { onContextmenu } = useContextmenu(contextmenus.template);
 
 // 收藏模板数据
 function useCollectTemplateData() {
+  const { setTemplate } = useGlobalApplication();
   const { list, total, params, loading, getList, onSearch } = useGlobalCollectTemplate();
   onMounted(() => getList());
-  const onClick = () => {};
+  const onClick = (detail) => setTemplate(detail);
 
   return {
     list,

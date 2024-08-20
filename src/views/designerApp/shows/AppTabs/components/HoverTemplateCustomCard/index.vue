@@ -30,34 +30,52 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useInjectApp } from '@/hooksFn/useDesignerApp';
+// utils
+import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 
-// hover
-const { service, AppUtil } = useInjectApp();
-const mouseenter = (item = null) => service.template.hover.enter(item);
-const mouseleave = (item = null) => service.template.hover.leave();
-const detail = computed(() => service.template.hover.detail);
+// 鼠标经过
+const { mouseenter, mouseleave, detail } = useHover();
+// 模板数据
+const { typeName, src } = useTemplateData(detail);
 
-const typeName = computed(() => {
-  if (detail.value.designType === 0) {
-    return '通用';
-  } else {
-    return '精细';
-  }
-});
-const src = computed(() => {
-  // 判空
-  if (!(detail.value.productList && detail.value.productList.length > 0)) {
-    return '';
-  }
-  const s = detail.value.productList[0].productImageSmall;
-  // 判断你是否需要添加前缀
-  if (s.startsWith('http')) {
-    return s;
-  } else {
-    return process.env.VUE_APP_API_BASE_IMG_URL + s;
-  }
-});
+// 鼠标经过
+function useHover() {
+  const { hover } = useGlobalData();
+  const { enter, leave, detail } = hover;
+  return {
+    mouseenter: enter,
+    mouseleave: leave,
+    detail,
+  };
+}
+
+// 模板数据
+function useTemplateData(detail) {
+  const typeName = computed(() => {
+    if (detail.value.designType === 0) {
+      return '通用';
+    } else {
+      return '精细';
+    }
+  });
+  const src = computed(() => {
+    // 判空
+    if (!(detail.value.productList && detail.value.productList.length > 0)) {
+      return '';
+    }
+    const s = detail.value.productList[0].productImageSmall;
+    // 判断你是否需要添加前缀
+    if (s.startsWith('http')) {
+      return s;
+    } else {
+      return process.env.VUE_APP_API_BASE_IMG_URL + s;
+    }
+  });
+  return {
+    typeName,
+    src,
+  };
+}
 </script>
 
 <style scoped lang="less">

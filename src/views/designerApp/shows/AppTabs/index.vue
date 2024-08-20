@@ -16,7 +16,6 @@
     <transition name="el-fade-in-linear">
       <HoverImageCard v-if="hoverIsImage" />
     </transition>
-
     <!--产品-->
     <ProductTabs v-show="activeMenu === menus.product" :activeTab.sync="activeTabProduct" />
     <!--图片-->

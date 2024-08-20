@@ -112,9 +112,16 @@ function useTemplateGroup(templateData) {
     return (viewId) => activeTemplate.value?.viewList?.find((item) => item.id === viewId)?.base64;
   });
 
+  // 设计列表(激活的)
+  const activeViewDesignList = computed(() => activeView.value?.designList || []);
+  // 翻转 activeViewDesignList
+  const activeViewDesignListReverse = computed(() => activeViewDesignList.value.slice().reverse());
+
   return {
     getViewImageByActiveColor,
     getBase64ByViewId,
+    activeViewDesignList,
+    activeViewDesignListReverse,
   };
 }
 

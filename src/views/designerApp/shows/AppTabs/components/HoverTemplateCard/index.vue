@@ -34,36 +34,58 @@
 
 <script setup>
 import { computed } from 'vue';
+// utils
+import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
+import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+// components
 import imgTrack from '@/components/imgTrack';
-import { useInjectApp } from '@/hooksFn/useDesignerApp';
-import { hovers } from '@/hooksFn/useDesignerApp/core/service/common/hoverService';
 
-// hover
-const { service, AppUtil } = useInjectApp();
-const mouseenter = (item = null) => service.template.hover.enter(item);
-const mouseleave = (item = null) => service.template.hover.leave();
-const detail = computed(() => service.template.hover.detail);
-const c_src = computed(() => AppUtil.getShowImage(detail.value)?.texture);
-const colorList = computed(() => getColorList(detail.value));
-const sizeList = computed(() => getSizeList(detail.value));
+// 鼠标经过
+const { mouseenter, mouseleave, detail } = useHover();
+// 模板数据
+const { c_src, colorList, sizeList } = useTemplateData(detail);
 
-// 获取尺码列表
-function getSizeList(detail) {
-  return detail?.sizes?.map((item) => ({
-    id: item.id,
-    name: item.name,
-    ...item,
-    disabled: false,
-  }));
+// 鼠标经过
+function useHover() {
+  const { hover } = useGlobalData();
+  const { enter, leave, detail } = hover;
+  return {
+    mouseenter: enter,
+    mouseleave: leave,
+    detail,
+  };
 }
-// 获取颜色列表
-function getColorList(detail) {
-  return detail?.appearances?.map((item) => ({
-    ...item,
-    id: item.id,
-    colorCode: item.colors[0].value,
-    colorName: item.name,
-  }));
+
+// 模板数据
+function useTemplateData(detail) {
+  const colorList = computed(() => getColorList(detail.value));
+  const sizeList = computed(() => getSizeList(detail.value));
+  const c_src = computed(() => AppUtil.getShowImage(detail.value)?.texture);
+
+  // 获取尺码列表
+  function getSizeList(detail) {
+    return detail?.sizes?.map((item) => ({
+      id: item.id,
+      name: item.name,
+      ...item,
+      disabled: false,
+    }));
+  }
+  // 获取颜色列表
+  function getColorList(detail) {
+    return detail?.appearances?.map((item) => ({
+      ...item,
+      id: item.id,
+      colorCode: item.colors[0].value,
+      colorName: item.name,
+    }));
+  }
+
+  return {
+    colorList,
+    sizeList,
+    c_src,
+  };
 }
 </script>
 

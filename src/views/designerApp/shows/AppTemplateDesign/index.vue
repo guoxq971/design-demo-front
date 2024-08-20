@@ -1,7 +1,7 @@
 <template>
   <div class="template-design-wrap">
-    <div class="body" v-if="app.activeTemplate">
-      <div class="title-wrap">{{ app.activeTemplate.detail.name }}</div>
+    <div class="body" v-if="activeTemplate">
+      <div class="title-wrap">{{ activeTemplate.detail.name }}</div>
       <div class="sub-title-wrap">
         <div class="price">¥ 40.28</div>
         <div class="info">产品信息、定价和尺码表</div>
@@ -11,7 +11,7 @@
       <div class="list-wrap">
         <div class="title">颜色:</div>
         <el-scrollbar class="item-list" :wrapStyle="{ width: '100%' }" :viewStyle="{ display: 'flex' }">
-          <div class="box-item color-item" :class="{ active: app.activeColorId === item.id }" @click="app.setColorId(item.id)" v-for="item in app.activeTemplate.colorList" :key="'color' + item.id">
+          <div class="box-item color-item" :class="{ active: activeColorId === item.id }" @click="setColorId(item.id)" v-for="item in activeTemplate.colorList" :key="'color' + item.id">
             <div class="color" :style="{ background: item.colorCode }"></div>
           </div>
         </el-scrollbar>
@@ -21,7 +21,7 @@
       <div class="list-wrap">
         <div class="title">尺码:</div>
         <el-scrollbar class="item-list" :wrapStyle="{ width: '100%' }" :viewStyle="{ display: 'flex' }">
-          <div class="box-item size-item" :class="{ active: app.activeSizeId === item.id }" @click="app.setSizeId(item.id)" v-for="item in app.activeTemplate.sizeList" :key="'size' + item.id">
+          <div class="box-item size-item" :class="{ active: activeSizeId === item.id }" @click="setSizeId(item.id)" v-for="item in activeTemplate.sizeList" :key="'size' + item.id">
             <div class="size">{{ item.sizeName }}</div>
           </div>
         </el-scrollbar>
@@ -35,7 +35,7 @@
               <div class="fun-btn render-btn">渲染</div>
               <div class="fun-btn preview-btn">预览</div>
               <el-carousel trigger="click" indicator-position="outside" arrow="always" :loop="false" :autoplay="false">
-                <el-carousel-item v-for="item in app.activeColor.multiList" :key="item.id">
+                <el-carousel-item v-for="item in activeColor.multiList" :key="item.id">
                   <div class="show-box">
                     <img class="child-box" :src="AppUtil.setStartHttp(item.bgImg)" />
                     <img class="child-box" :src="AppUtil.setStartHttp(item.prodImg)" />
@@ -57,7 +57,7 @@
         </div>
       </div>
       <el-scrollbar class="list" v-show="designListVisible">
-        <div class="item-list" v-for="design in app.activeViewDesignListReverse" :key="design.uuid">
+        <div class="item-list" v-for="design in activeViewDesignListReverse" :key="design.uuid">
           <div class="design-item" v-if="design.type === designs.image">
             <div class="head-design">
               <img class="img" :src="design.previewUrl" alt="" />
@@ -89,16 +89,33 @@
 </template>
 
 <script setup>
-import { useInjectApp } from '@/hooksFn/useDesignerApp';
 import { ref } from 'vue';
+// utils
+import { useInjectApp } from '@/hooksFn/useDesignerApp';
+import { Message } from 'element-ui';
+import { designs } from '@/hooksFn/useDesignerApp/core/service/app/define';
+import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
+// components
 import DeleteSvg from '@/views/designerApp/components/svg/deleteSvg.vue';
 import VisibleSvg from '@/views/designerApp/components/svg/visibleSvg.vue';
 import NoVisibleSvg from '@/views/designerApp/components/svg/noVisibleSvg.vue';
 import LayerBottomSvg from '@/views/designerApp/components/svg/layerBottomSvg.vue';
 import LayerTopSvg from '@/views/designerApp/components/svg/layerTopSvg.vue';
 import CollectSvg from '@/views/designerApp/components/svg/collectSvg.vue';
-import { Message } from 'element-ui';
-import { designs } from '@/hooksFn/useDesignerApp/core/service/app/define';
+
+// 模板属性
+const { templateData, activeViewDesignListReverse } = useTemplateData();
+const { activeTemplate, activeColorId, setColorId, activeSizeId, setSizeId, activeColor } = templateData;
+
+// 模板属性
+function useTemplateData() {
+  const { templateData, templateGroupData } = useGlobalApplication();
+
+  return {
+    templateData,
+    activeViewDesignListReverse: templateGroupData.activeViewDesignListReverse,
+  };
+}
 
 const designListVisible = ref(true);
 const { service, AppUtil } = useInjectApp();

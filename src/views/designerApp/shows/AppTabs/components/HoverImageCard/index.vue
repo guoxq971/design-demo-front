@@ -62,27 +62,42 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useInjectApp } from '@/hooksFn/useDesignerApp';
+// utils
+import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 
-// hover
-const { service } = useInjectApp();
-const mouseenter = (item = null) => service.template.hover.enter(item);
-const mouseleave = (item = null) => service.template.hover.leave();
-const detail = computed(() => service.template.hover.detail);
+// 鼠标经过
+const { mouseenter, mouseleave, detail } = useHover();
+// 标题
+const { title } = useTitle(detail);
 
-const title = computed(() => {
-  let title = '';
-  if (detail.value.description) {
-    title = detail.value.description;
-  } else if (detail.value.imageTitle) {
-    title = detail.value.imageTitle;
-  } else if (detail.value.name) {
-    title = detail.value.name;
-  } else if (detail.value.imageName) {
-    title = detail.value.imageName;
-  }
-  return title;
-});
+// 鼠标经过
+function useHover() {
+  const { hover } = useGlobalData();
+  const { enter, leave, detail } = hover;
+  return {
+    mouseenter: enter,
+    mouseleave: leave,
+    detail,
+  };
+}
+
+// 标题
+function useTitle(detail) {
+  const title = computed(() => {
+    let title = '';
+    if (detail.value.description) {
+      title = detail.value.description;
+    } else if (detail.value.imageTitle) {
+      title = detail.value.imageTitle;
+    } else if (detail.value.name) {
+      title = detail.value.name;
+    } else if (detail.value.imageName) {
+      title = detail.value.imageName;
+    }
+    return title;
+  });
+  return { title };
+}
 </script>
 
 <style scoped lang="less">
