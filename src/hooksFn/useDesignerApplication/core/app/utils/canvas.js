@@ -365,6 +365,8 @@ export function useCanvasHelper(view) {
     if (node) {
       node.destroy();
       if (hasCheckNode(uuid)) setNode(null);
+      // 为了解决最后一个节点被删除不会触发生成base64
+      generateBase64.generateBase64Debounce();
     }
   }
 
