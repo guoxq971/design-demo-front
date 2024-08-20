@@ -1,8 +1,8 @@
 <template>
   <div class="canvas-container">
-    <template v-if="app.activeTemplate">
+    <template v-if="activeTemplate">
       <!--舞台容器-->
-      <div class="stage-container" v-for="item in app.activeTemplate.viewList" :key="`canvas_${item.id}`" v-show="item.id === app.activeViewId">
+      <div class="stage-container" v-for="item in activeTemplate.viewList" :key="`canvas_${item.id}`" v-show="item.id === activeViewId">
         <!--产品图-->
         <img :src="app.getViewImageByActiveColor(item.id).image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
         <!--canvas-->
@@ -12,7 +12,7 @@
       </div>
 
       <!--预览图列表-->
-      <PreviewGroup :left="previewStyle.left" :top="previewStyle.top" :preview-list="app.activeTemplate.viewList" :active-view-id="app.activeViewId" @onView="app.setViewId" />
+      <PreviewGroup :left="previewStyle.left" :top="previewStyle.top" :preview-list="activeTemplate.viewList" :active-view-id="activeViewId" @onView="app.setViewId" />
     </template>
 
     <!--捕获舞台容器坐标-->
@@ -47,9 +47,10 @@
 </template>
 
 <script setup>
-import { defineProps, nextTick, onMounted, ref } from 'vue';
-import { createEventHook, useVModels } from '@vueuse/core';
+import { defineProps, ref } from 'vue';
+import { useVModels } from '@vueuse/core';
 // utils
+import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
 import { useInjectApp } from '@/hooksFn/useDesignerApp';
 import { canvasDefine, getCanvasContainerId } from '@/hooksFn/useDesignerApp/core/service/app/define';
 const imgSize = canvasDefine.size;
@@ -65,10 +66,13 @@ const props = defineProps({
   onView: Function,
   onMode: Function,
 });
-const { mode, activeViewId } = useVModels(props);
+const { mode } = useVModels(props);
 const { service, AppUtil } = useInjectApp();
 const app = service.app;
 
+// 设计器基础数据
+const { templateData } = useDesignerApp();
+const { templateList, activeTemplateId, activeTemplate, activeViewId, activeView, activeSizeId, activeSize, activeColorId, activeColor } = templateData;
 // 容器
 const { canvasElRef, imgElRef } = useContainerEl();
 // 预览样式
@@ -80,8 +84,10 @@ function usePreviewStyle() {
     left: '-9999999px',
     top: '-9999999px',
   });
+
+  const { onUpdate } = useGlobalApplication().containerElData;
   // 容器属性服务
-  app.onContainerInit((rect) => {
+  onUpdate((rect) => {
     const { stageWidth, stageHeight, drawWidth, drawHeight, offsetX, offsetY } = rect;
     previewStyle.value = {
       left: `${offsetX}px`,
@@ -95,13 +101,16 @@ function usePreviewStyle() {
 
 // 容器
 function useContainerEl() {
-  const canvasElRef = ref(null);
-  const imgElRef = ref(null);
-  onMounted(() => app.setContainerEl(canvasElRef, imgElRef));
+  const { canvasElRef, imgElRef } = useGlobalApplication().containerElData;
+  return { canvasElRef, imgElRef };
+}
+
+// 设计器基础数据
+function useDesignerApp() {
+  const { templateData } = useGlobalApplication();
 
   return {
-    canvasElRef,
-    imgElRef,
+    templateData,
   };
 }
 </script>
