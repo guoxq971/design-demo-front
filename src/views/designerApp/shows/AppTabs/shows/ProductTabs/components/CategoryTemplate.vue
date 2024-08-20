@@ -13,31 +13,42 @@
 </template>
 
 <script setup>
-import { computed, defineProps, reactive, ref } from 'vue';
+import { defineProps, ref } from 'vue';
 import { useVModels } from '@vueuse/core';
-import { useInjectApp } from '@/hooksFn/useDesignerApp';
+// utils
+import { useGlobalTemplateCategory } from '@/hooksFn/useDesignerApplication/core/template/templateCategory';
 const props = defineProps({
   params: Object,
   onSearch: Function,
 });
 const { params } = useVModels(props);
-const { service } = useInjectApp();
-const list = computed(() => service.template.category.list);
+
+// 模板分类
+const { list } = useGlobalTemplateCategory();
+// 分类
+const { category, getListByCategory } = useCategory(params);
 
 // 分类
-const category = ref({
-  selected: [],
-  // options: [],
-});
-const getListByCategory = () => {
-  let category1 = '';
-  let category2 = '';
-  if (category.value.selected[0]) category1 = category.value.selected[0];
-  if (category.value.selected[1]) category2 = category.value.selected[1];
-  params.value.category1 = category1;
-  params.value.category2 = category2;
-  props?.onSearch();
-};
+function useCategory(params) {
+  const category = ref({
+    selected: [],
+    // options: [],
+  });
+  const getListByCategory = () => {
+    let category1 = '';
+    let category2 = '';
+    if (category.value.selected[0]) category1 = category.value.selected[0];
+    if (category.value.selected[1]) category2 = category.value.selected[1];
+    params.value.category1 = category1;
+    params.value.category2 = category2;
+    props?.onSearch();
+  };
+
+  return {
+    category,
+    getListByCategory,
+  };
+}
 </script>
 
 <style lang="less">
