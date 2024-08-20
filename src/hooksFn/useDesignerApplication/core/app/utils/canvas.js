@@ -7,6 +7,7 @@ import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/
 import { setNodeClipFunc } from '@/hooksFn/useDesignerApp/core/service/app/util/canvasUtil/canvasClip';
 
 export function createCanvas(view) {
+  const modes = useGlobalData().defineData.modes;
   // 容器属性
   const { containerRect } = useGlobalApplication().containerElData;
   const { drawWidth, drawHeight } = containerRect.value;
@@ -17,12 +18,65 @@ export function createCanvas(view) {
   const canvasNodes = createCanvasNode(view, containerRect.value);
   setNodeClipFunc(canvasNodes.designLayer, { width: drawWidth, height: drawHeight });
 
+  view.canvasNodes = canvasNodes;
+  useCanvasHelper(view).setMode(modes.preview);
+
+  // 添加画布监听
+  addEventListener(view);
+
   return {
     canvasNodes,
   };
 }
 
-// 床架canvas
+// 添加画布监听
+function addEventListener(view) {
+  const { modes, canvasConfig } = useGlobalData().defineData;
+  const { createCanvasIds } = canvasConfig;
+  const { stage, designLayer, staticLayer, bd, transformer, designGroup } = view.canvasNodes;
+  const { isDesignNode, isMouseTransformerAnchor, setNode, setMode } = useCanvasHelper(view);
+
+  // 舞台注册监听(click, 切换为预览模式)
+  // 【stage】【isDesignNode】【isMouseTransformerAnchor】【setNode】【setMode】
+  stage.on('click', (e) => {
+    // 获取舞台鼠标位置
+    const { x, y } = stage.getPointerPosition();
+    // 获取点击的节点
+    const targetNode = e.target;
+    const parentNode = targetNode.parent;
+    // 父级是选中框
+    if (parentNode?.getId() === createCanvasIds.transformer) return;
+    // 当前是设计
+    else if (isDesignNode(targetNode)) return;
+    // 判断是否点击了锚点
+    else if (isMouseTransformerAnchor(x, y)) return;
+    // 选中框目标置空
+    setNode();
+    // 设置预览模式
+    setMode(modes.preview);
+  });
+
+  // 舞台注册监听(mousedown, 坐标下选中最上面的设计)
+  stage.on('mousedown', (e) => {
+    // 获取舞台鼠标位置
+    const { x, y } = stage.getPointerPosition();
+    // 判断是否点击了锚点
+    if (isMouseTransformerAnchor(x, y)) return;
+    // 获取当前坐标下的所有节点(设计节点)
+    const nodes = designGroup.getChildren().filter((node) => {
+      return isDesignNode(node) && node?.intersects({ x, y });
+    });
+    if (nodes.length) {
+      const node = nodes.at(-1);
+      // 将node替换,transformer附加到节点
+      transformer.attachTo(node);
+      // 模拟点击
+      node.fire('mousedown', e);
+    }
+  });
+}
+
+// 创建canvas
 function createCanvasNode(view, containerRect) {
   // 全局配置
   const { defineData } = useGlobalData();

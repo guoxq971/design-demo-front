@@ -1,9 +1,11 @@
-import { createEventHook, createGlobalState, useElementBounding } from '@vueuse/core';
-import { watchEffect, ref, computed, watch, reactive, nextTick } from 'vue';
+import { createEventHook, createGlobalState, useDebounceFn, useElementBounding } from '@vueuse/core';
+import { watchEffect, ref, computed, reactive, nextTick, set } from 'vue';
 // utils
-import { parseTemplate } from './utils/utils';
-import { createCanvas, useCanvasHelper } from '@/hooksFn/useDesignerApplication/core/app/utils/canvas';
+import { parseTemplate, createCanvas, useCanvasHelper } from './utils/utils';
 import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
+import { createImage } from '@/hooksFn/useDesignerApplication/core/app/utils/createImage';
+import { AppUtil } from '@/hooksFn/useDesignerApp/core/util';
+import { useHelper } from '@/hooksFn/useDesignerApp/core/service/app/utils/helper';
 
 export const useGlobalApplication = createGlobalState(() => {
   // 模板基础数据
@@ -13,8 +15,8 @@ export const useGlobalApplication = createGlobalState(() => {
 
   // 设置模板
   const { setTemplate } = useSetTemplate(templateData);
-  // 设置设计图
-  function setDesignImage(detail) {}
+  // 设置设计
+  const { setDesignImage } = useSetDesign(templateData);
   // 容器
   const containerElData = useContainerEL();
 
@@ -141,15 +143,53 @@ function useSetTemplate(templateData) {
     // 设置canvas
     nextTick(() => {
       template.viewList.forEach((view) => {
-        const { canvasNodes } = createCanvas(view);
-        view.canvasNodes = canvasNodes;
-        useCanvasHelper(view).setMode(modes.preview);
+        createCanvas(view);
       });
     });
   }
 
   return {
     setTemplate,
+  };
+}
+
+// 设置设计
+function useSetDesign(templateData) {
+  // 模板基础数据
+  const { templateList, activeTemplateId, activeTemplate, activeViewId, activeView, activeColorId, activeSizeId } = templateData;
+  const { defineData } = useGlobalData();
+  const { designs, DEBOUNCE_TIME } = defineData;
+
+  // 设置设计图
+  async function setDesignImage(detail) {
+    // 帮助函数
+    const helper = useHelper(activeView.value);
+    // 模板dpi
+    const templateDpi = activeTemplate.value?.detail.dpi;
+    // 创建设计图片节点
+    const { attrs, onUpdate, onSort } = await createImage(detail, activeView.value, templateDpi);
+    attrs['type'] = designs.image; //类型
+    attrs['url'] = AppUtil.getImageUrl(detail); //节点使用的图片地址
+    attrs['previewUrl'] = detail.previewImg; //预览图地址
+    attrs['name'] = detail.name; //图片名称
+    attrs['detail'] = detail; //图片详情
+    attrs['viewId'] = activeViewId.value;
+    attrs['templateId'] = activeTemplateId.value;
+    activeView.value.designList.push(attrs);
+
+    // 设计更新时,同步设计属性
+    onUpdate(useDebounceFn(({ key, value }) => attrs && set(attrs, key, value), DEBOUNCE_TIME));
+    // 设计排序时,同步下标
+    onSort(() => {
+      const idxMap = new Map();
+      helper.getDesignChildren().forEach((node, i) => idxMap.set(node.attrs.uuid, i));
+      // designList 根据zIndex排序
+      activeView.value.designList.sort((a, b) => idxMap.get(a.uuid) - idxMap.get(b.uuid));
+    });
+  }
+
+  return {
+    setDesignImage,
   };
 }
 
