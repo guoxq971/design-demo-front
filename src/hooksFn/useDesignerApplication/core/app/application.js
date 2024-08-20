@@ -203,28 +203,38 @@ function useSetDesign(templateData) {
   async function setDesignImage(detail, view = null) {
     view = view === null ? activeView.value : view;
     if (!detail.isBg) {
-      // 设计图数量限制
-      if (view.designList.length >= 5) {
-        Message.warning('每个图层最多5张设计图');
-        return;
-      }
-      await _setImage(detail);
+      if (imgMax(view)) await _setImage(detail);
     } else {
+      if (bgImgMax()) await setDesignBgImage(detail);
+    }
+
+    // 背景图限制
+    function bgImgMax() {
       // 设计图数量限制
       for (let i = 0; i < activeTemplate.value.viewList.length; i++) {
         const v = activeTemplate.value.viewList[i];
         if (v.designList.length >= 5) {
           Message.warning(`每个图层最多5张设计图, 图层${i + 1}已达到最大数量`);
-          return;
+          return false;
         }
       }
       // 背景图唯一限制
       const isSome = view.designList.some((e) => e.detail.isBg);
       if (isSome) {
         Message.warning('背景图已存在,只能添加一个背景图');
-        return;
+        return false;
       }
-      await setDesignBgImage(detail);
+      return true;
+    }
+
+    // 设计图限制
+    function imgMax(view) {
+      // 设计图数量限制
+      if (view.designList.length >= 5) {
+        Message.warning('每个图层最多5张设计图');
+        return false;
+      }
+      return true;
     }
   }
 
