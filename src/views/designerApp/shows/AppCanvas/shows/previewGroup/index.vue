@@ -5,11 +5,11 @@
       <div class="corner"></div>
     </div>
     <div class="preview-box-group" style="width: fit-content">
-      <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="emit('onView', item.id)" v-for="(item, index) in previewList" :key="'preview' + item.id">
-        <img :src="app.getViewImageByActiveColor(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
+      <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" v-for="(item, index) in activeTemplate.viewList" :key="'preview' + item.id">
+        <img :src="getViewImageByActiveColor(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
-        <img v-if="getBase64(item.id)" :src="getBase64(item.id)" class="fn-full" style="position: absolute;" />
-        <img :src="app.getViewImageByActiveColor(item.id).texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
+        <img v-if="getBase64ByViewId(item.id)" :src="getBase64ByViewId(item.id)" class="fn-full" style="position: absolute;" />
+        <img :src="getViewImageByActiveColor(item.id).texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
       </div>
     </div>
@@ -18,24 +18,31 @@
 
 <script setup>
 import { computed, defineEmits, defineProps } from 'vue';
-import { useInjectApp } from '@/hooksFn/useDesignerApp';
+// utils
+import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
 
 const emit = defineEmits(['onView']);
 const props = defineProps({
   canvasSize: Number,
-  previewList: Array,
-  activeViewId: [Number, String],
   left: { type: [String, Number], default: -999999 },
   top: { type: [String, Number], default: -999999 },
 });
 
-const { service, AppUtil } = useInjectApp();
-const app = service.app;
+// 设计器基础数据
+const { templateData, getViewImageByActiveColor, getBase64ByViewId } = useDesignerApp();
+const { activeViewId, activeTemplate, setViewId } = templateData;
 
-// 获取base64
-const getBase64 = computed(() => {
-  return (viewId) => app.activeTemplate?.viewList?.find((item) => item.id === viewId)?.base64;
-});
+// 设计器基础数据
+function useDesignerApp() {
+  const { templateData, templateGroupData } = useGlobalApplication();
+  const { getViewImageByActiveColor, getBase64ByViewId } = templateGroupData;
+
+  return {
+    templateData,
+    getViewImageByActiveColor,
+    getBase64ByViewId,
+  };
+}
 
 // 样式管理
 const { leftStyle, size, scrollGap, gap } = useStyle();

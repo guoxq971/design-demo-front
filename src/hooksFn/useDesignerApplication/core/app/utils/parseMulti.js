@@ -3,14 +3,14 @@ export function parseMulti(appearance, renderMultiList = []) {
   // 简单多角度
   const simple = appearance?.multiAngleImages || [];
   // 复杂多角度
-  const complex = this.complexMultiDispose(appearance.multiAngleImages4Compose);
+  const complex = complexMultiDispose(appearance.multiAngleImages4Compose);
   const resultList = [...simple, ...complex];
   const list = resultList.map((item) => {
     let {
       composeId, //复杂
       multiId, //简单
     } = item;
-    let designImg = this.findMultiDesignImg(renderMultiList, composeId, multiId);
+    let designImg = findMultiDesignImg(renderMultiList, composeId, multiId);
     // 顺序 = image - mask - texture
     // image = background_white_positive
     // mask = mask_white_positive

@@ -4,15 +4,15 @@
       <!--舞台容器-->
       <div class="stage-container" v-for="item in activeTemplate.viewList" :key="`canvas_${item.id}`" v-show="item.id === activeViewId">
         <!--产品图-->
-        <img :src="app.getViewImageByActiveColor(item.id).image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
+        <img :src="getViewImageByActiveColor(item.id).image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
         <!--canvas-->
         <div :id="getCanvasContainerId(item.id)" style="width: 100%;height: 100%;"></div>
         <!--背景图-->
-        <img :src="app.getViewImageByActiveColor(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
+        <img :src="getViewImageByActiveColor(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
       </div>
 
       <!--预览图列表-->
-      <PreviewGroup :left="previewStyle.left" :top="previewStyle.top" :preview-list="activeTemplate.viewList" :active-view-id="activeViewId" @onView="app.setViewId" />
+      <PreviewGroup :left="previewStyle.left" :top="previewStyle.top" />
     </template>
 
     <!--捕获舞台容器坐标-->
@@ -23,22 +23,8 @@
 
     <!--占位-->
     <div class="canvas-wrap" v-if="false">
-      <!--底图1-->
-      <div
-        class="fn-full"
-        style="position: absolute;pointer-events: none;user-select: none"
-        v-for="item in app.activeColorViewList"
-        :key="'view' + item.view.id"
-        v-show="item.view.id === app.activeViewId"
-      >
-        <ImgTrack :url1="item.image" :url2="item.texture" />
-      </div>
-
       <!--提示语-->
       <TipCard />
-
-      <!--预览图列表-->
-      <PreviewGroup :preview-list="app.activeColorViewList" :active-view-id="app.activeViewId" @onView="app.setViewId" />
 
       <!--icon-->
       <IconCard />
@@ -47,36 +33,24 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from 'vue';
-import { useVModels } from '@vueuse/core';
+import { ref } from 'vue';
 // utils
 import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
-import { useInjectApp } from '@/hooksFn/useDesignerApp';
-import { canvasDefine, getCanvasContainerId } from '@/hooksFn/useDesignerApp/core/service/app/define';
-const imgSize = canvasDefine.size;
 // components
 import PreviewGroup from './shows/previewGroup';
 import IconCard from './shows/iconCard';
 import TipCard from './shows/tipCard';
-import ImgTrack from '@/components/imgTrack/index.vue';
-
-const props = defineProps({
-  activeViewId: [String, Number],
-  mode: String,
-  onView: Function,
-  onMode: Function,
-});
-const { mode } = useVModels(props);
-const { service, AppUtil } = useInjectApp();
-const app = service.app;
+import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 
 // 设计器基础数据
-const { templateData } = useDesignerApp();
-const { templateList, activeTemplateId, activeTemplate, activeViewId, activeView, activeSizeId, activeSize, activeColorId, activeColor } = templateData;
+const { templateData, getViewImageByActiveColor } = useDesignerApp();
+const { activeTemplate, activeViewId } = templateData;
 // 容器
 const { canvasElRef, imgElRef } = useContainerEl();
 // 预览样式
 const { previewStyle } = usePreviewStyle();
+// canvas配置
+const { imgSize, getCanvasContainerId } = useCanvasConfig();
 
 // 预览样式
 function usePreviewStyle() {
@@ -107,10 +81,23 @@ function useContainerEl() {
 
 // 设计器基础数据
 function useDesignerApp() {
-  const { templateData } = useGlobalApplication();
+  const { templateData, templateGroupData } = useGlobalApplication();
+  const { getViewImageByActiveColor } = templateGroupData;
 
   return {
     templateData,
+    getViewImageByActiveColor,
+  };
+}
+
+// canvas配置
+function useCanvasConfig() {
+  const { defineData } = useGlobalData();
+  const { canvasConfig } = defineData;
+  return {
+    canvasConfig,
+    imgSize: canvasConfig.canvasDefine.size,
+    getCanvasContainerId: canvasConfig.getCanvasContainerId,
   };
 }
 </script>

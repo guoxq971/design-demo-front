@@ -8,7 +8,7 @@
       <!--工具条-->
       <AppToolBar />
       <!--画布-->
-      <AppCanvas :mode.sync="mode" :active-view-id.sync="activeViewId" :on-view="onView" :on-mode="onMode" />
+      <AppCanvas />
     </div>
     <div class="right">
       <!--保存-->
@@ -21,12 +21,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { onKeyStroke } from '@vueuse/core';
 // utils
 import { Message } from 'element-ui';
 import { useDesignerApp, useProvideApp } from '@/hooksFn/useDesignerApp';
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 // components
 import AppTemplateDesign from '@/views/designerApp/shows/AppTemplateDesign';
 import AppSave from '@/views/designerApp/shows/AppSave';
@@ -43,14 +41,6 @@ useProvideApp(designerApp);
 onKeyStroke('ArrowDown', () => {
   Message.success('ArrowDown');
 });
-
-// 全局菜单tabs数据
-const { modeData } = useGlobalData();
-const { mode, onMode } = modeData;
-
-// 视图
-const activeViewId = ref(1);
-const onView = (val) => (activeViewId.value = val);
 </script>
 
 <style scoped lang="less">

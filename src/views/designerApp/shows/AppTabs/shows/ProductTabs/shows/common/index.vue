@@ -46,12 +46,16 @@ const { onContextmenu } = useContextmenu(contextmenus.template);
 
 // 通用模板数据
 function useCommonTemplateData() {
-  // 通用模板数据
+  const { setTemplate, templateData } = useGlobalApplication();
   const { list, total, params, loading, getList, onSearch } = useGlobalCommonTemplate();
-  onMounted(() => getList());
+
+  onMounted(() => {
+    getList().then((_) => {
+      if (list.value.length) setTemplate(list.value[0]);
+    });
+  });
 
   // 设置模板
-  const { setTemplate, templateData } = useGlobalApplication();
   const { activeTemplateId } = templateData;
   const onClick = (detail) => {
     setTemplate(detail);

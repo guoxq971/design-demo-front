@@ -230,9 +230,67 @@ function useDefine() {
     refine: 'refine',
   };
 
+  // 默认颜色
+  const PRIMARY_COLOR = '#fc6b20';
+  // 代理的防抖时间
+  const DEBOUNCE_TIME = 100;
+
+  // canvas配置
+  function useCanvasConfig() {
+    // 画布宽高
+    const CANVAS_SIZE = 600;
+    const canvas_SIZE_ORG = 500;
+    const PREVIEW_CANVAS_SIZE = 90;
+    const canvasDefine = {
+      // 大图分辨率
+      bigPixelRatio: 1500 / CANVAS_SIZE,
+      // 预览图分辨率
+      previewPixelRatio: (PREVIEW_CANVAS_SIZE / CANVAS_SIZE) * 2,
+      // 画布宽高
+      width: CANVAS_SIZE,
+      height: CANVAS_SIZE,
+      size: CANVAS_SIZE,
+      // 画布与原设计区域比例
+      scale: CANVAS_SIZE / canvas_SIZE_ORG,
+    };
+
+    // 画布ID
+    const createCanvasIds = {
+      // 边框线
+      bd: 'canvas-bd',
+      // 选中框
+      transformer: 'canvas-transformer',
+      // 静态层
+      static_layer: 'canvas-static-layer',
+      // 设计层
+      design_layer: 'canvas-design-layer',
+      // 设计-组
+      design_group: 'canvas-design-group',
+      // 设计标识
+      design: 'canvas-design',
+    };
+
+    // canvas容器
+    function getCanvasContainerId(id) {
+      return 'canvasContainerId' + id;
+    }
+
+    return {
+      CANVAS_SIZE,
+      canvas_SIZE_ORG,
+      PREVIEW_CANVAS_SIZE,
+      canvasDefine,
+      createCanvasIds,
+      getCanvasContainerId,
+    };
+  }
+
   return {
     designs,
     modes,
     templates,
+    PRIMARY_COLOR,
+    DEBOUNCE_TIME,
+    canvasConfig: useCanvasConfig(),
   };
 }

@@ -99,8 +99,7 @@ import LayerTopSvg from '@/views/designerApp/components/svg/layerTopSvg.vue';
 import CollectSvg from '@/views/designerApp/components/svg/collectSvg.vue';
 import { Message } from 'element-ui';
 import { designs } from '@/hooksFn/useDesignerApp/core/service/app/define';
-import AppCanvas from '@/views/designerApp/shows/AppCanvas/index.vue';
-import { useGlobalState } from '@/hooksFn/useDesignerApp/core/service/application/application';
+
 const designListVisible = ref(true);
 const { service, AppUtil } = useInjectApp();
 const app = service.app;

@@ -1,11 +1,15 @@
 import { createEventHook, createGlobalState, useElementBounding } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { watchEffect, ref, computed, watch, reactive, nextTick } from 'vue';
 // utils
 import { parseTemplate } from './utils/utils';
+import { createCanvas, useCanvasHelper } from '@/hooksFn/useDesignerApplication/core/app/utils/canvas';
+import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 
 export const useGlobalApplication = createGlobalState(() => {
   // 模板基础数据
   const templateData = useTemplateData();
+  // 模板组合数据
+  const templateGroupData = useTemplateGroup(templateData);
 
   // 设置模板
   const { setTemplate } = useSetTemplate(templateData);
@@ -19,6 +23,7 @@ export const useGlobalApplication = createGlobalState(() => {
     containerElData,
     // 模板基础数据
     templateData,
+    templateGroupData,
     // 设置模板
     setTemplate,
     // 添加设计图
@@ -35,6 +40,7 @@ function useTemplateData() {
   // 模板 (模板列表>模板)
   const activeTemplate = computed(() => templateList.value?.find((item) => item.detail.id === activeTemplateId.value));
   // 设置模板id
+  const setTemplateId = (templateId) => (activeTemplateId.value = templateId);
 
   // 视图列表
   const activeViewList = computed(() => activeTemplate.value?.viewList);
@@ -43,6 +49,7 @@ function useTemplateData() {
   // 视图 (模板>视图列表>视图)
   const activeView = computed(() => activeViewList.value?.find((item) => item.id === activeViewId.value));
   // 设置视图id
+  const setViewId = (viewId) => (activeViewId.value = viewId);
 
   // 尺码列表
   const activeSizeList = computed(() => activeTemplate.value?.sizeList);
@@ -51,6 +58,7 @@ function useTemplateData() {
   // 尺码 (模板>尺码列表>尺码)
   const activeSize = computed(() => activeSizeList.value?.find((item) => item.id === activeSizeId.value));
   // 设置尺码id
+  const setSizeId = (sizeId) => (activeSizeId.value = sizeId);
 
   // 颜色列表
   const activeColorList = computed(() => activeTemplate.value?.colorList);
@@ -59,27 +67,59 @@ function useTemplateData() {
   // 颜色 (模板>颜色列表>颜色)
   const activeColor = computed(() => activeColorList.value?.find((item) => item.id === activeColorId.value));
   // 设置颜色id
+  const setColorId = (colorId) => (activeColorId.value = colorId);
 
   return {
     // 模板
     templateList,
     activeTemplateId,
     activeTemplate,
+    setTemplateId,
     // 视图
     activeViewId,
     activeView,
+    setViewId,
     // 尺码
     activeSizeId,
     activeSize,
+    setSizeId,
     // 颜色
     activeColorId,
     activeColor,
+    setColorId,
+  };
+}
+
+// 模板组合数据
+function useTemplateGroup(templateData) {
+  const { templateList, activeTemplateId, activeTemplate, setViewId, activeViewId, activeView, activeSizeId, activeSize, activeColorId, activeColor } = templateData;
+
+  // 产品图,背景图: 根据当前激活的颜色和视图获取
+  const getViewImageByActiveColor = computed(() => {
+    return (viewId) => {
+      const result = activeColor.value?.views.find((item) => item.id === viewId);
+      return {
+        texture: result?.texture,
+        image: result?.image,
+      };
+    };
+  });
+
+  // 获取base64
+  const getBase64ByViewId = computed(() => {
+    return (viewId) => activeTemplate.value?.viewList?.find((item) => item.id === viewId)?.base64;
+  });
+
+  return {
+    getViewImageByActiveColor,
+    getBase64ByViewId,
   };
 }
 
 // 设置模板
 function useSetTemplate(templateData) {
   const { templateList, activeTemplateId, activeViewId, activeColorId, activeSizeId } = templateData;
+  const { modes } = useGlobalData().defineData;
 
   // 设置模板
   function setTemplate(detail) {
@@ -90,7 +130,6 @@ function useSetTemplate(templateData) {
       view.base64 = ''; // 预览图
       view.designList = []; // 设计列表
       view.canvasNodes = null; // canvas节点
-      view.helper = null; // 工具
     });
     // 数据初始化
     templateList.value = [];
@@ -100,6 +139,13 @@ function useSetTemplate(templateData) {
     activeColorId.value = template.colorList[0].id;
     activeSizeId.value = template.sizeList[0].id;
     // 设置canvas
+    nextTick(() => {
+      template.viewList.forEach((view) => {
+        const { canvasNodes } = createCanvas(view);
+        view.canvasNodes = canvasNodes;
+        useCanvasHelper(view).setMode(modes.preview);
+      });
+    });
   }
 
   return {
@@ -115,42 +161,46 @@ function useContainerEL() {
   const imgElRef = ref(null);
 
   // 组装属性
-  const canvasRect = useElementBounding(canvasElRef);
-  const imgRect = useElementBounding(imgElRef);
+  const canvasRect = reactive(useElementBounding(canvasElRef));
+  const imgRect = reactive(useElementBounding(imgElRef));
 
   // 钩子
   const event = createEventHook();
 
   // 容器rect
-  const containerRect = computed(() => {
-    // 舞台的宽高
-    const stageWidth = canvasRect.width.value;
-    const stageHeight = canvasRect.height.value;
+  const containerRect = ref({});
+  watchEffect(
+    () => {
+      // 舞台的宽高
+      const stageWidth = canvasRect.width;
+      const stageHeight = canvasRect.height;
 
-    // 产品绘制区域的宽高
-    const drawWidth = imgRect.width.value;
-    const drawHeight = imgRect.height.value;
+      // 产品绘制区域的宽高
+      const drawWidth = imgRect.width;
+      const drawHeight = imgRect.height;
 
-    // 产品绘制区域相当于舞台的偏移量
-    const offsetX = imgRect.left.value - canvasRect.left.value;
-    const offsetY = imgRect.top.value - canvasRect.top.value;
+      // 产品绘制区域相当于舞台的偏移量
+      const offsetX = imgRect.left - canvasRect.left;
+      const offsetY = imgRect.top - canvasRect.top;
 
-    const result = {
-      canvasRect,
-      imgRect,
-      stageWidth,
-      stageHeight,
-      drawWidth,
-      drawHeight,
-      offsetX,
-      offsetY,
-    };
+      const result = {
+        canvasRect,
+        imgRect,
+        stageWidth,
+        stageHeight,
+        drawWidth,
+        drawHeight,
+        offsetX,
+        offsetY,
+      };
 
-    // 触发钩子
-    event.trigger(result);
+      // 触发钩子
+      event.trigger(result);
 
-    return result;
-  });
+      containerRect.value = result;
+    },
+    { flush: 'post' },
+  );
 
   return {
     canvasElRef,
