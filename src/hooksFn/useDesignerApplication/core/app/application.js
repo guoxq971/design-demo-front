@@ -207,7 +207,6 @@ function useSetDesign(templateData) {
     } else {
       if (bgImgMax()) await setDesignBgImage(detail);
     }
-
     // 背景图限制
     function bgImgMax() {
       // 设计图数量限制
@@ -251,6 +250,9 @@ function useSetDesign(templateData) {
     }
   }
 
+  // 设置背景色
+  function setDesignBgColor(color) {}
+
   // 设计图操作
   const designHandle = useDesignHandle(templateData);
 
@@ -263,8 +265,8 @@ function useSetDesign(templateData) {
 // 设计图操作
 function useDesignHandle(templateData) {
   const { activeView, activeTemplate } = templateData;
-  // canvas帮助函数
 
+  // canvas帮助函数
   function _getHelper(view) {
     view = view === null ? activeView.value : view;
     const helper = useCanvasHelper(view);
@@ -286,6 +288,12 @@ function useDesignHandle(templateData) {
 
   // 删除
   function delDesign(design, _view = null) {
+    // 删除非背景图
+    if (!design.detail.isBg) _delFn(_view, design.uuid);
+    // 删除背景图
+    else _delBgImg();
+
+    // 删除函数
     function _delFn(_view, uuid) {
       const { findDesignIndex, helper, view } = _getHelper(_view);
       // 删除vue数据
@@ -294,9 +302,8 @@ function useDesignHandle(templateData) {
       // 删除canvas节点
       helper.delNode(uuid);
     }
-
-    if (!design.detail.isBg) _delFn(_view, design.uuid);
-    else {
+    // 删除背景图
+    function _delBgImg() {
       activeTemplate.value.viewList.forEach((_view2) => {
         const attrs = _view2.designList.find((e) => e.uuidBg === design.uuidBg);
         _delFn(_view2, attrs.uuid);
