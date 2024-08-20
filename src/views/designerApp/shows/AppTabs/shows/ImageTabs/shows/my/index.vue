@@ -74,7 +74,7 @@ function useMyImageData() {
 
   // 设置设计图
   const onClick = (detail) => {
-    setDesignImage(detail, designs.image);
+    setDesignImage(detail);
   };
 
   return {
