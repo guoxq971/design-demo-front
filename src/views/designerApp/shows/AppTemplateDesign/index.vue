@@ -64,20 +64,25 @@
               <div class="name">{{ design.name }}</div>
             </div>
             <div class="fun-list">
-              <div class="fun-box" :class="{ active: imageCollect.isCollect(design.detail) }" @click="toggleCollect(item.detail)">
+              <!--收藏-->
+              <div class="fun-box" :class="{ active: isCollect(design) }" @click="setCollect(design)">
                 <CollectSvg />
               </div>
-              <div class="fun-box" :class="{ disabled: false }" @click="app.design.top(design)">
+              <!--置顶-->
+              <div class="fun-box" :class="{ disabled: false }" @click="topDesign(design)">
                 <LayerTopSvg />
               </div>
-              <div class="fun-box" :class="{ disabled: false }" @click="app.design.bottom(design)">
+              <!--置底-->
+              <div class="fun-box" :class="{ disabled: false }" @click="bottomDesign(design)">
                 <LayerBottomSvg />
               </div>
-              <div class="fun-box" @click="app.design.visible(design)">
+              <!--显示/隐藏-->
+              <div class="fun-box" @click="visibleDesign(design)">
                 <VisibleSvg v-if="design.visible" />
                 <NoVisibleSvg v-else />
               </div>
-              <div class="fun-box">
+              <!--删除-->
+              <div class="fun-box" @click="delDesign(design)">
                 <DeleteSvg />
               </div>
             </div>
@@ -91,10 +96,9 @@
 <script setup>
 import { ref } from 'vue';
 // utils
-import { useInjectApp } from '@/hooksFn/useDesignerApp';
-import { Message } from 'element-ui';
 import { designs } from '@/hooksFn/useDesignerApp/core/service/app/define';
 import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
+import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 // components
 import DeleteSvg from '@/views/designerApp/components/svg/deleteSvg.vue';
 import VisibleSvg from '@/views/designerApp/components/svg/visibleSvg.vue';
@@ -103,31 +107,22 @@ import LayerBottomSvg from '@/views/designerApp/components/svg/layerBottomSvg.vu
 import LayerTopSvg from '@/views/designerApp/components/svg/layerTopSvg.vue';
 import CollectSvg from '@/views/designerApp/components/svg/collectSvg.vue';
 
+// 图层开关
+const designListVisible = ref(true);
 // 模板属性
-const { templateData, activeViewDesignListReverse } = useTemplateData();
+const { templateData, activeViewDesignListReverse, designHandle } = useTemplateData();
+const { delDesign, visibleDesign, topDesign, bottomDesign, isCollect, setCollect } = designHandle;
 const { activeTemplate, activeColorId, setColorId, activeSizeId, setSizeId, activeColor } = templateData;
 
 // 模板属性
 function useTemplateData() {
-  const { templateData, templateGroupData } = useGlobalApplication();
+  const { templateData, templateGroupData, designHandle } = useGlobalApplication();
 
   return {
+    designHandle,
     templateData,
     activeViewDesignListReverse: templateGroupData.activeViewDesignListReverse,
   };
-}
-
-const designListVisible = ref(true);
-const { service, AppUtil } = useInjectApp();
-const app = service.app;
-const imageCollect = service.image.collect;
-
-// 收藏/取消收藏
-function toggleCollect(item) {
-  imageCollect.toggleCollect(item).then(() => {
-    Message.success('操作成功');
-    // imageCollect.getList().then(() => app.designCommands.forceUpdate());
-  });
 }
 </script>
 

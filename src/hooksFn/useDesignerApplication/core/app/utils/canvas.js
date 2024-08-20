@@ -333,6 +333,11 @@ export function useCanvasHelper(view) {
     return transformer.nodes().some((node) => node?.attrs?.uuid === uuid);
   }
 
+  // 获取选中的设计节点
+  function getCheckNode() {
+    return transformer.nodes()[0];
+  }
+
   /**
    * 生成base64
    */
@@ -346,6 +351,55 @@ export function useCanvasHelper(view) {
     return designGroup.getChildren();
   }
 
+  // 设计图列表排序
+  function sortDesignList(list) {
+    const idxMap = new Map();
+    getDesignChildren().forEach((node, i) => idxMap.set(node.attrs.uuid, i));
+    // designList 根据zIndex排序
+    list.sort((a, b) => idxMap.get(a.uuid) - idxMap.get(b.uuid));
+  }
+
+  // 删除节点
+  function delNode(uuid) {
+    const node = findNode(uuid);
+    if (node) {
+      node.destroy();
+      if (hasCheckNode(uuid)) setNode(null);
+    }
+  }
+
+  // 节点显示隐藏
+  function setVisible(uuid = '', _visible = null) {
+    const node = findNode(uuid);
+    if (!node) {
+      console.error('设计图显示隐藏失败，节点未找到');
+      return;
+    }
+    _visible = _visible === null ? !node.visible() : _visible;
+    node.visible(_visible);
+    if (!_visible && hasCheckNode(uuid)) setNode(null);
+  }
+
+  // 节点置顶
+  function topNode(uuid) {
+    const node = findNode(uuid);
+    if (!node) {
+      console.error('设计图置顶失败，节点未找到');
+      return;
+    }
+    node.moveToTop();
+  }
+
+  // 节点置底
+  function bottomNode(uuid) {
+    const node = findNode(uuid);
+    if (!node) {
+      console.error('设计图置底失败，节点未找到');
+      return;
+    }
+    node.moveToBottom();
+  }
+
   return {
     canvasNodes: canvasNodes,
     generateBase64: generateBase64.generateBase64,
@@ -357,6 +411,11 @@ export function useCanvasHelper(view) {
     findNode,
     hasCheckNode,
     getDesignChildren,
+    delNode,
+    sortDesignList,
+    setVisible,
+    topNode,
+    bottomNode,
   };
 }
 

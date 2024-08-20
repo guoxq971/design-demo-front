@@ -1,22 +1,23 @@
 import { createEventHook, createGlobalState, useDebounceFn, useElementBounding } from '@vueuse/core';
-import { watchEffect, ref, computed, reactive, nextTick, set } from 'vue';
+import { watchEffect, ref, computed, reactive, nextTick, set, isRef } from 'vue';
 // utils
 import { parseTemplate, createCanvas, useCanvasHelper } from './utils/utils';
 import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 import { createImage } from '@/hooksFn/useDesignerApplication/core/app/utils/createImage';
 import { AppUtil } from '@/hooksFn/useDesignerApp/core/util';
-import { useHelper } from '@/hooksFn/useDesignerApp/core/service/app/utils/helper';
+import { useGlobalCollectBgImage } from '@/hooksFn/useDesignerApplication/core/bg/bgImageCollect';
+import { useGlobalCollectImage } from '@/hooksFn/useDesignerApplication/core/image/collectImage';
+import { Message } from 'element-ui';
 
 export const useGlobalApplication = createGlobalState(() => {
   // 模板基础数据
   const templateData = useTemplateData();
   // 模板组合数据
   const templateGroupData = useTemplateGroup(templateData);
-
   // 设置模板
   const { setTemplate } = useSetTemplate(templateData);
   // 设置设计
-  const { setDesignImage } = useSetDesign(templateData);
+  const { setDesignImage, designHandle } = useSetDesign(templateData);
   // 容器
   const containerElData = useContainerEL();
 
@@ -30,6 +31,8 @@ export const useGlobalApplication = createGlobalState(() => {
     setTemplate,
     // 添加设计图
     setDesignImage,
+    // 设计图操作
+    designHandle,
   };
 });
 
@@ -170,7 +173,7 @@ function useSetDesign(templateData) {
   // 设置设计图
   async function setDesignImage(detail) {
     // 帮助函数
-    const helper = useHelper(activeView.value);
+    const helper = useCanvasHelper(activeView.value);
     // 模板dpi
     const templateDpi = activeTemplate.value?.detail.dpi;
     // 创建设计图片节点
@@ -187,16 +190,119 @@ function useSetDesign(templateData) {
     // 设计更新时,同步设计属性
     onUpdate(useDebounceFn(({ key, value }) => attrs && set(attrs, key, value), DEBOUNCE_TIME));
     // 设计排序时,同步下标
-    onSort(() => {
-      const idxMap = new Map();
-      helper.getDesignChildren().forEach((node, i) => idxMap.set(node.attrs.uuid, i));
-      // designList 根据zIndex排序
-      activeView.value.designList.sort((a, b) => idxMap.get(a.uuid) - idxMap.get(b.uuid));
+    onSort(() => helper.sortDesignList(activeView.value.designList));
+  }
+
+  // 设计图操作
+  const designHandle = useDesignHandle(templateData);
+
+  return {
+    setDesignImage,
+    designHandle,
+  };
+}
+
+// 设计图操作
+function useDesignHandle(templateData) {
+  const { activeView } = templateData;
+  // canvas帮助函数
+
+  function _getHelper(view) {
+    view = view === null ? activeView.value : view;
+    const helper = useCanvasHelper(view);
+    // 查找设计图
+    function findDesign(uuid) {
+      return view.designList.find((item) => item.uuid === uuid);
+    }
+    // 查找设计图索引
+    function findDesignIndex(uuid) {
+      return view.designList.findIndex((item) => item.uuid === uuid);
+    }
+    return {
+      helper,
+      view,
+      findDesign,
+      findDesignIndex,
+    };
+  }
+
+  // 删除
+  function delDesign(design, _view = null) {
+    const { findDesignIndex, helper, view } = _getHelper(_view);
+    // 删除vue数据
+    const idx = findDesignIndex(design.uuid);
+    view.designList.splice(idx, 1);
+    // 删除canvas节点
+    helper.delNode(design.uuid);
+  }
+
+  // 显示隐藏
+  function visibleDesign(design, _view = null) {
+    const { helper, view } = _getHelper(_view);
+    // vue数据通过proxy
+    // 隐藏节点
+    helper.setVisible(design.uuid);
+  }
+
+  // 置顶
+  function topDesign(design, _view = null) {
+    const { helper, view } = _getHelper(_view);
+    // 置顶
+    helper.topNode(design.uuid);
+  }
+
+  // 置底
+  function bottomDesign(design, _view = null) {
+    const { helper, view } = _getHelper(_view);
+    // 置底
+    helper.bottomNode(design.uuid);
+  }
+
+  // 是否收藏
+  function isCollect(design) {
+    if (design.detail.isBg) {
+      return useGlobalCollectBgImage().isCollect(design.detail);
+    } else {
+      return useGlobalCollectImage().isCollect(design.detail);
+    }
+  }
+
+  // 收藏
+  const setCollect = useDebounceFn(_setCollect, 300);
+  async function _setCollect(design) {
+    let isBg = design.detail.isBg;
+    let _isCollect = isCollect(design);
+    let api;
+    let getList;
+    if (_isCollect && isBg) {
+      api = useGlobalCollectBgImage().collectCancel(design.detail);
+      getList = useGlobalCollectBgImage().getList;
+    } else if (!_isCollect && isBg) {
+      api = useGlobalCollectBgImage().collect(design.detail);
+      getList = useGlobalCollectBgImage().getList;
+    } else if (_isCollect && !isBg) {
+      api = useGlobalCollectImage().collectCancel(design.detail);
+      getList = useGlobalCollectImage().getList;
+    } else if (!_isCollect && !isBg) {
+      api = useGlobalCollectImage().collect(design.detail);
+      getList = useGlobalCollectImage().getList;
+    } else {
+      console.log('收藏失败');
+    }
+
+    api?.then((_) => {
+      Message.success('操作成功');
+      getList();
     });
   }
 
   return {
-    setDesignImage,
+    isCollect,
+    delDesign,
+    visibleDesign,
+    topDesign,
+    bottomDesign,
+    setCollect,
   };
 }
 
