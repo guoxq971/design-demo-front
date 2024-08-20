@@ -24,7 +24,6 @@
 import { onKeyStroke } from '@vueuse/core';
 // utils
 import { Message } from 'element-ui';
-import { useDesignerApp, useProvideApp } from '@/hooksFn/useDesignerApp';
 // components
 import AppTemplateDesign from '@/views/designerApp/shows/AppTemplateDesign';
 import AppSave from '@/views/designerApp/shows/AppSave';
@@ -32,10 +31,6 @@ import AppCanvas from '@/views/designerApp/shows/AppCanvas';
 import AppToolBar from '@/views/designerApp/shows/AppToolBar';
 import AppMenu from '@/views/designerApp/shows/AppMenu';
 import AppTabs from '@/views/designerApp/shows/AppTabs';
-
-// 初始化
-const designerApp = useDesignerApp();
-useProvideApp(designerApp);
 
 // 测试键盘事件
 onKeyStroke('ArrowDown', () => {

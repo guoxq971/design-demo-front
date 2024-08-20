@@ -58,10 +58,10 @@
       </div>
       <el-scrollbar class="list" v-show="designListVisible">
         <div class="item-list" v-for="design in activeViewDesignListReverse" :key="design.uuid">
-          <div class="design-item" v-if="design.type === designs.image">
+          <div class="design-item" v-if="[designs.image, designs.bgImage].includes(design.type)">
             <div class="head-design">
-              <img class="img" :src="design.previewUrl" alt="" />
-              <div class="name">{{ design.name }}</div>
+              <img class="img" :src="AppUtil.getImageUrl(design.detail)" alt="" />
+              <div class="name">{{ showImagName(design) }}</div>
             </div>
             <div class="fun-list">
               <!--收藏-->
@@ -110,7 +110,7 @@ import CollectSvg from '@/views/designerApp/components/svg/collectSvg.vue';
 // 图层开关
 const designListVisible = ref(true);
 // 模板属性
-const { templateData, activeViewDesignListReverse, designHandle } = useTemplateData();
+const { templateData, activeViewDesignListReverse, designHandle, showImagName } = useTemplateData();
 const { delDesign, visibleDesign, topDesign, bottomDesign, isCollect, setCollect } = designHandle;
 const { activeTemplate, activeColorId, setColorId, activeSizeId, setSizeId, activeColor } = templateData;
 
@@ -118,9 +118,14 @@ const { activeTemplate, activeColorId, setColorId, activeSizeId, setSizeId, acti
 function useTemplateData() {
   const { templateData, templateGroupData, designHandle } = useGlobalApplication();
 
+  const showImagName = (design) => {
+    if (design.detail?.quickimgid) return design.detail.imageName;
+    return design.detail.name;
+  };
   return {
     designHandle,
     templateData,
+    showImagName,
     activeViewDesignListReverse: templateGroupData.activeViewDesignListReverse,
   };
 }
@@ -435,7 +440,9 @@ function useTemplateData() {
             display: flex;
             align-items: center;
             background-color: #fff;
-            width: 13.6rem;
+            max-width: 13rem;
+            width: 13rem;
+            overflow: hidden;
             .img {
               width: 4rem;
               height: 4rem;

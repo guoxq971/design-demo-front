@@ -39,7 +39,7 @@ function useCollectImageData() {
   const { setDesignImage } = useGlobalApplication();
   const { list, total, params, loading, getList } = useGlobalCollectImage();
   onMounted(() => getList());
-  const onClick = () => {
+  const onClick = (detail) => {
     setDesignImage(detail);
   };
   return {

@@ -17,7 +17,7 @@ export const useGlobalApplication = createGlobalState(() => {
   // 设置模板
   const { setTemplate } = useSetTemplate(templateData);
   // 设置设计
-  const { setDesignImage, designHandle } = useSetDesign(templateData);
+  const { setDesignImage, setDesignBgImage, designHandle } = useSetDesign(templateData);
   // 容器
   const containerElData = useContainerEL();
 
@@ -31,6 +31,7 @@ export const useGlobalApplication = createGlobalState(() => {
     setTemplate,
     // 添加设计图
     setDesignImage,
+    setDesignBgImage,
     // 设计图操作
     designHandle,
   };
@@ -170,27 +171,59 @@ function useSetDesign(templateData) {
   const { defineData } = useGlobalData();
   const { designs, DEBOUNCE_TIME } = defineData;
 
-  // 设置设计图
-  async function setDesignImage(detail) {
+  // 设置图片 (默认是设计图)
+  async function _setImage(detail, view = null) {
+    view = view === null ? activeView.value : view;
     // 帮助函数
-    const helper = useCanvasHelper(activeView.value);
+    const helper = useCanvasHelper(view);
     // 模板dpi
     const templateDpi = activeTemplate.value?.detail.dpi;
     // 创建设计图片节点
-    const { attrs, onUpdate, onSort } = await createImage(detail, activeView.value, templateDpi);
+    const { attrs, onUpdate, onSort } = await createImage(detail, view, templateDpi);
     attrs['type'] = designs.image; //类型
     attrs['url'] = AppUtil.getImageUrl(detail); //节点使用的图片地址
     attrs['previewUrl'] = detail.previewImg; //预览图地址
     attrs['name'] = detail.name; //图片名称
     attrs['detail'] = detail; //图片详情
-    attrs['viewId'] = activeViewId.value;
+    attrs['viewId'] = view.id;
     attrs['templateId'] = activeTemplateId.value;
-    activeView.value.designList.push(attrs);
+    view.designList.push(attrs);
 
     // 设计更新时,同步设计属性
     onUpdate(useDebounceFn(({ key, value }) => attrs && set(attrs, key, value), DEBOUNCE_TIME));
     // 设计排序时,同步下标
-    onSort(() => helper.sortDesignList(activeView.value.designList));
+    onSort(() => helper.sortDesignList(view.designList));
+
+    return {
+      attrs,
+    };
+  }
+
+  // 设置设计图
+  async function setDesignImage(detail, view = null) {
+    if (!detail.isBg) {
+      await _setImage(detail);
+    } else {
+      const isSome = view.designList.some((e) => e.detail.isBg);
+      if (isSome) {
+        Message.warning('背景图已存在,只能添加一个背景图');
+        return;
+      }
+      await setDesignBgImage(detail);
+    }
+  }
+
+  // 设置背景图
+  async function setDesignBgImage(detail) {
+    const uuidBg = AppUtil.uuid();
+    for (const view of activeTemplate.value.viewList) {
+      _setImage(detail, view).then(({ attrs }) => {
+        attrs['type'] = designs.bgImage;
+        attrs['previewUrl'] = detail.designImg;
+        attrs['name'] = detail.imageName; //图片名称
+        attrs['uuidBg'] = uuidBg;
+      });
+    }
   }
 
   // 设计图操作
@@ -204,7 +237,7 @@ function useSetDesign(templateData) {
 
 // 设计图操作
 function useDesignHandle(templateData) {
-  const { activeView } = templateData;
+  const { activeView, activeTemplate } = templateData;
   // canvas帮助函数
 
   function _getHelper(view) {
@@ -228,12 +261,22 @@ function useDesignHandle(templateData) {
 
   // 删除
   function delDesign(design, _view = null) {
-    const { findDesignIndex, helper, view } = _getHelper(_view);
-    // 删除vue数据
-    const idx = findDesignIndex(design.uuid);
-    view.designList.splice(idx, 1);
-    // 删除canvas节点
-    helper.delNode(design.uuid);
+    function _delFn(_view, uuid) {
+      const { findDesignIndex, helper, view } = _getHelper(_view);
+      // 删除vue数据
+      const idx = findDesignIndex(design.uuid);
+      view.designList.splice(idx, 1);
+      // 删除canvas节点
+      helper.delNode(uuid);
+    }
+
+    if (!design.detail.isBg) _delFn(_view, design.uuid);
+    else {
+      activeTemplate.value.viewList.forEach((_view2) => {
+        const attrs = _view2.designList.find((e) => e.uuidBg === design.uuidBg);
+        _delFn(_view2, attrs.uuid);
+      });
+    }
   }
 
   // 显示隐藏
@@ -270,8 +313,8 @@ function useDesignHandle(templateData) {
   // 收藏
   const setCollect = useDebounceFn(_setCollect, 300);
   async function _setCollect(design) {
-    let isBg = design.detail.isBg;
-    let _isCollect = isCollect(design);
+    const isBg = design.detail.isBg;
+    const _isCollect = isCollect(design);
     let api;
     let getList;
     if (_isCollect && isBg) {
