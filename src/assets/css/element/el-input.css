@@ -1,0 +1,23 @@
+.el-input-group__prepend {
+  background: #f7f8f9 !important;
+}
+.el-input--small .el-input__inner {
+  height: 3.6rem;
+}
+.el-form--label-top .el-form-item__label {
+  padding-bottom: 0;
+}
+
+.el-input.is-disabled .el-input__inner{
+    background-color: #e1e1e1;
+}
+
+/*输入框背景色*/
+.fn-input-background .el-input__inner{
+    background-color: #f7f8f9;
+}
+
+/*输入框文本域背景色*/
+.fn-input-background .el-textarea__inner{
+    background-color: #f7f8f9;
+}

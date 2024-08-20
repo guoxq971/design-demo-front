@@ -1,0 +1,54 @@
+{
+  "name": "main-vue2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@tweenjs/tween.js": "^21.0.0",
+    "@vueuse/core": "^10.11.0",
+    "@vueuse/integrations": "^10.11.0",
+    "axios": "^1.7.2",
+    "core-js": "~3.6.5",
+    "crypto-js": "^4.2.0",
+    "element-china-area-data": "^6.1.0",
+    "element-ui": "~2.15.1",
+    "js-cookie": "^3.0.5",
+    "konva": "^9.3.0",
+    "lodash": "^4.17.21",
+    "pinia": "^2.1.7",
+    "prettier": "^1.19.1",
+    "three": "^0.153.0",
+    "three-mesh-bvh": "^0.6.8",
+    "vue": "2.7.0",
+    "vue-color": "^2.8.1",
+    "vue-router": "~3.5.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.5.18",
+    "@vue/cli-service": "^4.5.18",
+    "less-loader": "^6.1.1",
+    "zone.js": "~0.11.4"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

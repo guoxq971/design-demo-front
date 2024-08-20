@@ -1,0 +1,45 @@
+.el-button {
+  height: 3.6rem;
+  font-size: 1.4rem;
+  padding:  0 1.8rem;
+}
+
+.el-button span{
+    height: 1.9rem;
+    line-height: 1.9rem;
+}
+
+.fn-button-mini {
+  height: initial;
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+}
+
+.fn-button-text {
+  height: 1.9rem;
+  padding: 0;
+}
+
+.el-button + .el-button {
+    margin-left: 1.8rem;
+}
+
+.fn-primary-btn{
+    background: #1067ee;
+    color: #ffffff;
+    border-color: #1067ee;
+}
+
+.fn-primary-btn:hover{
+    background: #4b8ff8;
+    color: #ffffff;
+    border-color: #4b8ff8;
+}
+
+.fn-primary-btn-text:hover{
+    color: #1067ee;
+}
+.fn-primary-btn-text{
+    color: #4b8ff8;
+    cursor: pointer;
+}

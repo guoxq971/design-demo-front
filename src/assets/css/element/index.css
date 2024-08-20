@@ -1,0 +1,232 @@
+@import url('./el-dailog.css');
+@import url('./el-button.css');
+@import url('./el-table.css');
+@import url('./el-select.css');
+@import url('./el-radio.css');
+@import url('./el-checkbox.css');
+@import url('./el-input.css');
+@import url('./el-form.css');
+
+:root {
+  --fn-font-size: 1.4rem;
+  --fn-gap: 1.8rem;
+  --fn-gap-min: 0.8rem;
+  --fn-font-family: 微软雅黑, serif;
+  --fn-primary-color: #fc6b20;
+  --fn-blue-color: #1067ee;
+  --fn-primary-color-hover: #fd894d;
+  --fn-primary-color-hover2: #fff8f5;
+  --fn-danger-color: #ff5151;
+  --fn-box-shadow: 0 0 2rem 0 #f2f2ff;
+  --fn-box-shadow-bold: 0px 4px 6px 0px rgba(242, 242, 242, 0.5);
+  --fn-border-radius: 0.8rem;
+  --fn-border-radius-min: 0.4rem;
+  --fn-color-black: #000c01;
+  --fn-background-color-white: #fff;
+  --fn-font-style-normal: normal;
+  --fn-btn-height: 3.6rem;
+  /*全局背景色*/
+  --fn-background: #f2f2f2;
+  --fn-background2: #f2f2f4;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background-color: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: rgba(144, 147, 153, 0.3);
+  transition: background-color 0.3s;
+}
+
+.fn-scroll-bar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background-color: #fff;
+}
+
+.fn-scroll-bar::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: rgba(144, 147, 153, 0.3);
+  transition: background-color 0.3s;
+}
+
+.fn-table-cell-form-center {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  flex-wrap: wrap;
+
+  > div {
+    display: flex;
+    margin-bottom: 0.8rem;
+  }
+}
+
+.fn-font {
+  font-family: MicrosoftYaHei, MicrosoftYaHei;
+  font-size: 1.4rem;
+  color: #000c01;
+  line-height: 2.2rem;
+  font-style: normal;
+}
+
+.fn-text-left {
+  text-align: left;
+}
+
+/*超出一行换行*/
+.fn-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fn-text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fn-caozuo-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fn-caozuo-row .el-button {
+  width: fit-content;
+  height: fit-content;
+  padding: 0;
+  margin: 0 0.8rem 0 0;
+  color: #1067ee;
+}
+
+.fn-caozuo-row .el-button:last-child {
+  margin-bottom: 0;
+}
+
+.fn-caozuo-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.fn-caozuo-col .el-button {
+  width: fit-content;
+  height: fit-content;
+  padding: 0;
+  margin: 0 0 0.8rem 0 !important;
+  color: #1067ee;
+}
+
+.fn-caozuo-col .el-button:last-child {
+  margin-bottom: 0 !important;
+}
+
+.fn-full {
+  width: 100%;
+  height: 100%;
+}
+
+.fn-red {
+  color: #ff5151 !important;
+}
+
+.fn-black {
+  color: #000c01 !important;
+}
+
+.fn-blue {
+  color: #012f9a !important;
+}
+
+.fn-primary {
+  color: var(--fn-primary-color) !important;
+}
+
+.fn-flex {
+  display: flex;
+}
+
+.fn-flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fn-ml-gap {
+  margin-left: var(--fn-gap);
+}
+
+.fn-ml-gap-i {
+  margin-left: var(--fn-gap) !important;
+}
+
+.fn-mr-gap {
+  margin-right: var(--fn-gap);
+}
+
+.fn-mt-gap {
+  margin-top: var(--fn-gap);
+}
+
+.fn-mb-gap {
+  margin-bottom: var(--fn-gap);
+}
+
+.fn-mb-gap-min {
+  margin-bottom: 0.8rem;
+}
+
+.fn-mt-gap-min {
+  margin-top: 0.8rem;
+}
+
+.fn-mr-gap-min {
+  margin-right: 0.8rem;
+}
+
+.fn-ml-gap-min {
+  margin-left: 0.8rem;
+}
+
+/*主体容器*/
+.fn-page-container {
+  overflow: hidden;
+  background: #f2f2f2;
+  padding: 0.2rem calc(2.8rem - 10px) 0 2.8rem;
+  font-size: 1.4rem;
+}
+
+/*聚焦的边框边框颜色样式*/
+.fn-border-focus {
+  border-color: var(--fn-primary-color) !important;
+  outline: 0;
+}
+
+/*input输入框前缀边框颜色样式*/
+.fn-border-input-prefix {
+  .el-input-group__prepend {
+    border-color: var(--fn-primary-color) !important;
+    outline: 0;
+  }
+}
+
+/*form-item聚焦label的边框样式*/
+.fn-form-item-label-focus {
+  .el-form-item__label {
+    border-color: var(--fn-primary-color) !important;
+  }
+}
+
+/*单个单元格padding设置为0*/
+.fn-caozuo-box-padding {
+  padding: 0 !important;
+}

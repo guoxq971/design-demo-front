@@ -1,0 +1,47 @@
+.fn-form-head .el-form-item__label {
+  border: 1px solid #E1E1E1;
+  height: 3.6rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  /*padding-left: 0.8rem;*/
+  border-right: 0;
+  background: #fcfcfe;
+  border-radius: 0.4rem 0 0 0.4rem;
+  color: #7e7e7e;
+  padding: 0 1.8rem;
+}
+/*input，select*/
+.fn-form-head .el-input__inner {
+  border-radius: 0 0.4rem 0.4rem 0;
+}
+
+/*时间组件*/
+.fn-form-head .el-date-editor {
+  border-radius: 0 0.4rem 0.4rem 0;
+  height: 3.6rem;
+}
+
+.fn-form-head .el-range-separator {
+  line-height: 3.2rem;
+}
+.fn-form-line-height .el-form-item__label {
+  line-height: 3.6rem;
+}
+
+/*弹窗内的form表单标题样式*/
+.fn-dialog-form-item .el-form-item__label {
+    color: #000C01;
+    line-height: 3.6rem;
+    height: 3.6rem;
+}
+
+/*弹窗内的form表单输入框背景色*/
+.fn-dialog-form-item .el-input__inner {
+    background: #F7F8F9;
+    color: #000C01;
+}
+
+.el-form-item--small .el-form-item__label{
+    line-height: 3.6rem;
+}
