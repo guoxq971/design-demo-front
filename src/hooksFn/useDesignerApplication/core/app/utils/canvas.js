@@ -1,3 +1,4 @@
+import { shallowRef } from 'vue';
 import { createEventHook, useDebounceFn } from '@vueuse/core';
 // utils
 import Konva from 'konva';
@@ -18,7 +19,7 @@ export function createCanvas(view) {
   const canvasNodes = createCanvasNode(view, containerRect.value);
   setNodeClipFunc(canvasNodes.designLayer, { width: drawWidth, height: drawHeight });
 
-  view.canvasNodes = canvasNodes;
+  view.canvasNodes = shallowRef(canvasNodes);
   useCanvasHelper(view).setMode(modes.preview);
 
   // 添加画布监听
@@ -33,8 +34,8 @@ export function createCanvas(view) {
 function addEventListener(view) {
   const { modes, canvasConfig } = useGlobalData().defineData;
   const { createCanvasIds } = canvasConfig;
-  const { stage, designLayer, staticLayer, bd, transformer, designGroup } = view.canvasNodes;
-  const { isDesignNode, isMouseTransformerAnchor, setNode, setMode, getDesignChildren } = useCanvasHelper(view);
+  const { isDesignNode, isMouseTransformerAnchor, setNode, setMode, getDesignChildren, canvasNodes } = useCanvasHelper(view);
+  const { stage, designLayer, staticLayer, bd, transformer, designGroup } = canvasNodes;
 
   // 舞台注册监听(click, 切换为预览模式)
   // 【stage】【isDesignNode】【isMouseTransformerAnchor】【setNode】【setMode】
