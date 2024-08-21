@@ -1,6 +1,6 @@
 <template>
   <div class="color-picker">
-    <SketchPicker v-model="value" />
+    <SketchPicker v-model="_color" />
   </div>
 </template>
 
@@ -14,13 +14,28 @@ export default {
 </script>
 <script setup>
 import { Sketch as SketchPicker } from 'vue-color';
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, ref, watch, watchEffect } from 'vue';
 import { useVModels } from '@vueuse/core';
-const emit = defineEmits([]);
+
 const props = defineProps({
   value: { type: String, default: '' },
 });
 const { value } = useVModels(props);
+
+const _color = ref({
+  color: '',
+  hex: '#194d33',
+  hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
+  hsv: { h: 150, s: 0.66, v: 0.3, a: 1 },
+  rgba: { r: 25, g: 77, b: 51, a: 1 },
+  a: 1,
+});
+watch(
+  () => _color.value.hex,
+  () => {
+    if (_color.value) value.value = _color.value.hex;
+  },
+);
 </script>
 
 <style scoped lang="less">

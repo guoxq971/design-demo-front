@@ -8,6 +8,7 @@ import { AppUtil } from '@/hooksFn/useDesignerApp/core/util';
 import { useGlobalCollectBgImage } from '@/hooksFn/useDesignerApplication/core/bg/bgImageCollect';
 import { useGlobalCollectImage } from '@/hooksFn/useDesignerApplication/core/image/collectImage';
 import { Message } from 'element-ui';
+import { createBgColor } from '@/hooksFn/useDesignerApplication/core/app/utils/craeteBgColor';
 
 export const useGlobalApplication = createGlobalState(() => {
   // 模板基础数据
@@ -17,7 +18,7 @@ export const useGlobalApplication = createGlobalState(() => {
   // 设置模板
   const { setTemplate } = useSetTemplate(templateData);
   // 设置设计
-  const { setDesignImage, setDesignBgImage, designHandle } = useSetDesign(templateData);
+  const { setDesignImage, setDesignBgColor, designHandle } = useSetDesign(templateData);
   // 容器
   const containerElData = useContainerEL();
 
@@ -31,7 +32,7 @@ export const useGlobalApplication = createGlobalState(() => {
     setTemplate,
     // 添加设计图
     setDesignImage,
-    setDesignBgImage,
+    setDesignBgColor,
     // 设计图操作
     designHandle,
   };
@@ -168,45 +169,21 @@ function useSetTemplate(templateData) {
 function useSetDesign(templateData) {
   // 模板基础数据
   const { templateList, activeTemplateId, activeTemplate, activeViewId, activeView, activeColorId, activeSizeId } = templateData;
-  const { defineData } = useGlobalData();
-  const { designs, DEBOUNCE_TIME } = defineData;
-
-  // 设置图片 (默认是设计图)
-  async function _setImage(detail, view = null) {
-    view = view === null ? activeView.value : view;
-    // 帮助函数
-    const helper = useCanvasHelper(view);
-    // 模板dpi
-    const templateDpi = activeTemplate.value?.detail.dpi;
-    // 创建设计图片节点
-    const { attrs, onUpdate, onSort } = await createImage(detail, view, templateDpi);
-    attrs['type'] = designs.image; //类型
-    attrs['url'] = AppUtil.getImageUrl(detail); //节点使用的图片地址
-    attrs['previewUrl'] = detail.previewImg; //预览图地址
-    attrs['name'] = detail.name; //图片名称
-    attrs['detail'] = detail; //图片详情
-    attrs['viewId'] = view.id;
-    attrs['templateId'] = activeTemplateId.value;
-    view.designList.push(attrs);
-
-    // 设计更新时,同步设计属性
-    onUpdate(useDebounceFn(({ key, value }) => attrs && set(attrs, key, value), DEBOUNCE_TIME));
-    // 设计排序时,同步下标
-    onSort(() => helper.sortDesignList(view.designList));
-
-    return {
-      attrs,
-    };
-  }
 
   // 设置设计图
   async function setDesignImage(detail, view = null) {
     view = view === null ? activeView.value : view;
+    const dpi = activeTemplate.value.detail.dpi;
     if (!detail.isBg) {
-      if (imgMax(view)) await _setImage(detail);
+      if (!imgMax(view)) return Promise.reject('设计图数量限制');
+      await createImage(detail, view, dpi);
     } else {
-      if (bgImgMax()) await setDesignBgImage(detail);
+      if (!bgImgMax()) return Promise.reject('背景图数量限制');
+      activeTemplate.value.viewList.forEach((view) => {
+        createImage(detail, view, dpi);
+      });
     }
+
     // 背景图限制
     function bgImgMax() {
       // 设计图数量限制
@@ -218,14 +195,13 @@ function useSetDesign(templateData) {
         }
       }
       // 背景图唯一限制
-      const isSome = view.designList.some((e) => e.detail.isBg);
+      const isSome = view.designList.some((e) => e?.detail?.isBg);
       if (isSome) {
         Message.warning('背景图已存在,只能添加一个背景图');
         return false;
       }
       return true;
     }
-
     // 设计图限制
     function imgMax(view) {
       // 设计图数量限制
@@ -237,27 +213,19 @@ function useSetDesign(templateData) {
     }
   }
 
-  // 设置背景图
-  async function setDesignBgImage(detail) {
-    const uuidBg = AppUtil.uuid();
-    for (const view of activeTemplate.value.viewList) {
-      _setImage(detail, view).then(({ attrs }) => {
-        attrs['type'] = designs.bgImage;
-        attrs['previewUrl'] = detail.designImg;
-        attrs['name'] = detail.imageName; //图片名称
-        attrs['uuidBg'] = uuidBg;
-      });
-    }
-  }
-
   // 设置背景色
-  function setDesignBgColor(color) {}
+  function setDesignBgColor(color) {
+    activeTemplate.value.viewList.forEach((view) => {
+      createBgColor(color, view);
+    });
+  }
 
   // 设计图操作
   const designHandle = useDesignHandle(templateData);
 
   return {
     setDesignImage,
+    setDesignBgColor,
     designHandle,
   };
 }
@@ -265,6 +233,7 @@ function useSetDesign(templateData) {
 // 设计图操作
 function useDesignHandle(templateData) {
   const { activeView, activeTemplate } = templateData;
+  const { designs } = useGlobalData().defineData;
 
   // canvas帮助函数
   function _getHelper(view) {
@@ -288,10 +257,12 @@ function useDesignHandle(templateData) {
 
   // 删除
   function delDesign(design, _view = null) {
-    // 删除非背景图
-    if (!design.detail.isBg) _delFn(_view, design.uuid);
     // 删除背景图
-    else _delBgImg();
+    if (design.type === designs.image) _delFn(_view, design.uuid);
+    // 删除设计图
+    else if (design.type === designs.bgImage) _delBgImg();
+    // 删除背景色
+    else if (design.type === designs.bgColor) _delBgColor();
 
     // 删除函数
     function _delFn(_view, uuid) {
@@ -305,7 +276,14 @@ function useDesignHandle(templateData) {
     // 删除背景图
     function _delBgImg() {
       activeTemplate.value.viewList.forEach((_view2) => {
-        const attrs = _view2.designList.find((e) => e.uuidBg === design.uuidBg);
+        const attrs = _view2.designList.find((e) => e.type === designs.bgImage);
+        _delFn(_view2, attrs.uuid);
+      });
+    }
+    // 删除背景色
+    function _delBgColor() {
+      activeTemplate.value.viewList.forEach((_view2) => {
+        const attrs = _view2.designList.find((e) => e.type === designs.bgColor);
         _delFn(_view2, attrs.uuid);
       });
     }
@@ -313,10 +291,34 @@ function useDesignHandle(templateData) {
 
   // 显示隐藏
   function visibleDesign(design, _view = null) {
-    const { helper, view } = _getHelper(_view);
-    // vue数据通过proxy
-    // 隐藏节点
-    helper.setVisible(design.uuid);
+    // 非背景图
+    if (design.type === designs.image) _visibleFn(_view, design.uuid);
+    // 背景图
+    else if (design.type === designs.bgImage) _visibleBgImg();
+    // 背景色
+    else if (design.type === designs.bgColor) _visibleBgColor();
+
+    // 显示隐藏函数
+    function _visibleFn(_view, uuid) {
+      const { helper, view } = _getHelper(_view);
+      // vue数据通过proxy
+      // 隐藏节点
+      helper.setVisible(uuid);
+    }
+    // 显示隐藏背景图
+    function _visibleBgImg() {
+      activeTemplate.value.viewList.forEach((_view2) => {
+        const attrs = _view2.designList.find((e) => e.type === designs.bgImage);
+        _visibleFn(_view2, attrs.uuid);
+      });
+    }
+    // 显示隐藏背景色
+    function _visibleBgColor() {
+      activeTemplate.value.viewList.forEach((_view2) => {
+        const attrs = _view2.designList.find((e) => e.type === designs.bgColor);
+        _visibleFn(_view2, attrs.uuid);
+      });
+    }
   }
 
   // 置顶

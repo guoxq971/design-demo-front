@@ -58,24 +58,34 @@
       </div>
       <el-scrollbar class="list" v-show="designListVisible">
         <div class="item-list" v-for="design in activeViewDesignListReverse" :key="design.uuid">
-          <div class="design-item" v-if="[designs.image, designs.bgImage].includes(design.type)">
+          <div class="design-item">
             <div class="head-design">
-              <img class="img" :src="AppUtil.getImageUrl(design.detail)" alt="" />
-              <div class="name">{{ showImagName(design) }}</div>
+              <template v-if="isImg(design) || isBgImg(design)">
+                <img class="img" :src="AppUtil.getImageUrl(design.detail)" alt="" />
+                <div class="name">{{ showImagName(design) }}</div>
+              </template>
+              <template v-if="isBgc(design)">
+                <div class="img" :style="{ background: design.fill }"></div>
+                <div class="name bgc" :style="{ '--color': design.fill }">{{ design.fill }}</div>
+              </template>
             </div>
             <div class="fun-list">
-              <!--收藏-->
-              <div class="fun-box" :class="{ active: isCollect(design) }" @click="setCollect(design)">
-                <CollectSvg />
-              </div>
-              <!--置顶-->
-              <div class="fun-box" :class="{ disabled: false }" @click="topDesign(design)">
-                <LayerTopSvg />
-              </div>
-              <!--置底-->
-              <div class="fun-box" :class="{ disabled: false }" @click="bottomDesign(design)">
-                <LayerBottomSvg />
-              </div>
+              <template v-if="isImg(design) || isBgImg(design)">
+                <!--收藏-->
+                <div class="fun-box" :class="{ active: isCollect(design) }" @click="setCollect(design)">
+                  <CollectSvg />
+                </div>
+              </template>
+              <template v-if="isImg(design)">
+                <!--置顶-->
+                <div class="fun-box" :class="{ disabled: false }" @click="topDesign(design)">
+                  <LayerTopSvg />
+                </div>
+                <!--置底-->
+                <div class="fun-box" :class="{ disabled: false }" @click="bottomDesign(design)">
+                  <LayerBottomSvg />
+                </div>
+              </template>
               <!--显示/隐藏-->
               <div class="fun-box" @click="visibleDesign(design)">
                 <VisibleSvg v-if="design.visible" />
@@ -94,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 // utils
 import { designs } from '@/hooksFn/useDesignerApp/core/service/app/define';
 import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
@@ -113,6 +123,12 @@ const designListVisible = ref(true);
 const { templateData, activeViewDesignListReverse, designHandle, showImagName } = useTemplateData();
 const { delDesign, visibleDesign, topDesign, bottomDesign, isCollect, setCollect } = designHandle;
 const { activeTemplate, activeColorId, setColorId, activeSizeId, setSizeId, activeColor } = templateData;
+// 是否设计图
+const isImg = computed(() => (design) => [designs.image].includes(design.type));
+// 是否背景图
+const isBgImg = computed(() => (design) => [designs.bgImage].includes(design.type));
+// 是否背景色
+const isBgc = computed(() => (design) => [designs.bgColor].includes(design.type));
 
 // 模板属性
 function useTemplateData() {
@@ -443,6 +459,16 @@ function useTemplateData() {
             max-width: 13rem;
             width: 13rem;
             overflow: hidden;
+            // 背景色
+            --color: #000c01;
+            .bgc {
+              flex: 1;
+              text-align: center;
+              letter-spacing: 1px;
+              text-shadow: 0 0 3px var(--color);
+              color: #000c01;
+              font-size: 14px;
+            }
             .img {
               width: 4rem;
               height: 4rem;

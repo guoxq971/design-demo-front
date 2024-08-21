@@ -34,7 +34,7 @@ function addEventListener(view) {
   const { modes, canvasConfig } = useGlobalData().defineData;
   const { createCanvasIds } = canvasConfig;
   const { stage, designLayer, staticLayer, bd, transformer, designGroup } = view.canvasNodes;
-  const { isDesignNode, isMouseTransformerAnchor, setNode, setMode } = useCanvasHelper(view);
+  const { isDesignNode, isMouseTransformerAnchor, setNode, setMode, getDesignChildren } = useCanvasHelper(view);
 
   // 舞台注册监听(click, 切换为预览模式)
   // 【stage】【isDesignNode】【isMouseTransformerAnchor】【setNode】【setMode】
@@ -63,7 +63,7 @@ function addEventListener(view) {
     // 判断是否点击了锚点
     if (isMouseTransformerAnchor(x, y)) return;
     // 获取当前坐标下的所有节点(设计节点)
-    const nodes = designGroup.getChildren().filter((node) => {
+    const nodes = getDesignChildren().filter((node) => {
       return isDesignNode(node) && node?.intersects({ x, y });
     });
     if (nodes.length) {
@@ -156,6 +156,24 @@ function createCanvasNode(view, containerRect) {
     scaleX: canvasDefine.scale,
     scaleY: canvasDefine.scale,
   });
+  // 背景图层-组
+  const bgGroup = new Konva.Group({
+    id: createCanvasIds.bg_group,
+    x: view.offsetX * canvasDefine.scale,
+    y: view.offsetY * canvasDefine.scale,
+    scaleX: canvasDefine.scale,
+    scaleY: canvasDefine.scale,
+  });
+  // 背景色层-组
+  const bgcGroup = new Konva.Group({
+    id: createCanvasIds.bgc_group,
+    x: view.offsetX * canvasDefine.scale,
+    y: view.offsetY * canvasDefine.scale,
+    scaleX: canvasDefine.scale,
+    scaleY: canvasDefine.scale,
+  });
+  designLayer.add(bgcGroup);
+  designLayer?.add(bgGroup);
   designLayer?.add(designGroup);
 
   return {
@@ -165,6 +183,8 @@ function createCanvasNode(view, containerRect) {
     bd,
     transformer,
     designGroup,
+    bgGroup,
+    bgcGroup,
   };
 }
 
@@ -249,16 +269,16 @@ function useClip() {
 // canvas帮助函数
 export function useCanvasHelper(view) {
   // 容器属性
-  const { containerRect } = useGlobalApplication().containerElData;
+  const { containerRect, activeTemplate } = useGlobalApplication().containerElData;
   const { drawWidth, drawHeight } = containerRect;
   // 全局配置
   const { defineData } = useGlobalData();
-  const { canvasConfig, modes, PRIMARY_COLOR } = defineData;
+  const { designs, canvasConfig, modes, PRIMARY_COLOR } = defineData;
   const { canvasDefine, createCanvasIds, getCanvasContainerId } = canvasConfig;
   // 视图
   const { canvasNodes, d_2d, printout, width, height } = view;
   // 节点
-  const { stage, designLayer, staticLayer, bd, transformer, designGroup } = canvasNodes;
+  const { stage, designLayer, staticLayer, bd, transformer, designGroup, bgGroup, bgcGroup } = canvasNodes;
 
   /**
    * 判断是否为设计节点
@@ -266,7 +286,7 @@ export function useCanvasHelper(view) {
    * @returns {boolean}
    */
   function isDesignNode(node) {
-    return node?.getName() === createCanvasIds.design;
+    return [designs.bgImage, designs.image, designs.text].includes(node?.attrs.type);
   }
 
   /**
@@ -322,7 +342,18 @@ export function useCanvasHelper(view) {
    * @returns
    */
   function findNode(uuid) {
-    return designGroup.findOne((node) => node.attrs.uuid === uuid);
+    let result;
+    // 是否设计图
+    result = designGroup.findOne((node) => node.attrs.uuid === uuid);
+    // 是否背景图
+    if (!result) {
+      result = bgGroup.findOne((node) => node.attrs.uuid === uuid);
+    }
+    // 是否背景色
+    if (!result) {
+      result = bgcGroup.findOne((node) => node.attrs.uuid === uuid);
+    }
+    return result;
   }
 
   /**
@@ -348,7 +379,7 @@ export function useCanvasHelper(view) {
    * @returns
    */
   function getDesignChildren() {
-    return designGroup.getChildren();
+    return [...bgcGroup.getChildren(), ...bgGroup.getChildren(), ...designGroup.getChildren()];
   }
 
   // 设计图列表排序

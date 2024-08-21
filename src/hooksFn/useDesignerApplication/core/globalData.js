@@ -266,6 +266,10 @@ function useDefine() {
       design_layer: 'canvas-design-layer',
       // 设计-组
       design_group: 'canvas-design-group',
+      // 背景图-组
+      bg_group: 'canvas-design-background-group',
+      // 背景色-组
+      bgc_group: 'canvas-design-background-color-group',
       // 设计标识
       design: 'canvas-design',
     };

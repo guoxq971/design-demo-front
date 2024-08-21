@@ -1,7 +1,7 @@
 <template>
   <div class="tab">
     <!--色板-->
-    <ColorPicker v-model="test" />
+    <ColorPicker v-model="color" />
     <!--色块 + input + 取色器-->
     <div>色块 + input + 取色器</div>
     <!--预设-->
@@ -10,11 +10,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, watchEffect } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 // utils
 import ColorPicker from './shows/ColorPicker';
+import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
 
-const test = ref('');
+const { setDesignBgColor } = useGlobalApplication();
+const color = ref('');
+const fn = useDebounceFn(() => setDesignBgColor(color.value), 300);
+watch(
+  () => color.value,
+  () => fn(),
+);
 </script>
 
 <style scoped lang="less">

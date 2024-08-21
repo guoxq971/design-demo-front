@@ -1,11 +1,37 @@
 import { useAxios } from '@vueuse/integrations/useAxios';
+import { createEventHook } from '@vueuse/core';
 import { unref, isRef } from 'vue';
 // utils
 import { Ghost, METHOD } from '@/utils/request';
 import { MessageBox } from 'element-ui';
-import { isObject, has } from 'lodash';
+import { isObject, has, isString } from 'lodash';
 
 export class AppUtil {
+  /**
+   * 设置代理对象
+   * @param obj
+   * @param {string|array} keys
+   * @returns {{proxy: object, onUpdate: EventHookOn<any>}|boolean}
+   */
+  static createObjectProsy(obj, keys) {
+    isString(keys) && (keys = [keys]);
+
+    const event = createEventHook();
+
+    const proxy = new Proxy(obj, {
+      set(target, key, value) {
+        if (keys.includes(key) && target[key] !== value) event.trigger({ key, value });
+        Reflect.set(target, key, value);
+        return true;
+      },
+    });
+
+    return {
+      onUpdate: event.on,
+      proxy: proxy,
+    };
+  }
+
   //确认
   static async confirmCollect(msg = '确定取消收藏？') {
     return await MessageBox.confirm(msg, '提示', {

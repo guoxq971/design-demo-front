@@ -1,56 +1,51 @@
-import { createEventHook, useImage } from '@vueuse/core';
+import { createEventHook, useDebounceFn, useImage } from '@vueuse/core';
+import { set } from 'vue';
 // utils
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { pick } from 'lodash';
+import { isString, pick } from 'lodash';
 import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
-import { useHelper } from '@/hooksFn/useDesignerApp/core/service/app/utils/helper';
+import { useCanvasHelper } from '@/hooksFn/useDesignerApplication/core/app/utils/utils';
 
-export function createImage(detail, view, templateDpi) {
-  const { getImageSize } = useImageSize();
-  // 获取图片在设计区域的大小
-  const imageSize = getImageSize(detail.size, templateDpi, { width: view.width, height: view.height });
-  const { width, height } = imageSize.size;
-  // 获取可用图片地址
-  const src = AppUtil.getImageUrl(detail);
-  const { CreateDesignImageNode } = useCrateDesignImageNode(view);
+export async function createImage(detail, view, templateDpi) {
+  // 获取设计区域大小，可用图片地址
+  const { width, height, src } = getData(detail, view, templateDpi);
+  // 创建图片节点到canvas,并创建节点属性代理
+  const { onUpdate, onSort, node } = await createImageNodeToCanvas(view, width, height, src, detail.isBg);
+  // 创建vue数据
+  const vueData = createVueData(view, detail, node);
+  // 更新时同步
+  setSync(onUpdate, onSort, view, vueData);
+  // 排序
+  useCanvasHelper(view).sortDesignList(view.designList);
 
-  // 加载图片到设计区域
-  return useImage({ src, crossorigin: true, width, height }).then((result) => {
-    const { isReady, state } = result;
-    if (!isReady.value) return;
-
-    // 创建图片节点到canvas
-    const _attrs = { image: state.value, width, height };
-    const { onSort, onUpdate, attrs } = CreateDesignImageNode(_attrs);
+  // 获取图片在设计区域的大小, 获取可用图片地址
+  function getData(detail, view, templateDpi) {
+    const { getImageSize } = useImageSize();
+    // 获取图片在设计区域的大小
+    const imageSize = getImageSize(detail.size, templateDpi, { width: view.width, height: view.height });
+    const { width, height } = imageSize.size;
+    // 获取可用图片地址
+    const src = AppUtil.getImageUrl(detail);
 
     return {
-      attrs,
-      onUpdate,
-      onSort,
+      width,
+      height,
+      src,
     };
-  });
-}
+  }
+  // 创建节点到canvas
+  async function createImageNodeToCanvas(view, width, height, src, isBg) {
+    // 加载图片
+    const result = await useImage({ src, crossorigin: true, width, height });
+    if (!result.isReady.value) return Promise.reject('图片加载失败');
 
-// 创建节点,
-// 注册监听事件,
-// 设置选中,
-// 生成base64,
-// 创建节点属性代理
-// 更新时同步生成base64(防抖)
-function useCrateDesignImageNode(view) {
-  const helper = useHelper(view);
-
-  /**
-   * 创建设计图片节点
-   * @param attrs
-   * @returns {{onSort: function, onUpdate: function, attrs: object}}
-   */
-  function CreateDesignImageNode(attrs) {
+    const helper = useCanvasHelper(view);
+    const canvasNodes = view.canvasNodes;
+    const { designs } = useGlobalData().defineData;
     const { createCanvasIds } = useGlobalData().defineData.canvasConfig;
-    const { canvasNodes, setNode, generateBase64Debounce, generateBase64 } = helper;
-    const { designGroup } = canvasNodes;
-    const _node = new Konva.Image({
-      name: createCanvasIds.design,
+    const parent = isBg ? canvasNodes.bgGroup : canvasNodes.designGroup;
+
+    let node = new Konva.Image({
       draggable: true,
       x: 0,
       y: 0,
@@ -59,75 +54,91 @@ function useCrateDesignImageNode(view) {
       rotation: 0,
       visible: true,
       uuid: AppUtil.uuid(),
-      ...attrs,
+      type: isBg ? designs.bgImage : designs.image,
+      image: result.state.value,
+      width: width,
+      height: height,
     });
     // 创建节点属性代理
-    const { onUpdate, onSort, node } = createdNodeProxy(_node);
-    // 更新时同步生成base64(防抖)
-    onUpdate(() => generateBase64Debounce());
-    onSort(() => generateBase64Debounce());
-
+    const nodeProxy = createdNodeProxy(node);
+    node = nodeProxy.node;
     // 添加到设计组
-    designGroup?.add(node);
-
+    parent?.add(node);
     // 注册监听事件
-    node.on('mousedown', () => setNode(node));
+    node.on('mousedown', () => helper.setNode(node));
     // 设置选中
-    setNode(node);
+    helper.setNode(node);
     // 生成base64
-    generateBase64();
+    helper.generateBase64Debounce();
 
-    // 创建属性
-    const _attrs = getCloneNodeAttrs(node);
     return {
-      onUpdate,
-      onSort,
-      attrs: _attrs,
+      onUpdate: nodeProxy.onUpdate,
+      onSort: nodeProxy.onSort,
+      node: node,
     };
   }
-
-  // 克隆节点属性
-  function getCloneNodeAttrs(node) {
-    return pick(node.attrs, ATTRS_FIELDS);
-  }
-
-  const WATCH_ATTRS_FIELDS = ['x', 'y', 'rotation', 'scaleX', 'scaleY', 'visible'];
-  const ATTRS_FIELDS = [...WATCH_ATTRS_FIELDS, 'uuid'];
-
   /**
-   * 设置设计代理
-   * @param _node
-   * @returns {{node: object, onSort: function, onUpdate: function}}
+   * 创建节点属性代理
+   * @param node
+   * @returns {{node: Object, onSort: EventHookOn<*>, onUpdate: EventHookOn<*>}}
    */
-  function createdNodeProxy(_node) {
-    const attrsResult = createEventHook();
-    const sortResult = createEventHook();
+  function createdNodeProxy(node) {
+    // 代理属性
+    const watch_attrs_fields = ['x', 'y', 'rotation', 'scaleX', 'scaleY', 'visible'];
+    const attrs_fields = [...watch_attrs_fields, 'uuid'];
+
     // 设计发生变化
-    _node.attrs = new Proxy(_node.attrs, {
-      set(target, key, value) {
-        if (ATTRS_FIELDS.includes(key) && target[key] !== value) attrsResult.trigger({ key, value });
-        target[key] = value;
-        return true;
-      },
-    });
+    const attrsProxy = AppUtil.createObjectProsy(node.attrs, attrs_fields);
+    node.attrs = attrsProxy.proxy;
     // 设计排序发生变化
-    _node = new Proxy(_node, {
-      set(target, key, value) {
-        if (key === 'index' && target[key] !== value) sortResult.trigger({ key, value });
-        target[key] = value;
-        return true;
-      },
-    });
+    const sortProxy = AppUtil.createObjectProsy(node, 'index');
+    node = sortProxy.proxy;
+
     return {
-      onUpdate: attrsResult.on,
-      onSort: sortResult.on,
-      node: _node,
+      onUpdate: attrsProxy.onUpdate,
+      onSort: sortProxy.onUpdate,
+      node: node,
     };
   }
-
-  return {
-    CreateDesignImageNode,
-  };
+  // 创建添加vue数据
+  function createVueData(view, detail, node) {
+    const { designs, DEBOUNCE_TIME } = useGlobalData().defineData;
+    const isBg = detail.isBg;
+    const type = isBg ? designs.bgImage : designs.image;
+    const url = AppUtil.getImageUrl(detail);
+    const previewUrl = isBg ? detail.designImg : detail.previewImg;
+    const name = isBg ? detail.imageName : detail.name;
+    const vueData = {
+      x: node.attrs.x,
+      y: node.attrs.y,
+      rotation: node.attrs.rotation,
+      scaleX: node.attrs.scaleX,
+      scaleY: node.attrs.scaleY,
+      visible: node.attrs.visible,
+      uuid: node.attrs.uuid,
+      viewId: view.id,
+      detail: detail,
+      type: type, //设计类型
+      url: url, //节点使用的图片地址
+      previewUrl: previewUrl, //预览图地址
+      name: name, //图片名称
+    };
+    view.designList.push(vueData);
+    return vueData;
+  }
+  // 设置同步
+  function setSync(onUpdate, onSort, view, vueData) {
+    const { designs, DEBOUNCE_TIME } = useGlobalData().defineData;
+    // 更新时同步
+    const helper = useCanvasHelper(view);
+    onUpdate(({ key, value }) => {
+      //生成base64
+      helper.generateBase64Debounce();
+      //同步数据
+      useDebounceFn(() => vueData && set(vueData, key, value), DEBOUNCE_TIME);
+    });
+    onSort(() => helper.sortDesignList(view.designList));
+  }
 }
 
 // 设计图尺寸
