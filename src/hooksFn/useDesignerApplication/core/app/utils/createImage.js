@@ -128,14 +128,14 @@ export async function createImage(detail, view, templateDpi) {
   }
   // 设置同步
   function setSync(onUpdate, onSort, view, vueData) {
-    const { designs, DEBOUNCE_TIME } = useGlobalData().defineData;
+    const { DEBOUNCE_TIME } = useGlobalData().defineData;
     // 更新时同步
     const helper = useCanvasHelper(view);
     onUpdate(({ key, value }) => {
       //生成base64
       helper.generateBase64Debounce();
       //同步数据
-      useDebounceFn(() => vueData && set(vueData, key, value), DEBOUNCE_TIME);
+      useDebounceFn(() => vueData && set(vueData, key, value), DEBOUNCE_TIME)();
     });
     onSort(() => helper.sortDesignList(view.designList));
   }

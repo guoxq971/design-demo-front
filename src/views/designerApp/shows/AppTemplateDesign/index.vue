@@ -68,6 +68,10 @@
                 <div class="img" :style="{ background: design.fill }"></div>
                 <div class="name bgc" :style="{ '--color': design.fill }">{{ design.fill }}</div>
               </template>
+              <template v-if="isText(design)">
+                <div class="img" :style="{ background: design.fill }"></div>
+                <div class="name bgc" :style="{ '--color': design.fill }">{{ design.text }}</div>
+              </template>
             </div>
             <div class="fun-list">
               <template v-if="isImg(design) || isBgImg(design)">
@@ -129,6 +133,8 @@ const isImg = computed(() => (design) => [designs.image].includes(design.type));
 const isBgImg = computed(() => (design) => [designs.bgImage].includes(design.type));
 // 是否背景色
 const isBgc = computed(() => (design) => [designs.bgColor].includes(design.type));
+// 文字
+const isText = computed(() => (design) => [designs.text].includes(design.type));
 
 // 模板属性
 function useTemplateData() {

@@ -67,7 +67,7 @@ function addEventListener(view) {
     const nodes = getDesignChildren().filter((node) => {
       return isDesignNode(node) && node?.intersects({ x, y });
     });
-    if (nodes.length) {
+    if (nodes.length > 1) {
       const node = nodes.at(-1);
       // 将node替换,transformer附加到节点
       transformer.attachTo(node);
@@ -177,6 +177,21 @@ function createCanvasNode(view, containerRect) {
   designLayer?.add(bgGroup);
   designLayer?.add(designGroup);
 
+  const canvasNodes = {
+    stage,
+    designLayer,
+    staticLayer,
+    bd,
+    transformer,
+    designGroup,
+    bgGroup,
+    bgcGroup,
+  };
+
+  return getCanvasNodes(canvasNodes);
+}
+export function getCanvasNodes(canvasNodes) {
+  const { stage, designLayer, staticLayer, bd, transformer, designGroup, bgGroup, bgcGroup } = canvasNodes;
   return {
     stage,
     designLayer,
@@ -269,8 +284,9 @@ function useClip() {
 
 // canvas帮助函数
 export function useCanvasHelper(view) {
+  const { templateData } = useGlobalApplication();
   // 容器属性
-  const { containerRect, activeTemplate } = useGlobalApplication().containerElData;
+  const { containerRect } = useGlobalApplication().containerElData;
   const { drawWidth, drawHeight } = containerRect;
   // 全局配置
   const { defineData } = useGlobalData();
@@ -309,6 +325,16 @@ export function useCanvasHelper(view) {
     const visible = !!node;
     transformer.nodes(nodes);
     transformer.visible(visible);
+    // 设置当前激活的设计图;
+    if (nodes.length) {
+      templateData.activeDesignId.value = nodes[0].attrs.uuid;
+    } else {
+      templateData.activeDesignId.value = '';
+    }
+    // 隐藏其他视图的选中框;
+    templateData.activeTemplate.value.viewList.forEach((v) => {
+      v.id !== templateData.activeViewId.value && v.canvasNodes.transformer.nodes([]);
+    });
   }
 
   /**
@@ -435,7 +461,7 @@ export function useCanvasHelper(view) {
   }
 
   return {
-    canvasNodes: canvasNodes,
+    canvasNodes: getCanvasNodes(canvasNodes),
     generateBase64: generateBase64.generateBase64,
     generateBase64Debounce: generateBase64.generateBase64Debounce,
     isDesignNode,

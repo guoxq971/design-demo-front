@@ -23,6 +23,7 @@
     <!--背景-->
     <BgTabs v-show="activeMenu === menus.bg" :activeTab.sync="activeTabBg" />
     <!--文字-->
+    <TextTabs v-show="activeMenu === menus.text" :activeTab.sync="activeText" />
   </TabsContainer>
 </template>
 
@@ -35,13 +36,14 @@ import TabsContainer from './shows/TabsContainer';
 import ProductTabs from './shows/ProductTabs';
 import ImageTabs from './shows/ImageTabs';
 import BgTabs from './shows/BgTabs';
+import TextTabs from './shows/TextTabs';
 import HoverTemplateCard from '@/views/designerApp/shows/AppTabs/components/HoverTemplateCard/index.vue';
 import HoverImageCard from '@/views/designerApp/shows/AppTabs/components/HoverImageCard/index.vue';
 import HoverTemplateCustomCard from '@/views/designerApp/shows/AppTabs/components/HoverTemplateCustomCard/index.vue';
 import Contextmenu from '@/views/designerApp/shows/AppTabs/components/Contextmenu/index.vue';
 
 // 全局菜单tabs数据
-const { activeMenu, activeTabProduct, activeTabImage, activeTabBg } = useGlobalData();
+const { activeMenu, activeTabProduct, activeTabImage, activeTabBg, activeText } = useGlobalData();
 // 鼠标经过
 const { hoverIsTemplate, hoverIsCustom, hoverIsImage } = useHover();
 // 右键菜单

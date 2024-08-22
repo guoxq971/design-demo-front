@@ -12,7 +12,7 @@ import { useGlobalCollectBgImage } from '@/hooksFn/useDesignerApplication/core/b
 
 export const useGlobalData = createGlobalState(() => {
   // 菜单tabs
-  const { activeMenu, activeTabProduct, activeTabImage, activeTabBg } = useMenuData();
+  const { activeMenu, activeTabProduct, activeTabImage, activeTabBg, activeText } = useMenuData();
 
   // 模式
   const modeData = useModeData();
@@ -31,6 +31,7 @@ export const useGlobalData = createGlobalState(() => {
     activeMenu,
     activeTabProduct,
     activeTabImage,
+    activeText,
     activeTabBg,
     // 模式
     modeData,
@@ -65,12 +66,14 @@ function useMenuData() {
   const activeTabImage = ref(tabs.image.my);
   // tab背景
   const activeTabBg = ref(tabs.bg.image);
+  const activeText = ref(tabs.text.text);
 
   return {
     activeMenu,
     activeTabProduct,
     activeTabImage,
     activeTabBg,
+    activeText,
   };
 }
 

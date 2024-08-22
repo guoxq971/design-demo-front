@@ -9,6 +9,11 @@ import { useGlobalCollectBgImage } from '@/hooksFn/useDesignerApplication/core/b
 import { useGlobalCollectImage } from '@/hooksFn/useDesignerApplication/core/image/collectImage';
 import { Message } from 'element-ui';
 import { createBgColor } from '@/hooksFn/useDesignerApplication/core/app/utils/craeteBgColor';
+import { CreateText } from '@/hooksFn/useDesignerApplication/core/app/utils/createText';
+// packages
+import { useContainerEL } from './packages/containerEl';
+import { useTemplateGroup } from './packages/templateGroup';
+import { useTemplateData } from './packages/templateData';
 
 export const useGlobalApplication = createGlobalState(() => {
   // 模板基础数据
@@ -18,7 +23,7 @@ export const useGlobalApplication = createGlobalState(() => {
   // 设置模板
   const { setTemplate } = useSetTemplate(templateData);
   // 设置设计
-  const { setDesignImage, setDesignBgColor, designHandle } = useSetDesign(templateData);
+  const { setDesignImage, setDesignBgColor, setDesignText, designHandle } = useSetDesign(templateData);
   // 容器
   const containerElData = useContainerEL();
 
@@ -33,102 +38,11 @@ export const useGlobalApplication = createGlobalState(() => {
     // 添加设计图
     setDesignImage,
     setDesignBgColor,
+    setDesignText,
     // 设计图操作
     designHandle,
   };
 });
-
-// 模板基础数据
-function useTemplateData() {
-  // 模板列表[通用,精细]
-  const templateList = ref([]);
-  // 模板id
-  const activeTemplateId = ref('');
-  // 模板 (模板列表>模板)
-  const activeTemplate = computed(() => templateList.value?.find((item) => item.detail.id === activeTemplateId.value));
-  // 设置模板id
-  const setTemplateId = (templateId) => (activeTemplateId.value = templateId);
-
-  // 视图列表
-  const activeViewList = computed(() => activeTemplate.value?.viewList);
-  // 视图id
-  const activeViewId = ref('');
-  // 视图 (模板>视图列表>视图)
-  const activeView = computed(() => activeViewList.value?.find((item) => item.id === activeViewId.value));
-  // 设置视图id
-  const setViewId = (viewId) => (activeViewId.value = viewId);
-
-  // 尺码列表
-  const activeSizeList = computed(() => activeTemplate.value?.sizeList);
-  //尺码id
-  const activeSizeId = ref('');
-  // 尺码 (模板>尺码列表>尺码)
-  const activeSize = computed(() => activeSizeList.value?.find((item) => item.id === activeSizeId.value));
-  // 设置尺码id
-  const setSizeId = (sizeId) => (activeSizeId.value = sizeId);
-
-  // 颜色列表
-  const activeColorList = computed(() => activeTemplate.value?.colorList);
-  // 颜色id
-  const activeColorId = ref('');
-  // 颜色 (模板>颜色列表>颜色)
-  const activeColor = computed(() => activeColorList.value?.find((item) => item.id === activeColorId.value));
-  // 设置颜色id
-  const setColorId = (colorId) => (activeColorId.value = colorId);
-
-  return {
-    // 模板
-    templateList,
-    activeTemplateId,
-    activeTemplate,
-    setTemplateId,
-    // 视图
-    activeViewId,
-    activeView,
-    setViewId,
-    // 尺码
-    activeSizeId,
-    activeSize,
-    setSizeId,
-    // 颜色
-    activeColorId,
-    activeColor,
-    setColorId,
-  };
-}
-
-// 模板组合数据
-function useTemplateGroup(templateData) {
-  const { templateList, activeTemplateId, activeTemplate, setViewId, activeViewId, activeView, activeSizeId, activeSize, activeColorId, activeColor } = templateData;
-
-  // 产品图,背景图: 根据当前激活的颜色和视图获取
-  const getViewImageByActiveColor = computed(() => {
-    return (viewId) => {
-      const result = activeColor.value?.views.find((item) => item.id === viewId);
-      return {
-        texture: result?.texture,
-        image: result?.image,
-      };
-    };
-  });
-
-  // 获取base64
-  const getBase64ByViewId = computed(() => {
-    return (viewId) => activeTemplate.value?.viewList?.find((item) => item.id === viewId)?.base64;
-  });
-
-  // 设计列表(激活的)
-  const activeViewDesignList = computed(() => activeView.value?.designList || []);
-  // 翻转 activeViewDesignList
-  const activeViewDesignListReverse = computed(() => activeViewDesignList.value.slice().reverse());
-
-  return {
-    getViewImageByActiveColor,
-    getBase64ByViewId,
-    activeViewDesignList,
-    activeViewDesignListReverse,
-  };
-}
 
 // 设置模板
 function useSetTemplate(templateData) {
@@ -220,12 +134,19 @@ function useSetDesign(templateData) {
     });
   }
 
+  // 设置文字
+  function setDesignText(param, view = null) {
+    view = view === null ? activeView.value : view;
+    CreateText(param, view);
+  }
+
   // 设计图操作
   const designHandle = useDesignHandle(templateData);
 
   return {
     setDesignImage,
     setDesignBgColor,
+    setDesignText,
     designHandle,
   };
 }
@@ -380,62 +301,5 @@ function useDesignHandle(templateData) {
     topDesign,
     bottomDesign,
     setCollect,
-  };
-}
-
-// 容器
-function useContainerEL() {
-  // canvas容器(konva舞台)
-  const canvasElRef = ref(null);
-  // img(产品图)
-  const imgElRef = ref(null);
-
-  // 组装属性
-  const canvasRect = reactive(useElementBounding(canvasElRef));
-  const imgRect = reactive(useElementBounding(imgElRef));
-
-  // 钩子
-  const event = createEventHook();
-
-  // 容器rect
-  const containerRect = ref({});
-  watchEffect(
-    () => {
-      // 舞台的宽高
-      const stageWidth = canvasRect.width;
-      const stageHeight = canvasRect.height;
-
-      // 产品绘制区域的宽高
-      const drawWidth = imgRect.width;
-      const drawHeight = imgRect.height;
-
-      // 产品绘制区域相当于舞台的偏移量
-      const offsetX = imgRect.left - canvasRect.left;
-      const offsetY = imgRect.top - canvasRect.top;
-
-      const result = {
-        canvasRect,
-        imgRect,
-        stageWidth,
-        stageHeight,
-        drawWidth,
-        drawHeight,
-        offsetX,
-        offsetY,
-      };
-
-      // 触发钩子
-      event.trigger(result);
-
-      containerRect.value = result;
-    },
-    { flush: 'post' },
-  );
-
-  return {
-    canvasElRef,
-    imgElRef,
-    containerRect,
-    onUpdate: event.on,
   };
 }

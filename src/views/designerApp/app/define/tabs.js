@@ -14,6 +14,9 @@ export const tabs = {
     color: '2',
     collect: '3',
   },
+  text: {
+    text: '1',
+  },
 };
 
 export const productTabList = [
@@ -33,3 +36,5 @@ export const bgTabList = [
   { label: '背景色', value: tabs.bg.color },
   { label: '收藏背景', value: tabs.bg.collect },
 ];
+
+export const textTabList = [{ label: '文字', value: tabs.text.text }];

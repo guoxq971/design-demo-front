@@ -24,6 +24,9 @@ export class AppUtil {
         Reflect.set(target, key, value);
         return true;
       },
+      get(target, p, receiver) {
+        return Reflect.get(target, p, receiver);
+      },
     });
 
     return {
