@@ -1,14 +1,17 @@
 <template>
   <div class="tool-container">
-    <DefineSvgTemplate v-slot="{ content, component }">
-      <el-tooltip placement="bottom" effect="dark" :content="content" transition="none">
-        <div class="tool-item">
+    <DefineSvgTemplate v-slot="{ content, component, type, fn }">
+      <template v-if="type === 'shu'">
+        <div class="shu">|</div>
+      </template>
+      <el-tooltip v-else placement="bottom" effect="dark" :content="content" transition="none">
+        <div class="tool-item" @click="fn">
           <component :is="component" />
         </div>
       </el-tooltip>
     </DefineSvgTemplate>
 
-    <ReuseSvgTemplate v-for="item in list" :key="item.content" :content="item.content" :component="item.component" />
+    <ReuseSvgTemplate v-for="item in list" :key="item.content" :content="item.content" :component="item.component" :type="item.type" :fn="item.fn" />
   </div>
 </template>
 
@@ -37,32 +40,35 @@ import tileSvg from '@/views/designerApp/components/svg/tileSvg.vue';
 import hotkeySvg from '@/views/designerApp/components/svg/hotkeySvg.vue';
 import settingSvg from '@/views/designerApp/components/svg/settingSvg.vue';
 import saveSvg from '@/views/designerApp/components/svg/saveSvg.vue';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 const [DefineSvgTemplate, ReuseSvgTemplate] = createReusableTemplate();
 
+const app = useGlobalDesigner().app.tool();
 const list = [
-  { content: '上一步', component: undoSvg },
-  { content: '下一步', component: redoSvg },
-  { content: '清空', component: clearSvg },
-  { content: '居中', component: centerSvg },
-  { content: '最大化', component: maxSvg },
-  { content: '上移一层', component: layerUpSvg },
-  { content: '下移一层', component: layerDownSvg },
-  { content: '置顶', component: layerTopSvg },
-  { content: '置底', component: layerBottomSvg },
-  { content: '复制', component: copySvg },
-  { content: '删除', component: deleteSvg },
-  { content: '水平翻转', component: mirrorXSvg },
-  { content: '垂直翻转', component: mirrorYSvg },
-  { content: '水平居中', component: centerXSvg },
-  { content: '垂直居中', component: centerYSvg },
-  { content: '放大', component: scaleUpSvg },
-  { content: '缩小', component: scaleDownSvg },
-  { content: '旋转', component: rotationSvg },
-  { content: '平铺', component: tileSvg },
-  { content: '快捷键', component: hotkeySvg },
-  { content: '设置', component: settingSvg },
-  { content: '保存', component: saveSvg },
+  { content: '上一步', component: undoSvg, fn: () => {} },
+  { content: '下一步', component: redoSvg, fn: () => {} },
+  { content: '清空', component: clearSvg, fn: () => app.clearView() },
+  { type: 'shu' },
+  { content: '居中', component: centerSvg, fn: () => app.centerXY() },
+  { content: '最大化', component: maxSvg, fn: () => app.max() },
+  { content: '上移一层', component: layerUpSvg, fn: () => app.upDesign() },
+  { content: '下移一层', component: layerDownSvg, fn: () => app.downDesign() },
+  { content: '置顶', component: layerTopSvg, fn: () => app.topDesign() },
+  { content: '置底', component: layerBottomSvg, fn: () => app.bottomDesign() },
+  { content: '复制', component: copySvg, fn: () => {} },
+  { content: '删除', component: deleteSvg, fn: () => app.delDesign() },
+  { content: '水平翻转', component: mirrorXSvg, fn: () => app.flipX() },
+  { content: '垂直翻转', component: mirrorYSvg, fn: () => app.flipY() },
+  { content: '水平居中', component: centerXSvg, fn: () => app.centerX() },
+  { content: '垂直居中', component: centerYSvg, fn: () => app.centerY() },
+  { content: '放大', component: scaleUpSvg, fn: () => app.scaleUp() },
+  { content: '缩小', component: scaleDownSvg, fn: () => app.scaleDown() },
+  { content: '旋转', component: rotationSvg, fn: () => app.rotationRight() },
+  { content: '平铺', component: tileSvg, fn: () => {} },
+  { content: '快捷键', component: hotkeySvg, fn: () => {} },
+  { content: '设置', component: settingSvg, fn: () => {} },
+  { content: '保存', component: saveSvg, fn: () => {} },
 ];
 </script>
 

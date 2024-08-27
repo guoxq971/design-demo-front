@@ -2,10 +2,21 @@ import { createGenerateBase64 } from '@/hooksFn/useGlobalDesigner/core/app/useVi
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { setNodeClipFunc } from '@/hooksFn/useGlobalDesigner/core/app/useCanvas/canvasClip';
 import { useDebounceFn } from '@vueuse/core';
-import { Message } from 'element-ui';
+import { Message, MessageBox } from 'element-ui';
+import { getImageSize } from '@/hooksFn/useGlobalDesigner/core/app/useDesign/imageSize';
 
 // 设计帮助函数
 export function useDesignerAppTool(view) {
+  // 获取激活的节点
+  function getActiveNode() {
+    const { activeDesignId, activeTemplate, activeViewId } = useGlobalDesigner().app;
+    return activeTemplate.value.viewList.find((v) => v.id === activeViewId.value).designList.find((d) => d.uuid === activeDesignId.value);
+  }
+  // 获取视图
+  function getView() {
+    return view ? view : useGlobalDesigner().app.activeView.value;
+  }
+
   /**
    * 选中节点 【transformer】
    * @param node
@@ -47,22 +58,22 @@ export function useDesignerAppTool(view) {
   function setMode(mode, view = null) {
     view = view ? view : useGlobalDesigner().app.activeView.value;
     const { modes } = useGlobalDesigner().app.config;
-    const targetNode = view.canvasNodes.designGroup;
+    const targetNodes = [view.canvasNodes.designGroup, view.canvasNodes.bgGroup, view.canvasNodes.bgcGroup];
     switch (mode) {
       // 预览模式
       case modes.preview:
         if (view.d_2d) {
-          setNodeClipFunc(targetNode, view.d_2d);
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.d_2d));
         } else {
-          setNodeClipFunc(targetNode, null);
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
         }
         break;
       // 编辑模式
       case modes.edit:
         if (view.printout) {
-          setNodeClipFunc(targetNode, { width: view.width, height: view.height, gap: 2 });
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, { width: view.width, height: view.height, gap: 2 }));
         } else {
-          setNodeClipFunc(targetNode, null);
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
         }
         break;
     }
@@ -109,22 +120,26 @@ export function useDesignerAppTool(view) {
 
   // 上移
   function upDesign(design) {
-    design.node.moveUp();
+    design = design ? design : getActiveNode();
+    design?.node.moveUp();
   }
 
   // 下移
   function downDesign(design) {
-    design.node.moveDown();
+    design = design ? design : getActiveNode();
+    design?.node.moveDown();
   }
 
   // 置顶
   function topDesign(design) {
-    design.node.moveToTop();
+    design = design ? design : getActiveNode();
+    design?.node.moveToTop();
   }
 
   // 置底
   function bottomDesign(design) {
-    design.node.moveToBottom();
+    design = design ? design : getActiveNode();
+    design?.node.moveToBottom();
   }
 
   // 显示隐藏
@@ -146,6 +161,9 @@ export function useDesignerAppTool(view) {
 
   // 删除
   function delDesign(design) {
+    design = design ? design : getActiveNode();
+    if (!design) return;
+
     const { designs } = useGlobalDesigner().app.config;
     const isActive = isNodeActive(design.node);
 
@@ -179,9 +197,123 @@ export function useDesignerAppTool(view) {
     }
   }
 
+  // 水平居中
+  function centerX(design) {
+    view = getView();
+    design = design ? design : getActiveNode();
+    design.node.x(view.width / 2);
+  }
+
+  // 垂直居中
+  function centerY(design) {
+    view = getView();
+    design = design ? design : getActiveNode();
+    design.node.y(view.height / 2);
+  }
+
+  // 水平垂直居中
+  function centerXY(design) {
+    view = getView();
+    design = design ? design : getActiveNode();
+    design.node.x(view.width / 2);
+    design.node.y(view.height / 2);
+  }
+
+  // 放大
+  function scaleUp(design) {
+    design = design ? design : getActiveNode();
+    design.node.setAttrs({
+      scaleX: Math.abs(design.node.scaleX() + 0.01 * (design.node.scaleX() < 0 ? -1 : 1)) * (design.node.scaleX() < 0 ? -1 : 1),
+      scaleY: Math.abs(design.node.scaleY() + 0.01 * (design.node.scaleY() < 0 ? -1 : 1)) * (design.node.scaleY() < 0 ? -1 : 1),
+    });
+  }
+
+  // 缩小
+  function scaleDown(design) {
+    design = design ? design : getActiveNode();
+    design.node.setAttrs({
+      scaleX: Math.abs(design.node.scaleX() - 0.01 * (design.node.scaleX() < 0 ? -1 : 1)) * (design.node.scaleX() < 0 ? -1 : 1),
+      scaleY: Math.abs(design.node.scaleY() - 0.01 * (design.node.scaleY() < 0 ? -1 : 1)) * (design.node.scaleY() < 0 ? -1 : 1),
+    });
+  }
+
+  // 旋转
+  function rotationRight(design) {
+    design = design ? design : getActiveNode();
+    design.node.rotation(design.node.rotation() + 5);
+  }
+
+  // 水平翻转
+  function flipX(design) {
+    design = design ? design : getActiveNode();
+    design.node.scaleX(-design.node.scaleX());
+  }
+
+  // 垂直翻转
+  function flipY(design) {
+    design = design ? design : getActiveNode();
+    design.node.scaleY(-design.node.scaleY());
+  }
+
+  // 清空当前视图
+  async function clearView() {
+    await MessageBox.confirm('是否清空当前视图', '提示', {});
+    view = getView();
+    const { designGroup, bgGroup, bgcGroup } = view.canvasNodes;
+    designGroup.destroyChildren();
+    bgGroup.destroyChildren();
+    bgcGroup.destroyChildren();
+    setNode();
+    generateBase64Debounce();
+  }
+
+  // 最大化
+  function max(design, type = '') {
+    design = design ? design : getActiveNode();
+    view = getView();
+    const { designs } = useGlobalDesigner().app.config;
+    if ([designs.text].includes(design.type)) {
+      // Message.warning('文字不能最大化操作');
+      return false;
+    }
+
+    const dpi = useGlobalDesigner().app.activeTemplate.value.detail.dpi;
+    const inch = getImageSize(design.detail.size, dpi, { width: view.width, height: view.height }).inch;
+    const maxScale = getScaleMax(type, inch, view, { width: design.node.width(), height: design.node.height() });
+    console.log('maxScale', maxScale);
+    // 最大化
+    design.node.setAttrs({
+      scaleX: maxScale.scaleX,
+      scaleY: maxScale.scaleY,
+    });
+    // 0度
+    design.node.rotation(0);
+    // 居中
+    design.node.setAttrs({
+      x: view.width / 2,
+      y: view.height / 2,
+    });
+  }
+
   return {
     setNode,
     setMode,
+    // 最大化
+    max,
+    // 清空
+    clearView,
+    // 翻转
+    flipX,
+    flipY,
+    // 旋转
+    rotationRight,
+    // 缩放
+    scaleUp,
+    scaleDown,
+    // 居中
+    centerX,
+    centerY,
+    centerXY,
     // 图层
     upDesign,
     downDesign,
@@ -197,5 +329,39 @@ export function useDesignerAppTool(view) {
     // base64
     generateBase64Debounce,
     generateBase64,
+  };
+}
+
+/**
+ * 最大化操作的缩放比例
+ * @param {string} type width:宽度 height:高度
+ */
+export function getScaleMax(type = '', inch, print, imageDOM) {
+  const iSize = inch;
+  const pSize = print;
+  const l = iSize.width / pSize.width; // l:设计图宽/打印区宽
+  const p = iSize.height / pSize.height; // p:设计图高/打印区高
+  let u;
+  // 没有d是非全幅，铺满不能出现红线
+  if (print?.d) {
+    u = Math.min(l, p); // 取较小值
+  } else {
+    u = Math.max(l, p); // 取较大值[改]
+  }
+  if ('width' === type) u = l;
+  if ('height' === type) u = p;
+  if (u < 1) u = 1;
+
+  // 最大化后的宽高
+  const width = iSize.width / u;
+  const height = iSize.height / u;
+
+  // imageDom是当前使用的DOM的宽高可能是小图的宽高
+  const scaleX = width / imageDOM.width;
+  const scaleY = height / imageDOM.height;
+
+  return {
+    scaleX: scaleX,
+    scaleY: scaleY,
   };
 }

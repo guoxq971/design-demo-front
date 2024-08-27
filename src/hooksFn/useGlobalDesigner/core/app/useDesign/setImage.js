@@ -9,7 +9,7 @@ export async function setImage(detail, view) {
   // 获取数据
   view = view ? view : useGlobalDesigner().app.activeView.value;
   const { parentNode, width, height, src } = getData(detail, view);
-  const { setNode, generateBase64Debounce } = useGlobalDesigner().app.tool(view);
+  const { centerXY, setNode, generateBase64Debounce } = useGlobalDesigner().app.tool(view);
   // 加载图片
   const result = await loadImage(src, width, height);
   // 创建节点
@@ -28,6 +28,9 @@ export async function setImage(detail, view) {
   } else {
     setNode(node);
   }
+  // 居中
+  centerXY({ node });
+
   // 生成base64生成base64
   generateBase64Debounce();
 
@@ -70,6 +73,8 @@ export async function setImage(detail, view) {
       visible: true,
       viewId: view.id,
       uuid: AppUtil.uuid(),
+      offsetX: width / 2,
+      offsetY: height / 2,
       type: type,
       detail,
       image: image,
