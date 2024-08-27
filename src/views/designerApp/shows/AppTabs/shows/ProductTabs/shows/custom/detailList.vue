@@ -17,7 +17,7 @@
           <el-button class="back-btn" @click="onBack">返回</el-button>
         </div>
       </TabCondition>
-      <TabList :list="list" @onMouseenter="onMouseenter" @onMouseleave="onMouseleave" @onClick="onClick" v-loading="loading">
+      <TabList :list="list" @onMouseenter="onMouseenterCustomTemplate" @onMouseleave="onMouseleave" @onClick="onClick" v-loading="loading">
         <template slot-scope="{ row }">
           <ImgTrack :url1="getCustomTemplateImage(row)" />
         </template>
@@ -31,10 +31,7 @@
 import { onMounted, defineProps } from 'vue';
 import { useVModels } from '@vueuse/core';
 // utils
-import { useGlobalCustomTemplate } from '@/hooksFn/useDesignerApplication/core/template/customTemplate';
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
-import { useHover } from '@/views/designerApp/hooks/common';
 // components
 import TabCard from '../../../../components/Tab/TabCard.vue';
 import TabBody from '../../../../components/Tab/TabBody.vue';
@@ -42,6 +39,7 @@ import TabCondition from '../../../../components/Tab/TabCondition.vue';
 import TabList from '../../../../components/Tab/TabList.vue';
 import TabPagination from '../../../../components/Tab/TabPagination.vue';
 import ImgTrack from '@/components/imgTrack/index.vue';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 const props = defineProps({
   detail: Object,
@@ -50,18 +48,15 @@ const { detail } = useVModels(props);
 
 // 回退
 const { onBack } = useBack(detail);
-// 全局数据
-const { hovers } = useGlobalData();
 // 鼠标经过
-const { onMouseenter, onMouseleave } = useHover(hovers.custom);
+const { onMouseenterCustomTemplate, onMouseleave } = useGlobalDesigner().hover;
 // 定制模板详情
 const { list, total, params, loading, getList, reset, onClick, getCustomTemplateImage } = useCustomTemplatePage();
 
 // 定制模板
 function useCustomTemplatePage() {
   // 定制模板详情
-  const { customDetail } = useGlobalCustomTemplate();
-  const { list, total, params, loading, getList, reset } = customDetail;
+  const { list, total, params, loading, getList, reset } = useGlobalDesigner().customTemplate.customDetail;
 
   // 选择模板
   function onClick() {}

@@ -6,7 +6,10 @@
 
 <script setup>
 import { useDevice } from '@/hooksFn/useDevice';
+import { useGlobalTest } from '@/testClass';
 useDevice();
+useGlobalTest();
+const { test, onTest } = useGlobalTest();
 </script>
 
 <style lang="less">

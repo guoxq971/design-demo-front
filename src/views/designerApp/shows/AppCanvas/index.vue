@@ -4,11 +4,11 @@
       <!--舞台容器-->
       <div class="stage-container" v-for="item in activeTemplate.viewList" :key="`canvas_${item.id}`" v-show="item.id === activeViewId">
         <!--产品图-->
-        <img :src="getViewImageByActiveColor(item.id).image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
+        <img :src="getActiveColorViewImage(item.id).image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
         <!--canvas-->
         <div :id="getCanvasContainerId(item.id)" style="width: 100%;height: 100%;"></div>
         <!--背景图-->
-        <img :src="getViewImageByActiveColor(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
+        <img :src="getActiveColorViewImage(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
       </div>
 
       <!--预览图列表-->
@@ -35,18 +35,17 @@
 <script setup>
 import { ref } from 'vue';
 // utils
-import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
 // components
 import PreviewGroup from './shows/previewGroup';
 import IconCard from './shows/iconCard';
 import TipCard from './shows/tipCard';
 import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 设计器基础数据
-const { templateData, getViewImageByActiveColor } = useDesignerApp();
-const { activeTemplate, activeViewId } = templateData;
+const { activeTemplate, activeViewId, getActiveColorViewImage } = useGlobalDesigner().app;
 // 容器
-const { canvasElRef, imgElRef } = useContainerEl();
+const { canvasElRef, imgElRef } = useGlobalDesigner().app.container;
 // 预览样式
 const { previewStyle } = usePreviewStyle();
 // canvas配置
@@ -59,7 +58,7 @@ function usePreviewStyle() {
     top: '-9999999px',
   });
 
-  const { onUpdate } = useGlobalApplication().containerElData;
+  const { onUpdate } = useGlobalDesigner().app.container;
   // 容器属性服务
   onUpdate((rect) => {
     const { stageWidth, stageHeight, drawWidth, drawHeight, offsetX, offsetY } = rect;
@@ -73,27 +72,9 @@ function usePreviewStyle() {
   };
 }
 
-// 容器
-function useContainerEl() {
-  const { canvasElRef, imgElRef } = useGlobalApplication().containerElData;
-  return { canvasElRef, imgElRef };
-}
-
-// 设计器基础数据
-function useDesignerApp() {
-  const { templateData, templateGroupData } = useGlobalApplication();
-  const { getViewImageByActiveColor } = templateGroupData;
-
-  return {
-    templateData,
-    getViewImageByActiveColor,
-  };
-}
-
 // canvas配置
 function useCanvasConfig() {
-  const { defineData } = useGlobalData();
-  const { canvasConfig } = defineData;
+  const { canvasConfig } = useGlobalData().defineData;
   return {
     canvasConfig,
     imgSize: canvasConfig.canvasDefine.size,

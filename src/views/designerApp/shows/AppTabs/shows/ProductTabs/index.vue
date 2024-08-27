@@ -15,20 +15,18 @@
 import { onMounted } from 'vue';
 // utils
 import { tabs, productTabList } from '@/views/designerApp/app/define/tabs';
-import { useGlobalTemplateCategory } from '@/hooksFn/useDesignerApplication/core/template/templateCategory';
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 // components
 import CustomTabCard from './shows/custom';
 import CommonTabCard from './shows/common';
 import CollectTabCard from './shows/collect';
 import TabContainer from '../../components/TabContainer';
 import TabsHeader from '../../components/TabsHeader';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 全局菜单tabs数据
-const { activeTabProduct } = useGlobalData();
-
+const { activeTabProduct } = useGlobalDesigner().staticData.tab;
 // 模板分类
-const { getList: getCategoryList } = useGlobalTemplateCategory();
+const { getList: getCategoryList } = useGlobalDesigner().templateCategory;
 onMounted(() => getCategoryList());
 </script>
 

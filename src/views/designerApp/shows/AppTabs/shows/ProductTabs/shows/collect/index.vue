@@ -7,7 +7,7 @@
         <!--分类-->
         <CategoryTemplate class="fn-mt-gap-min" :params="params" :onSearch="onSearch" />
       </TabCondition>
-      <TabList :list="list" @onMouseenter="onMouseenter" @onMouseleave="onMouseleave" @onContextmenu="onContextmenu" @onClick="onClick" v-loading="loading">
+      <TabList :list="list" @onMouseenter="onMouseenterTemplate" @onMouseleave="onMouseleaveTemplate" @onContextmenu="onContextmenuTemplate" @onClick="onClick" v-loading="loading">
         <template slot-scope="{ row }">
           <ImgTrack :url1="AppUtil.getShowImage(row).image" :url2="AppUtil.getShowImage(row).texture" />
         </template>
@@ -21,9 +21,6 @@
 import { onMounted } from 'vue';
 // utils
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { useGlobalCollectTemplate } from '@/hooksFn/useDesignerApplication/core/template/collectTemplate';
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
-import { useContextmenu, useHover } from '@/views/designerApp/hooks/common';
 import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
 // components
 import TabCard from '../../../../components/Tab/TabCard.vue';
@@ -34,33 +31,16 @@ import TabPagination from '../../../../components/Tab/TabPagination.vue';
 import CategoryTemplate from '../../components/CategoryTemplate.vue';
 import ImgTrack from '@/components/imgTrack/index.vue';
 import SearchCard from '@/views/designerApp/shows/AppTabs/components/TabCard/SearchCard.vue';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 收藏模板数据
-const { list, total, params, loading, getList, onSearch, onClick } = useCollectTemplateData();
-// 全局数据
-const { contextmenus, hovers } = useGlobalData();
-// 鼠标经过
-const { onMouseenter, onMouseleave } = useHover(hovers.template);
+const { list, total, params, loading, getList, onSearch } = useGlobalDesigner().collectTemplate;
+onMounted(() => getList());
+const onClick = (detail) => useGlobalApplication().setTemplate(detail);
 // 右键菜单
-const { onContextmenu } = useContextmenu(contextmenus.template);
-
-// 收藏模板数据
-function useCollectTemplateData() {
-  const { setTemplate } = useGlobalApplication();
-  const { list, total, params, loading, getList, onSearch } = useGlobalCollectTemplate();
-  onMounted(() => getList());
-  const onClick = (detail) => setTemplate(detail);
-
-  return {
-    list,
-    total,
-    params,
-    loading,
-    getList,
-    onSearch,
-    onClick,
-  };
-}
+const { onContextmenuTemplate } = useGlobalDesigner().contextmenu;
+// 鼠标经过
+const { onMouseenterTemplate, onMouseleaveTemplate } = useGlobalDesigner().hover;
 </script>
 
 <style scoped lang="less"></style>

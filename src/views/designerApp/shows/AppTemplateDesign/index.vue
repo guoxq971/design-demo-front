@@ -35,7 +35,7 @@
               <div class="fun-btn render-btn">渲染</div>
               <div class="fun-btn preview-btn">预览</div>
               <el-carousel trigger="click" indicator-position="outside" arrow="always" :loop="false" :autoplay="false">
-                <el-carousel-item v-for="item in activeColor.multiList" :key="item.id">
+                <el-carousel-item v-for="item in activeColor?.multiList || []" :key="item.id">
                   <div class="show-box">
                     <img class="child-box" :src="AppUtil.setStartHttp(item.bgImg)" />
                     <img class="child-box" :src="AppUtil.setStartHttp(item.prodImg)" />
@@ -57,7 +57,7 @@
         </div>
       </div>
       <el-scrollbar class="list" v-show="designListVisible">
-        <div class="item-list" v-for="design in activeViewDesignListReverse" :key="design.uuid">
+        <div class="item-list" v-for="design in activeView?.designList || []" :key="design.uuid">
           <div class="design-item">
             <div class="head-design">
               <template v-if="isImg(design) || isBgImg(design)">
@@ -82,11 +82,11 @@
               </template>
               <template v-if="isImg(design)">
                 <!--置顶-->
-                <div class="fun-box" :class="{ disabled: false }" @click="topDesign(design)">
+                <div class="fun-box" :class="{ disabled: false }" @click="upDesign(design)">
                   <LayerTopSvg />
                 </div>
                 <!--置底-->
-                <div class="fun-box" :class="{ disabled: false }" @click="bottomDesign(design)">
+                <div class="fun-box" :class="{ disabled: false }" @click="downDesign(design)">
                   <LayerBottomSvg />
                 </div>
               </template>
@@ -109,10 +109,6 @@
 
 <script setup>
 import { computed, ref } from 'vue';
-// utils
-import { designs } from '@/hooksFn/useDesignerApp/core/service/app/define';
-import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 // components
 import DeleteSvg from '@/views/designerApp/components/svg/deleteSvg.vue';
 import VisibleSvg from '@/views/designerApp/components/svg/visibleSvg.vue';
@@ -120,13 +116,19 @@ import NoVisibleSvg from '@/views/designerApp/components/svg/noVisibleSvg.vue';
 import LayerBottomSvg from '@/views/designerApp/components/svg/layerBottomSvg.vue';
 import LayerTopSvg from '@/views/designerApp/components/svg/layerTopSvg.vue';
 import CollectSvg from '@/views/designerApp/components/svg/collectSvg.vue';
+// utils
+import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 图层开关
 const designListVisible = ref(true);
 // 模板属性
-const { templateData, activeViewDesignListReverse, designHandle, showImagName } = useTemplateData();
-const { delDesign, visibleDesign, topDesign, bottomDesign, isCollect, setCollect } = designHandle;
-const { activeTemplate, activeColorId, setColorId, activeSizeId, setSizeId, activeColor } = templateData;
+console.log(useGlobalDesigner().app);
+const { activeTemplate, activeView, activeColor, activeSizeId, activeColorId, setColorId, setSizeId } = useGlobalDesigner().app;
+const { designs } = useGlobalDesigner().app.config;
+const { isCollect, setCollect, topDesign, bottomDesign, upDesign, downDesign, visibleDesign, delDesign } = useGlobalDesigner().app.tool();
+const { designHandle, showImagName } = useTemplateData();
+
 // 是否设计图
 const isImg = computed(() => (design) => [designs.image].includes(design.type));
 // 是否背景图
@@ -138,17 +140,12 @@ const isText = computed(() => (design) => [designs.text].includes(design.type));
 
 // 模板属性
 function useTemplateData() {
-  const { templateData, templateGroupData, designHandle } = useGlobalApplication();
-
   const showImagName = (design) => {
     if (design.detail?.quickimgid) return design.detail.imageName;
     return design.detail.name;
   };
   return {
-    designHandle,
-    templateData,
     showImagName,
-    activeViewDesignListReverse: templateGroupData.activeViewDesignListReverse,
   };
 }
 </script>

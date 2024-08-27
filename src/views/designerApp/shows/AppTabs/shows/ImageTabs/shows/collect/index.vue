@@ -1,7 +1,7 @@
 <template>
   <TabCard>
     <TabBody>
-      <TabList :list="list" @onMouseenter="onMouseenter" @onMouseleave="onMouseleave" @onContextmenu="onContextmenu" @onClick="onClick" v-loading="loading">
+      <TabList :list="list" @onMouseenter="onMouseenterImage" @onMouseleave="onMouseleave" @onContextmenu="onContextmenuImage" @onClick="onClick" v-loading="loading">
         <template slot-scope="{ row }">
           <img :src="AppUtil.setStartHttp(row.designImg)" class="fn-full" />
         </template>
@@ -15,32 +15,26 @@
 import { onMounted } from 'vue';
 // utils
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { useGlobalCollectImage } from '@/hooksFn/useDesignerApplication/core/image/collectImage';
-import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
-import { useContextmenu, useHover } from '@/views/designerApp/hooks/common';
 // components
 import TabCard from '@/views/designerApp/shows/AppTabs/components/Tab/TabCard.vue';
 import TabBody from '@/views/designerApp/shows/AppTabs/components/Tab/TabBody.vue';
 import TabList from '@/views/designerApp/shows/AppTabs/components/Tab/TabList.vue';
 import TabPagination from '@/views/designerApp/shows/AppTabs/components/Tab/TabPagination.vue';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 收藏图库
 const { list, total, params, loading, getList, onClick } = useCollectImageData();
-// 全局数据
-const { contextmenus, hovers } = useGlobalData();
 // 鼠标经过
-const { onMouseenter, onMouseleave } = useHover(hovers.image);
+const { onMouseenterImage, onMouseleave } = useGlobalDesigner().hover;
 // 右键菜单
-const { onContextmenu } = useContextmenu(contextmenus.image);
+const { onContextmenuImage } = useGlobalDesigner().contextmenu;
 
 // 收藏图库
 function useCollectImageData() {
-  const { setDesignImage } = useGlobalApplication();
-  const { list, total, params, loading, getList } = useGlobalCollectImage();
+  const { list, total, params, loading, getList } = useGlobalDesigner().collectImage;
   onMounted(() => getList());
   const onClick = (detail) => {
-    setDesignImage(detail);
+    useGlobalDesigner().app.setDesignImage(detail);
   };
   return {
     list,

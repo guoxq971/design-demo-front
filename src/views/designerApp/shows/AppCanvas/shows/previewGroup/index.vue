@@ -6,10 +6,10 @@
     </div>
     <div class="preview-box-group" style="width: fit-content">
       <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" v-for="(item, index) in activeTemplate.viewList" :key="'preview' + item.id">
-        <img :src="getViewImageByActiveColor(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
+        <img :src="getActiveColorViewImage(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
         <img v-if="getBase64ByViewId(item.id)" :src="getBase64ByViewId(item.id)" class="fn-full" style="position: absolute;" />
-        <img :src="getViewImageByActiveColor(item.id).texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
+        <img :src="getActiveColorViewImage(item.id).texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
       </div>
     </div>
@@ -19,7 +19,7 @@
 <script setup>
 import { computed, defineEmits, defineProps } from 'vue';
 // utils
-import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 const emit = defineEmits(['onView']);
 const props = defineProps({
@@ -29,20 +29,7 @@ const props = defineProps({
 });
 
 // 设计器基础数据
-const { templateData, getViewImageByActiveColor, getBase64ByViewId } = useDesignerApp();
-const { activeViewId, activeTemplate, setViewId } = templateData;
-
-// 设计器基础数据
-function useDesignerApp() {
-  const { templateData, templateGroupData } = useGlobalApplication();
-  const { getViewImageByActiveColor, getBase64ByViewId } = templateGroupData;
-
-  return {
-    templateData,
-    getViewImageByActiveColor,
-    getBase64ByViewId,
-  };
-}
+const { getBase64ByViewId, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useGlobalDesigner().app;
 
 // 样式管理
 const { leftStyle, size, scrollGap, gap } = useStyle();

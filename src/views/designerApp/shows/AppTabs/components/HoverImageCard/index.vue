@@ -63,7 +63,7 @@
 <script setup>
 import { computed } from 'vue';
 // utils
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 鼠标经过
 const { mouseenter, mouseleave, detail } = useHover();
@@ -72,12 +72,10 @@ const { title } = useTitle(detail);
 
 // 鼠标经过
 function useHover() {
-  const { hover } = useGlobalData();
-  const { enter, leave, detail } = hover;
   return {
-    mouseenter: enter,
-    mouseleave: leave,
-    detail,
+    mouseenter: useGlobalDesigner().hover.onMouseenter,
+    mouseleave: useGlobalDesigner().hover.onMouseleave,
+    detail: useGlobalDesigner().hover.detail,
   };
 }
 

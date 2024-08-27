@@ -7,7 +7,15 @@
         <!--分类-->
         <CategoryTemplate class="fn-mt-gap-min" :params="params" :onSearch="onSearch" />
       </TabCondition>
-      <TabList :list="list" @onMouseenter="onMouseenter" @onMouseleave="onMouseleave" @onContextmenu="onContextmenu" @onClick="onClick" v-loading="loading" :active="(v) => v.id === activeTemplateId">
+      <TabList
+        :list="list"
+        @onMouseenter="onMouseenterTemplate"
+        @onMouseleave="onMouseleaveTemplate"
+        @onContextmenu="onContextmenuTemplate"
+        @onClick="onClick"
+        v-loading="loading"
+        :active="(v) => v.id === activeTemplateId"
+      >
         <template slot-scope="{ row }">
           <ImgTrack :url1="AppUtil.getShowImage(row).image" :url2="AppUtil.getShowImage(row).texture" />
         </template>
@@ -19,12 +27,6 @@
 
 <script setup>
 import { onMounted } from 'vue';
-// utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { useGlobalCommonTemplate } from '@/hooksFn/useDesignerApplication/core/template/commonTemplate';
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
-import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
-import { useContextmenu, useHover } from '@/views/designerApp/hooks/common';
 // components
 import TabCard from '@/views/designerApp/shows/AppTabs/components/Tab/TabCard.vue';
 import TabBody from '@/views/designerApp/shows/AppTabs/components/Tab/TabBody.vue';
@@ -34,44 +36,20 @@ import TabPagination from '@/views/designerApp/shows/AppTabs/components/Tab/TabP
 import CategoryTemplate from '../../components/CategoryTemplate.vue';
 import ImgTrack from '@/components/imgTrack/index.vue';
 import SearchCard from '@/views/designerApp/shows/AppTabs/components/TabCard/SearchCard.vue';
+// utils
+import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 通用模板数据
-const { list, total, params, loading, getList, onSearch, activeTemplateId, onClick } = useCommonTemplateData();
-// 全局数据
-const { contextmenus, hovers } = useGlobalData();
-// 鼠标经过
-const { onMouseenter, onMouseleave } = useHover(hovers.template);
+const { list, total, params, loading, getList, onSearch } = useGlobalDesigner().commonTemplate;
+onMounted(() => getList().then((_) => list.value.length && useGlobalDesigner().app.setTemplate(list.value[0])));
+const onClick = (detail) => useGlobalDesigner().app.setTemplate(detail);
 // 右键菜单
-const { onContextmenu } = useContextmenu(contextmenus.template);
-
-// 通用模板数据
-function useCommonTemplateData() {
-  const { setTemplate, templateData } = useGlobalApplication();
-  const { list, total, params, loading, getList, onSearch } = useGlobalCommonTemplate();
-
-  onMounted(() => {
-    getList().then((_) => {
-      if (list.value.length) setTemplate(list.value[0]);
-    });
-  });
-
-  // 设置模板
-  const { activeTemplateId } = templateData;
-  const onClick = (detail) => {
-    setTemplate(detail);
-  };
-
-  return {
-    list,
-    total,
-    params,
-    loading,
-    getList,
-    onSearch,
-    activeTemplateId,
-    onClick,
-  };
-}
+const { onContextmenuTemplate } = useGlobalDesigner().contextmenu;
+// 鼠标经过
+const { onMouseenterTemplate, onMouseleaveTemplate } = useGlobalDesigner().hover;
+// 激活模板
+const { activeTemplateId } = useGlobalDesigner().app;
 </script>
 
 <style scoped lang="less"></style>

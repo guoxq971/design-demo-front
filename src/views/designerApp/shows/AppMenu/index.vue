@@ -11,10 +11,9 @@
 
 <script setup>
 // utils
-import { menuList } from '@/views/designerApp/app/define/menu';
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
-const { activeMenu } = useGlobalData();
+const { activeMenu, menuList } = useGlobalDesigner().staticData.menu;
 const onMenu = (item) => (activeMenu.value = item.value);
 </script>
 

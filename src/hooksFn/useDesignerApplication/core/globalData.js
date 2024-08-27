@@ -5,7 +5,7 @@ import { menus } from '@/views/designerApp/app/define/menu';
 import { tabs } from '@/views/designerApp/app/define/tabs';
 import { designers } from '@/views/designerApp/app/define/designer';
 import { AppUtil } from '@/hooksFn/useDesignerApp/core/util';
-import { Message } from 'element-ui';
+import { Message, MessageBox } from 'element-ui';
 import { useGlobalCollectTemplate } from '@/hooksFn/useDesignerApplication/core/template/collectTemplate';
 import { useGlobalCollectImage } from '@/hooksFn/useDesignerApplication/core/image/collectImage';
 import { useGlobalCollectBgImage } from '@/hooksFn/useDesignerApplication/core/bg/bgImageCollect';
@@ -177,7 +177,11 @@ function useContextmenu() {
       await isLogin();
       const result = isCollect(data, type);
       if (result) {
-        await AppUtil.confirmCollect();
+        await MessageBox.confirm('确定取消收藏？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        });
         // 取消收藏
         await collectCancel(data, type);
       } else {
