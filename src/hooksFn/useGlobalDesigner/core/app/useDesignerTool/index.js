@@ -4,8 +4,6 @@ import { setNodeClipFunc } from '@/hooksFn/useGlobalDesigner/core/app/useCanvas/
 import { useDebounceFn } from '@vueuse/core';
 import { Message, MessageBox } from 'element-ui';
 import { getImageSize } from '@/hooksFn/useGlobalDesigner/core/app/useDesign/imageSize';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { nextTick } from 'vue';
 
 // 设计帮助函数
 export function useDesignerAppTool(view) {
@@ -28,6 +26,7 @@ export function useDesignerAppTool(view) {
     view = view || useGlobalDesigner().app.activeView.value;
     const { transformer } = view.canvasNodes;
     const { activeDesignId, activeTemplate, activeViewId } = useGlobalDesigner().app;
+    const { modes } = useGlobalDesigner().app.config;
 
     const nodes = node ? [node] : [];
     const visible = !!node;
@@ -43,6 +42,8 @@ export function useDesignerAppTool(view) {
     activeTemplate.value.viewList.forEach((v) => {
       v.id !== activeViewId.value && v.canvasNodes.transformer.nodes([]);
     });
+
+    setMode(modes.edit, view);
   }
 
   //节点是否选中
@@ -59,12 +60,14 @@ export function useDesignerAppTool(view) {
    */
   function setMode(mode, view = null) {
     view = view ? view : useGlobalDesigner().app.activeView.value;
-    const { modes } = useGlobalDesigner().app.config;
+    const { modes, createCanvasIds } = useGlobalDesigner().app.config;
     const targetNodes = [view.canvasNodes.designGroup, view.canvasNodes.bgGroup, view.canvasNodes.bgcGroup];
+
+    // 设置裁剪属性
     switch (mode) {
       // 预览模式
       case modes.preview:
-        if (view.d_2d) {
+        if (view.print_d) {
           targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.d_2d));
         } else {
           targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
@@ -72,13 +75,46 @@ export function useDesignerAppTool(view) {
         break;
       // 编辑模式
       case modes.edit:
+        // 如果是全幅产品
         if (view.printout) {
-          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, { width: view.width, height: view.height, gap: 2 }));
-        } else {
+          // targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, { width: view.width, height: view.height, gap: 2 }));
           targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
+        } else {
+          if (view.print_d) {
+            targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.print_d));
+          } else {
+            targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
+          }
         }
         break;
     }
+
+    // 设置车线
+    const design_printout_d = view.canvasNodes.staticLayer.findOne((node) => node.attrs.type === createCanvasIds.design_printout_d);
+    const design_printout_v = view.canvasNodes.staticLayer.findOne((node) => node.attrs.type === createCanvasIds.design_printout_v);
+    const design_draw_black = view.canvasNodes.staticLayer.findOne((node) => node.attrs.type === createCanvasIds.design_draw_black);
+    console.log(design_printout_d, design_printout_v);
+    switch (mode) {
+      // 预览模式
+      case modes.preview:
+        design_printout_d?.visible(false);
+        design_printout_v?.visible(false);
+        design_draw_black?.visible(false);
+        break;
+      // 编辑模式
+      case modes.edit:
+        design_printout_d?.visible(true);
+        design_printout_v?.visible(true);
+        design_draw_black?.visible(true);
+        break;
+    }
+
+    // 设置模式
+    useGlobalDesigner().app.mode.value = mode;
+    // 生成base64
+    useGlobalDesigner()
+      .app.tool(view)
+      .generateBase64Debounce();
   }
 
   // 是否收藏

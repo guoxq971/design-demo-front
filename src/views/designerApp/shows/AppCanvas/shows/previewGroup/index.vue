@@ -9,7 +9,7 @@
       <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" v-for="(item, index) in activeTemplate.viewList" :key="'preview' + item.id">
         <img :src="getActiveColorViewImage(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
-        <img v-if="getBase64ByViewId(item.id)" :src="getBase64ByViewId(item.id)" class="fn-full" style="position: absolute;" />
+        <img v-if="getBase64ByViewId(item.id)" :src="getBase64ByViewId(item.id)" class="fn-full" style="position: absolute;" :style="style(item.id)" />
         <img :src="getActiveColorViewImage(item.id).texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
       </div>
@@ -31,15 +31,37 @@ const props = defineProps({
   top: { type: [String, Number], default: -999999 },
 });
 
+// 裁剪样式
+const style = computed(() => {
+  return (viewId) => {
+    const view = activeTemplate.value.viewList.find((item) => item.id === viewId);
+    if (!view || !view.printout) {
+      return {};
+    }
+    // return `polygon(0 0, 10px 0, 10px 10px, 0 10px);`;
+    const radio = sizeNum / useGlobalDesigner().app.config.canvas_SIZE_ORG;
+    const x1 = view.offsetX * radio;
+    const y1 = view.offsetY * radio;
+    const x2 = (view.offsetX + view.width) * radio;
+    const y2 = view.offsetY * radio;
+    const x3 = (view.offsetX + view.width) * radio;
+    const y3 = (view.offsetY + view.height) * radio;
+    const x4 = view.offsetX * radio;
+    const y4 = (view.offsetY + view.height) * radio;
+    return { 'clip-path': `polygon(${x1}px ${y1}px, ${x2}px ${y2}px, ${x3}px ${y3}px, ${x4}px ${y4}px)` };
+  };
+});
+
 // 设计器基础数据
 const { getBase64ByViewId, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useGlobalDesigner().app;
 
 // 样式管理
-const { leftStyle, size, scrollGap, gap } = useStyle();
+const { leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
 
 // 样式管理
 function useStyle() {
-  const size = '9.2rem';
+  const sizeNum = 92; //px
+  const size = `${sizeNum / 10}rem`;
   // 滚动条宽度
   const scrollGap = '1.2rem';
   // 和canvas的间距
@@ -61,6 +83,7 @@ function useStyle() {
   return {
     leftStyle,
     size,
+    sizeNum,
     scrollGap,
     gap,
   };
@@ -132,7 +155,7 @@ function useStyle() {
         align-items: center;
         color: #fff;
         background: #000000;
-        opacity: 0.3;
+        opacity: 0.2;
         font-size: 1.2rem;
         line-height: 1.6rem;
       }

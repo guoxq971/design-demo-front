@@ -24,6 +24,11 @@ export function parseTemplate(detail) {
       width: print?.boundary?.size?.width,
       height: print?.boundary?.size?.height,
       d_2d: print?.boundary?.soft?.content?.svg?.path?.d,
+      printout_d: printout?.soft?.d,
+      printout_v: printout?.soft?.v,
+      print_d: print?.boundary?.soft?.content?.svg?.path?.d,
+      print_width: print?.boundary?.size?.width,
+      print_height: print?.boundary?.size?.height,
     });
   }
 

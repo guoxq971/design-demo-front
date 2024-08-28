@@ -4,7 +4,7 @@ import Konva from 'konva';
 // 创建canvas
 export function createCanvasNode(view) {
   // 全局配置
-  const { PRIMARY_COLOR, canvasDefine, createCanvasIds, getCanvasContainerId } = useGlobalDesigner().app.config;
+  const { PRIMARY_COLOR, canvasDefine, createCanvasIds, getCanvasContainerId, canvas_scale } = useGlobalDesigner().app.config;
   // 舞台容器
   const { stageWidth, stageHeight, drawWidth, drawHeight, offsetX, offsetY } = useGlobalDesigner().app.container.containerRect.value;
 
@@ -70,6 +70,87 @@ export function createCanvasNode(view) {
     centeredScaling: true, // 是否启用中心缩放
   });
   staticLayer?.add(transformer);
+
+  // 车线-编辑模式-d
+  if (view.printout_d) {
+    let d = view.printout_d;
+    let dash = [5];
+    // 如果是精细设计
+    // if (/*isRefine &&*/ is3d) {
+    // d = viewInfo?.uvD;
+    // dash = [];
+    // }
+
+    // 轮廓线 -  (编辑模式, 红色, 轮廓, 超出隐藏)
+    const path = new Konva.Path({
+      listening: false,
+      type: createCanvasIds.design_printout_d,
+      x: view.offsetX * canvas_scale,
+      y: view.offsetY * canvas_scale,
+      scaleX: canvas_scale,
+      scaleY: canvas_scale,
+      data: d,
+      fill: null,
+      stroke: 'red',
+      dash: dash,
+      strokeWidth: 1.8,
+      opacity: 0.7,
+      visible: false,
+    });
+    staticLayer.add(path);
+  }
+  // 车线-编辑模式-v
+  if (view.printout_v) {
+    let v = view.printout_v;
+    // 如果是精细设计
+    // if (isRefine) {
+    // v = viewInfo?.uvV;
+    // }
+
+    // 车线 - (编辑模式, 红色, 车线)
+    const path = new Konva.Path({
+      listening: false,
+      type: createCanvasIds.design_printout_v,
+      x: view.offsetX * canvas_scale,
+      y: view.offsetY * canvas_scale,
+      scaleX: canvas_scale,
+      scaleY: canvas_scale,
+      data: v,
+      fill: null,
+      stroke: 'red',
+      dash: [5],
+      strokeWidth: 2,
+      opacity: 0.7,
+      visible: false,
+    });
+    staticLayer.add(path);
+  }
+  // 车线-黑色-绘制区域-如果是精细产品不需要(轮廓线黑色)
+  if (/*!isRefine*/ true) {
+    // 轮廓线 - (编辑模式, 黑色, 产品边框)
+    const step = 2;
+    const step2 = step / 2;
+    const w = view.print_width + step;
+    const h = view.print_height + step;
+    // data 的值为 this.print.width和this.print.height 组成的矩形加上step的值
+    const data = `M${-step2},${-step2} L${w - step2},${-step2} L${w - step2},${h - step2} L${-step2},${h - step2} Z`;
+    const path = new Konva.Path({
+      listening: false,
+      type: createCanvasIds.design_draw_black,
+      x: view.offsetX * canvas_scale,
+      y: view.offsetY * canvas_scale,
+      scaleX: canvas_scale,
+      scaleY: canvas_scale,
+      data: data,
+      fill: null,
+      stroke: '#000',
+      dash: [4],
+      strokeWidth: 1.2,
+      opacity: 0.7,
+      visible: false,
+    });
+    staticLayer.add(path);
+  }
 
   // 设计层-组
   const designGroup = new Konva.Group({

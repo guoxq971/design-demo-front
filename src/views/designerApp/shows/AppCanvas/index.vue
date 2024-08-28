@@ -4,11 +4,11 @@
       <!--舞台容器-->
       <div class="stage-container" v-for="item in activeTemplate.viewList" :key="`canvas_${item.id}`" v-show="item.id === activeViewId">
         <!--产品图-->
-        <img :src="getActiveColorViewImage(item.id).image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
+        <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id).image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
         <!--canvas-->
         <div :id="getCanvasContainerId(item.id)" style="width: 100%;height: 100%;"></div>
         <!--背景图-->
-        <img :src="getActiveColorViewImage(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
+        <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
       </div>
 
       <!--预览图列表 + 精细/通用-->
@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 // utils
 // components
 import PreviewGroup from './shows/previewGroup';
@@ -43,13 +43,22 @@ import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData'
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 设计器基础数据
-const { activeTemplate, activeViewId, getActiveColorViewImage } = useGlobalDesigner().app;
+const { activeTemplate, activeViewId, activeView, getActiveColorViewImage, mode } = useGlobalDesigner().app;
+const { modes } = useGlobalDesigner().app.config;
 // 容器
 const { canvasElRef, imgElRef } = useGlobalDesigner().app.container;
 // 预览样式
 const { previewStyle } = usePreviewStyle();
 // canvas配置
 const { imgSize, getCanvasContainerId } = useCanvasConfig();
+
+// 是否展示产品图 TODO:可以考虑将mode相关的放在一起
+const isShowProdImg = computed(() => {
+  if (useGlobalDesigner().app.mode.value === modes.edit && !activeView.value.printout) {
+    return true;
+  }
+  return mode.value === modes.preview;
+});
 
 // 预览样式
 function usePreviewStyle() {

@@ -21,13 +21,14 @@ export function createGenerateBase64(view = null) {
     if (view.base64) {
       view.base64 = null;
     }
-    view.base64 = designLayer?.toDataURL({
+    let _base64 = designLayer?.toDataURL({
       x: offsetX,
       y: offsetY,
       width: drawWidth,
       height: drawHeight,
       pixelRatio: pixelRatio,
     });
+    view.base64 = _base64;
     // console.log('生成预览图', view.base64);
   }
 
