@@ -11,7 +11,7 @@
         <img :src="getActiveColorViewImage(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
       </div>
 
-      <!--预览图列表-->
+      <!--预览图列表 + 精细/通用-->
       <PreviewGroup :left="previewStyle.left" :top="previewStyle.top" />
     </template>
 

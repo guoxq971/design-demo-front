@@ -5,7 +5,14 @@ import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 import { useImage } from '@vueuse/core';
 import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
 
-export async function setImage(detail, view) {
+/**
+ * 设置设计图
+ * @param detail
+ * @param view
+ * @param {setImageOptions} options
+ * @returns {Promise<{node}>}
+ */
+export async function setImage(detail, view, options = {}) {
   // 获取数据
   view = view ? view : useGlobalDesigner().app.activeView.value;
   const { parentNode, width, height, src } = getData(detail, view);
@@ -29,10 +36,16 @@ export async function setImage(detail, view) {
     setNode(node);
   }
   // 居中
-  centerXY({ node });
+  if (options.isCenter) {
+    centerXY({ node });
+  }
 
   // 生成base64生成base64
   generateBase64Debounce();
+
+  return {
+    node,
+  };
 
   // 获取数据
   function getData(detail, view) {
@@ -80,6 +93,7 @@ export async function setImage(detail, view) {
       image: image,
       width: width,
       height: height,
+      ...options.attrs,
     });
   }
   // 设置代理

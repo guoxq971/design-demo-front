@@ -1,9 +1,10 @@
 <template>
   <div class="preview-container" style="width: fit-content" :style="leftStyle">
-    <div class="btn-wrap">
-      <span>精细设计</span>
-      <div class="corner"></div>
-    </div>
+    <conrner>
+      <div class="btn-wrap">
+        <span>精细设计</span>
+      </div>
+    </conrner>
     <div class="preview-box-group" style="width: fit-content">
       <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" v-for="(item, index) in activeTemplate.viewList" :key="'preview' + item.id">
         <img :src="getActiveColorViewImage(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
@@ -18,6 +19,8 @@
 
 <script setup>
 import { computed, defineEmits, defineProps } from 'vue';
+// components
+import conrner from '@/views/designerApp/components/conrner.vue';
 // utils
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
@@ -65,19 +68,6 @@ function useStyle() {
 </script>
 
 <style scoped lang="less">
-// 角标
-.corner {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 0.8rem;
-  height: 0.8rem;
-  background: #ffc3a4;
-  -webkit-clip-path: polygon(100% 0, 0 0, 100% 100%);
-  //clip-path: polygon(100% 0, 0 0, 100% 100%);
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-}
-
 @canvasSize: v-bind('props.canvasSize');
 
 //预览图列表

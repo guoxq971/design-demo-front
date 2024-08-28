@@ -16,17 +16,25 @@ function setDesignBgColor(color, view = null) {
   useGlobalDesigner().app.activeTemplate.value.viewList.forEach((view) => setBgColor(color, view));
 }
 
-// 设置设计图
-async function setDesignImage(detail) {
+/**
+ * 设置设计图
+ * @param detail
+ * @param {setImageOptions} options
+ * @returns {Promise<{node: *}>}
+ */
+async function setDesignImage(detail, options = {}) {
+  options = Object.assign({ attrs: {}, isCenter: true }, options);
+
   // console.log('设置设计图', cloneDeep(detail));
   // 是否背景图
   const isBg = detail.isBg;
   if (!isBg) {
     if (!imgMax()) return Promise.reject('设计图数量限制');
-    await setImage(detail);
+    const view = useGlobalDesigner().app.activeView.value;
+    return await setImage(detail, view, options);
   } else {
     if (!bgImgMax()) return Promise.reject('背景图数量限制');
-    useGlobalDesigner().app.activeTemplate.value.viewList.forEach((view) => setImage(detail, view));
+    useGlobalDesigner().app.activeTemplate.value.viewList.forEach((view) => setImage(detail, view, options));
   }
 }
 

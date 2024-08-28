@@ -4,6 +4,8 @@ import { setNodeClipFunc } from '@/hooksFn/useGlobalDesigner/core/app/useCanvas/
 import { useDebounceFn } from '@vueuse/core';
 import { Message, MessageBox } from 'element-ui';
 import { getImageSize } from '@/hooksFn/useGlobalDesigner/core/app/useDesign/imageSize';
+import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { nextTick } from 'vue';
 
 // 设计帮助函数
 export function useDesignerAppTool(view) {
@@ -121,29 +123,35 @@ export function useDesignerAppTool(view) {
   // 上移
   function upDesign(design) {
     design = design ? design : getActiveNode();
+    if (!design) return;
     design?.node.moveUp();
   }
 
   // 下移
   function downDesign(design) {
     design = design ? design : getActiveNode();
+    if (!design) return;
     design?.node.moveDown();
   }
 
   // 置顶
   function topDesign(design) {
     design = design ? design : getActiveNode();
+    if (!design) return;
     design?.node.moveToTop();
   }
 
   // 置底
   function bottomDesign(design) {
     design = design ? design : getActiveNode();
+    if (!design) return;
     design?.node.moveToBottom();
   }
 
   // 显示隐藏
   function visibleDesign(design) {
+    design = design ? design : getActiveNode();
+    if (!design) return;
     const { designs } = useGlobalDesigner().app.config;
     const visible = !design.visible;
 
@@ -201,28 +209,32 @@ export function useDesignerAppTool(view) {
   function centerX(design) {
     view = getView();
     design = design ? design : getActiveNode();
-    design.node.x(view.width / 2);
+    if (!design) return;
+    design?.node.x(view.width / 2);
   }
 
   // 垂直居中
   function centerY(design) {
     view = getView();
     design = design ? design : getActiveNode();
-    design.node.y(view.height / 2);
+    if (!design) return;
+    design?.node.y(view.height / 2);
   }
 
   // 水平垂直居中
   function centerXY(design) {
     view = getView();
     design = design ? design : getActiveNode();
-    design.node.x(view.width / 2);
-    design.node.y(view.height / 2);
+    if (!design) return;
+    design?.node.x(view.width / 2);
+    design?.node.y(view.height / 2);
   }
 
   // 放大
   function scaleUp(design) {
     design = design ? design : getActiveNode();
-    design.node.setAttrs({
+    if (!design) return;
+    design?.node.setAttrs({
       scaleX: Math.abs(design.node.scaleX() + 0.01 * (design.node.scaleX() < 0 ? -1 : 1)) * (design.node.scaleX() < 0 ? -1 : 1),
       scaleY: Math.abs(design.node.scaleY() + 0.01 * (design.node.scaleY() < 0 ? -1 : 1)) * (design.node.scaleY() < 0 ? -1 : 1),
     });
@@ -231,28 +243,45 @@ export function useDesignerAppTool(view) {
   // 缩小
   function scaleDown(design) {
     design = design ? design : getActiveNode();
-    design.node.setAttrs({
+    if (!design) return;
+    design?.node.setAttrs({
       scaleX: Math.abs(design.node.scaleX() - 0.01 * (design.node.scaleX() < 0 ? -1 : 1)) * (design.node.scaleX() < 0 ? -1 : 1),
       scaleY: Math.abs(design.node.scaleY() - 0.01 * (design.node.scaleY() < 0 ? -1 : 1)) * (design.node.scaleY() < 0 ? -1 : 1),
     });
   }
 
   // 旋转
-  function rotationRight(design) {
+  function rotationRight(design, angle = 5) {
     design = design ? design : getActiveNode();
-    design.node.rotation(design.node.rotation() + 5);
+    if (!design) return;
+    design?.node.rotation(design.node.rotation() + angle);
+  }
+
+  // 旋转归0
+  function rotationReset(design) {
+    design = design ? design : getActiveNode();
+    if (!design) return;
+    design?.node.rotation(0);
+  }
+
+  // 旋转
+  function rotationLeft(design, angle = 5) {
+    design = design ? design : getActiveNode();
+    if (!design) return;
+    design?.node.rotation(design.node.rotation() - angle);
   }
 
   // 水平翻转
   function flipX(design) {
     design = design ? design : getActiveNode();
-    design.node.scaleX(-design.node.scaleX());
+    design?.node.scaleX(-design.node.scaleX());
   }
 
   // 垂直翻转
   function flipY(design) {
     design = design ? design : getActiveNode();
-    design.node.scaleY(-design.node.scaleY());
+    if (!design) return;
+    design?.node.scaleY(-design.node.scaleY());
   }
 
   // 清空当前视图
@@ -267,12 +296,28 @@ export function useDesignerAppTool(view) {
     generateBase64Debounce();
   }
 
+  // 清空全部视图
+  async function clearAllView() {
+    await MessageBox.confirm('是否清空全部视图', '提示', {});
+    const { viewList } = useGlobalDesigner().app.activeTemplate.value;
+    viewList.forEach((view) => {
+      const { designGroup, bgGroup, bgcGroup } = view.canvasNodes;
+      designGroup.destroyChildren();
+      bgGroup.destroyChildren();
+      bgcGroup.destroyChildren();
+      const tool = useGlobalDesigner().app.tool(view);
+      tool.setNode();
+      tool.generateBase64Debounce();
+    });
+  }
+
   // 最大化
-  function max(design, type = '') {
+  function max(design = null, type = '') {
     design = design ? design : getActiveNode();
+    if (!design) return;
     view = getView();
     const { designs } = useGlobalDesigner().app.config;
-    if ([designs.text].includes(design.type)) {
+    if ([designs.text].includes(design?.type)) {
       // Message.warning('文字不能最大化操作');
       return false;
     }
@@ -280,7 +325,6 @@ export function useDesignerAppTool(view) {
     const dpi = useGlobalDesigner().app.activeTemplate.value.detail.dpi;
     const inch = getImageSize(design.detail.size, dpi, { width: view.width, height: view.height }).inch;
     const maxScale = getScaleMax(type, inch, view, { width: design.node.width(), height: design.node.height() });
-    console.log('maxScale', maxScale);
     // 最大化
     design.node.setAttrs({
       scaleX: maxScale.scaleX,
@@ -295,18 +339,44 @@ export function useDesignerAppTool(view) {
     });
   }
 
+  // 复制
+  async function copy(design) {
+    design = design ? design : getActiveNode();
+    if (!design) return;
+    const { designs } = useGlobalDesigner().app.config;
+    if ([designs.bgImage, designs.bgColor].includes(design.type)) {
+      Message.warning('背景图不能复制');
+      return;
+    }
+    if ([designs.image].includes(design.type)) {
+      const attrs = {
+        x: design.node.x() + 10,
+        y: design.node.y() + 10,
+        rotation: design.node.rotation(),
+        scaleX: design.node.scaleX(),
+        scaleY: design.node.scaleY(),
+      };
+      await useGlobalDesigner().app.setDesignImage(design.detail, { attrs, isCenter: false });
+    }
+  }
+
   return {
     setNode,
     setMode,
+    // 复制
+    copy,
     // 最大化
     max,
     // 清空
     clearView,
+    clearAllView,
     // 翻转
     flipX,
     flipY,
     // 旋转
     rotationRight,
+    rotationLeft,
+    rotationReset,
     // 缩放
     scaleUp,
     scaleDown,
