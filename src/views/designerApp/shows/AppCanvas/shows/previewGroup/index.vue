@@ -1,15 +1,23 @@
 <template>
   <div class="preview-container" style="width: fit-content" :style="leftStyle">
-    <conrner>
-      <div class="btn-wrap">
-        <span>精细设计</span>
-      </div>
-    </conrner>
+    <el-dropdown placement="bottom">
+      <conrner>
+        <div class="btn-wrap">
+          <span>{{ activeTemplateTypeName }}</span>
+        </div>
+      </conrner>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item :disabled="commonDisabled">通用设计</el-dropdown-item>
+        <el-dropdown-item :disabled="refineDisabled">精细设计</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
+
     <div class="preview-box-group" style="width: fit-content">
       <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" v-for="(item, index) in activeTemplate.viewList" :key="'preview' + item.id">
         <img :src="getActiveColorViewImage(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
-        <img v-if="getBase64ByViewId(item.id)" :src="getBase64ByViewId(item.id)" class="fn-full" style="position: absolute;" :style="style(item.id)" />
+        <canvas :id="`preview_canvas_${item.id}`" width="90" height="90" style="position: absolute;" :style="style(item.id)"></canvas>
+        <!--<img v-if="getBase64ByViewId(item.id)" :src="getBase64ByViewId(item.id)" class="fn-full" style="position: absolute;" :style="style(item.id)" />-->
         <img :src="getActiveColorViewImage(item.id).texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
       </div>
@@ -30,6 +38,17 @@ const props = defineProps({
   left: { type: [String, Number], default: -999999 },
   top: { type: [String, Number], default: -999999 },
 });
+
+// 设计器基础数据
+const { templateList, getBase64ByViewId, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useGlobalDesigner().app;
+const { templateType } = useGlobalDesigner().app.config;
+// 样式管理
+const { previewCanvasStyle, leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
+// 模板类型
+const activeTemplateType = computed(() => activeTemplate.value?.type || templateType.common);
+const activeTemplateTypeName = computed(() => (activeTemplateType.value === templateType.common ? '通用设计' : '精细设计'));
+const commonDisabled = computed(() => !templateList.value.some((t) => t.type === templateType.common));
+const refineDisabled = computed(() => !templateList.value.some((t) => t.type === templateType.refine));
 
 // 裁剪样式
 const style = computed(() => {
@@ -52,16 +71,11 @@ const style = computed(() => {
   };
 });
 
-// 设计器基础数据
-const { getBase64ByViewId, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useGlobalDesigner().app;
-
-// 样式管理
-const { leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
-
 // 样式管理
 function useStyle() {
   const sizeNum = 92; //px
   const size = `${sizeNum / 10}rem`;
+  const previewCanvasStyle = { width: sizeNum + 'px', height: sizeNum + 'px' };
   // 滚动条宽度
   const scrollGap = '1.2rem';
   // 和canvas的间距
@@ -82,6 +96,7 @@ function useStyle() {
 
   return {
     leftStyle,
+    previewCanvasStyle,
     size,
     sizeNum,
     scrollGap,
@@ -118,13 +133,13 @@ function useStyle() {
     color: #000c01;
     line-height: 1.9rem;
     cursor: pointer;
-    margin-bottom: @designBtnGap;
     &:hover {
       opacity: 0.9;
     }
   }
   // 预览box
   .preview-box-group {
+    margin-top: @designBtnGap;
     user-select: none;
     //max-height: calc(@canvasSize - @designBtnHeight - @designBtnGap);
     //overflow: auto;

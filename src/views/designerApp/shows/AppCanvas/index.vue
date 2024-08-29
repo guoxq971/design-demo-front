@@ -1,5 +1,5 @@
 <template>
-  <div class="canvas-container">
+  <div class="canvas-container" v-loading="loading">
     <template v-if="activeTemplate">
       <!--舞台容器-->
       <div class="stage-container" v-for="item in activeTemplate.viewList" :key="`canvas_${item.id}`" v-show="item.id === activeViewId">
@@ -9,6 +9,10 @@
         <div :id="getCanvasContainerId(item.id)" style="width: 100%;height: 100%;"></div>
         <!--背景图-->
         <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
+      </div>
+      <!--three 容器-->
+      <div v-loading="threeLoading">
+        <div v-show="isShowThree" :style="`width:${imgSize}px;height:${imgSize}px;position:relative`" id="three-container" />
       </div>
 
       <!--预览图列表 + 精细/通用-->
@@ -43,7 +47,7 @@ import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData'
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 设计器基础数据
-const { activeTemplate, activeViewId, activeView, getActiveColorViewImage, mode } = useGlobalDesigner().app;
+const { loading, threeLoading, activeTemplate, activeViewId, activeView, getActiveColorViewImage, mode } = useGlobalDesigner().app;
 const { modes } = useGlobalDesigner().app.config;
 // 容器
 const { canvasElRef, imgElRef } = useGlobalDesigner().app.container;
@@ -55,9 +59,19 @@ const { imgSize, getCanvasContainerId } = useCanvasConfig();
 // 是否展示产品图 TODO:可以考虑将mode相关的放在一起
 const isShowProdImg = computed(() => {
   if (useGlobalDesigner().app.mode.value === modes.edit && !activeView.value.printout) {
+    if (isShowThree.value) return false;
     return true;
   }
-  return mode.value === modes.preview;
+  if (mode.value === modes.preview) {
+    if (isShowThree.value) return false;
+    return true;
+  }
+});
+// 是否展示3d
+const isShowThree = computed(() => {
+  if (activeTemplate.value.has3d() && mode.value === modes.preview) {
+    return true;
+  }
 });
 
 // 预览样式

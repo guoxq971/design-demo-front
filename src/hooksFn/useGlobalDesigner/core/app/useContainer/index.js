@@ -15,7 +15,14 @@ export function useContainer() {
   const event = createEventHook();
 
   // 容器rect
-  const containerRect = ref({});
+  const containerRect = ref({
+    stageWidth: 0,
+    stageHeight: 0,
+    drawWidth: 0,
+    drawHeight: 0,
+    offsetX: 0,
+    offsetY: 0,
+  });
   watchEffect(
     () => {
       // 舞台的宽高

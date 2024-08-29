@@ -16,7 +16,7 @@ export async function setImage(detail, view, options = {}) {
   // 获取数据
   view = view ? view : useGlobalDesigner().app.activeView.value;
   const { parentNode, width, height, src } = getData(detail, view);
-  const { centerXY, setNode, generateBase64Debounce } = useGlobalDesigner().app.tool(view);
+  const tool = useGlobalDesigner().app.tool(view);
   // 加载图片
   const result = await loadImage(src, width, height);
   // 创建节点
@@ -26,22 +26,26 @@ export async function setImage(detail, view, options = {}) {
   // 添加到设计组
   parentNode?.add(node);
   // 注册监听事件
-  node.on('mousedown', () => setNode(node));
+  node.on('mousedown', () => tool.setNode(node));
   // 设置选中
   if (detail.isBg) {
     if (view.id === useGlobalDesigner().app.activeViewId) {
-      setNode(node);
+      tool.setNode(node);
     }
   } else {
-    setNode(node);
+    tool.setNode(node);
   }
   // 居中
   if (options.isCenter) {
-    centerXY({ node });
+    tool.centerXY({ node });
   }
 
   // 生成base64生成base64
-  generateBase64Debounce();
+  if (detail.isBg) {
+    tool.generateBase64Fn();
+  } else {
+    tool.generateBase64Debounce();
+  }
 
   return {
     node,
@@ -103,8 +107,8 @@ export async function setImage(detail, view, options = {}) {
     node.attrs = nodeAttrsResult.proxy;
     const nodeResult = AppUtil.createObjectProsy(node, 'index');
     node = nodeResult.proxy;
-    nodeAttrsResult.onUpdate(() => generateBase64Debounce());
-    nodeResult.onUpdate(() => generateBase64Debounce());
+    nodeAttrsResult.onUpdate(() => tool.generateBase64Debounce());
+    nodeResult.onUpdate(() => tool.generateBase64Debounce());
     return node;
   }
 }

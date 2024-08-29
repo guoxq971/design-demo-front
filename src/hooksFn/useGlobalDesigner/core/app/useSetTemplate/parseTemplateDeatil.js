@@ -29,6 +29,9 @@ export function parseTemplate(detail) {
       print_d: print?.boundary?.soft?.content?.svg?.path?.d,
       print_width: print?.boundary?.size?.width,
       print_height: print?.boundary?.size?.height,
+      base64: null, // 预览图
+      canvasNodes: null, // canvas节点
+      designList: null, // 设计列表
     });
   }
 
@@ -66,7 +69,7 @@ export function parseTemplate(detail) {
     viewList,
     sizeList,
     colorList,
-    multiList,
+    // multiList,
   };
 }
 

@@ -28,10 +28,10 @@ export function setBgColor(color, view) {
     const watch_attrs = ['fill', 'visible'];
     const attrsProxy = AppUtil.createObjectProsy(node.attrs, watch_attrs);
     node.attrs = attrsProxy.proxy;
-    attrsProxy.onUpdate(() => tool.generateBase64Debounce());
+    attrsProxy.onUpdate(() => tool.generateBase64Fn());
     // 添加到canvas
     view.canvasNodes.bgcGroup.add(node);
     // 生成base64
-    tool.generateBase64Debounce();
+    tool.generateBase64Fn();
   }
 }

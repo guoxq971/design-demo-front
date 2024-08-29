@@ -3,6 +3,7 @@ const resolve = (dir) => {
   return path.join(__dirname, dir);
 };
 module.exports = {
+  publicPath: '/', // 基本路径
   devServer: {
     hot: true,
     disableHostCheck: true,
@@ -26,4 +27,13 @@ module.exports = {
     },
   },
   lintOnSave: false,
+  chainWebpack: (config) => {
+    // set worker-loader
+    config.module
+      .rule('worker')
+      .test(/.worker.js$/)
+      .use('worker-loader')
+      .loader('worker-loader')
+      .end();
+  },
 };

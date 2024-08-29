@@ -1,13 +1,19 @@
-import { computed, ref } from 'vue';
+import { ComputedRef, Ref, computed, ref } from 'vue';
 import { useSetTemplate } from './useSetTemplate';
 import { useContainer } from './useContainer';
 import { useDesign } from '@/hooksFn/useGlobalDesigner/core/app/useDesign';
 import { useDesignerAppTool } from '@/hooksFn/useGlobalDesigner/core/app/useDesignerTool';
+import { Template } from '@/hooksFn/useGlobalDesigner/core/app/useSetTemplate/template';
+import { createEventHook } from '@vueuse/core';
 
 export function useApp() {
   // 配置
   const config = useConfig();
+  const watchBase64Event = createEventHook();
 
+  const loading = ref(false);
+  const threeLoading = ref(false);
+  /**@type {Ref<Template[]>}*/
   const templateList = ref([]);
   const activeTemplateId = ref('');
   const activeViewId = ref('');
@@ -16,12 +22,13 @@ export function useApp() {
   const activeDesignId = ref('');
   const mode = ref(config.modes.preview);
 
-  // 当前激活的模板
-  const activeTemplate = computed(() => templateList.value.find((item) => item.detail.id === activeTemplateId.value));
+  /**@type {ComputedRef<Template>} 当前激活的模板*/
+  const activeTemplate = computed(() => templateList.value.find((item) => item.detail?.id === activeTemplateId.value));
   /**当前激活的视图*/
   const activeView = computed(() => activeTemplate.value?.viewList.find((item) => item.id === activeViewId.value));
   // 当前激活的颜色
   const activeColor = computed(() => activeTemplate.value?.colorList.find((item) => item.id === activeColorId.value));
+  // 当前激活的颜色
   // 当前使用的产品图,根据颜色和视图获取
   const getActiveColorViewImage = computed(() => {
     return (viewId) => {
@@ -55,7 +62,46 @@ export function useApp() {
   // 设计
   const design = useDesign();
 
+  // 销毁所有数据
+  function destroy() {
+    templateList.value.forEach((template) => {
+      // 销毁3d
+      if (template.three) {
+        template.three.destroy();
+        template.three = null;
+      }
+      // 销毁2d
+      template.viewList?.forEach((view) => {
+        // 销毁设计
+        if (view.designList && view.designList.length) {
+          view.designList.forEach((design) => {
+            if (design.design) {
+              design.design.destroy();
+            }
+          });
+        }
+        // 销毁base64
+        if (view.base64) {
+          URL.revokeObjectURL(view.base64);
+        }
+        view.base64 = null;
+        // 销毁节点
+        if (view.canvasNodes) {
+          Object.keys(view.canvasNodes).forEach((key) => {
+            view.canvasNodes[key]?.destroy();
+          });
+          view.canvasNodes = null;
+        }
+      });
+    });
+    templateList.value = [];
+  }
+
   return {
+    watchBase64Event,
+    destroy,
+    loading,
+    threeLoading,
     // 模式
     mode,
     // 模板
@@ -92,7 +138,12 @@ function useConfig() {
   const CANVAS_SIZE = 600;
   const canvas_SIZE_ORG = 500;
   const PREVIEW_CANVAS_SIZE = 90;
+  const canvas_big_size = 1200;
   const config = {
+    templateType: {
+      common: 'common',
+      refine: 'refine',
+    },
     // 设计类型
     designs: {
       image: 'image',
@@ -110,9 +161,9 @@ function useConfig() {
     PRIMARY_COLOR: '#fc6b20',
     canvasDefine: {
       // 大图分辨率
-      bigPixelRatio: 1500 / CANVAS_SIZE,
+      bigPixelRatio: canvas_big_size / CANVAS_SIZE,
       // 预览图分辨率
-      previewPixelRatio: (PREVIEW_CANVAS_SIZE / CANVAS_SIZE) * 2,
+      previewPixelRatio: PREVIEW_CANVAS_SIZE / CANVAS_SIZE,
       // 画布宽高
       width: CANVAS_SIZE,
       height: CANVAS_SIZE,
@@ -122,6 +173,8 @@ function useConfig() {
     },
     // 画布与原设计区域比例
     canvas_scale: CANVAS_SIZE / canvas_SIZE_ORG,
+    canvas_big_size: canvas_big_size,
+    canvas_preview_size: PREVIEW_CANVAS_SIZE,
     // canvas容器
     getCanvasContainerId(id) {
       return 'canvasContainerId' + id;

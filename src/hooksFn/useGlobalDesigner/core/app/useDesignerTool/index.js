@@ -53,22 +53,40 @@ export function useDesignerAppTool(view) {
   }
 
   // base64
-  const { generateBase64Debounce, generateBase64 } = createGenerateBase64(view);
+  const { generateBase64Debounce, generateBase64, generateBase64Fn } = createGenerateBase64(view);
 
   /**
    * 设置模式
    */
+  function setModeEdit() {
+    setMode(useGlobalDesigner().app.config.modes.edit);
+  }
   function setMode(mode, view = null) {
     view = view ? view : useGlobalDesigner().app.activeView.value;
     const { modes, createCanvasIds } = useGlobalDesigner().app.config;
     const targetNodes = [view.canvasNodes.designGroup, view.canvasNodes.bgGroup, view.canvasNodes.bgcGroup];
 
+    // three
+    if (useGlobalDesigner().app.activeTemplate.value.three) {
+      switch (mode) {
+        // 预览模式
+        case modes.preview:
+          useGlobalDesigner().app.activeTemplate.value.three.animateFlag = true;
+          break;
+        // 编辑模式
+        case modes.edit:
+          useGlobalDesigner().app.activeTemplate.value.three.animateFlag = false;
+          break;
+      }
+    }
+
     // 设置裁剪属性
+    const d = has3d() ? get3dViewConfig(view.id)?.uvD : view.print_d;
     switch (mode) {
       // 预览模式
       case modes.preview:
-        if (view.print_d) {
-          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.d_2d));
+        if (d) {
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, d));
         } else {
           targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
         }
@@ -80,8 +98,8 @@ export function useDesignerAppTool(view) {
           // targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, { width: view.width, height: view.height, gap: 2 }));
           targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
         } else {
-          if (view.print_d) {
-            targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.print_d));
+          if (d) {
+            targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, d));
           } else {
             targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
           }
@@ -93,7 +111,6 @@ export function useDesignerAppTool(view) {
     const design_printout_d = view.canvasNodes.staticLayer.findOne((node) => node.attrs.type === createCanvasIds.design_printout_d);
     const design_printout_v = view.canvasNodes.staticLayer.findOne((node) => node.attrs.type === createCanvasIds.design_printout_v);
     const design_draw_black = view.canvasNodes.staticLayer.findOne((node) => node.attrs.type === createCanvasIds.design_draw_black);
-    console.log(design_printout_d, design_printout_v);
     switch (mode) {
       // 预览模式
       case modes.preview:
@@ -115,6 +132,16 @@ export function useDesignerAppTool(view) {
     useGlobalDesigner()
       .app.tool(view)
       .generateBase64Debounce();
+
+    // 获取3d的view配置
+    function get3dViewConfig(viewId) {
+      if (has3d()) {
+        return useGlobalDesigner().app.activeTemplate.value.config.viewList.find((v) => v.viewId == viewId);
+      }
+    }
+    function has3d() {
+      return useGlobalDesigner().app.activeTemplate.value.has3d();
+    }
   }
 
   // 是否收藏
@@ -399,6 +426,7 @@ export function useDesignerAppTool(view) {
   return {
     setNode,
     setMode,
+    setModeEdit,
     // 复制
     copy,
     // 最大化
@@ -434,6 +462,7 @@ export function useDesignerAppTool(view) {
     setCollect,
     // base64
     generateBase64Debounce,
+    generateBase64Fn,
     generateBase64,
   };
 }
