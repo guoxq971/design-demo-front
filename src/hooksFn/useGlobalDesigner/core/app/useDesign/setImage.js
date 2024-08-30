@@ -4,6 +4,7 @@ import { getImageSize } from '@/hooksFn/useGlobalDesigner/core/app/useDesign/ima
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 import { useImage } from '@vueuse/core';
 import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
+import { nextTick } from 'vue';
 
 /**
  * 设置设计图
@@ -40,9 +41,9 @@ export async function setImage(detail, view, options = {}) {
     tool.centerXY({ node });
   }
 
-  // 生成base64生成base64
+  // 生成base64
   if (detail.isBg) {
-    tool.generateBase64Fn();
+    nextTick(() => tool.generateBase64Fn());
   } else {
     tool.generateBase64Debounce();
   }
@@ -107,8 +108,12 @@ export async function setImage(detail, view, options = {}) {
     node.attrs = nodeAttrsResult.proxy;
     const nodeResult = AppUtil.createObjectProsy(node, 'index');
     node = nodeResult.proxy;
-    nodeAttrsResult.onUpdate(() => tool.generateBase64Debounce());
-    nodeResult.onUpdate(() => tool.generateBase64Debounce());
+    nodeAttrsResult.onUpdate(() => {
+      tool.generateBase64Debounce();
+    });
+    nodeResult.onUpdate(() => {
+      tool.generateBase64Debounce();
+    });
     return node;
   }
 }

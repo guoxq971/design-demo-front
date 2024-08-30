@@ -116,6 +116,10 @@ export function getMeshByViewId(viewId, meshModelList) {
   for (let mesh of meshModelList) {
     const materialName = getMaterialName(mesh);
     const view = getViewByMaterialName(materialName);
+    if (!view) {
+      console.error('获取视图失败, view view不存在', materialName);
+      return;
+    }
     if (view.id == viewId) {
       return mesh;
     }

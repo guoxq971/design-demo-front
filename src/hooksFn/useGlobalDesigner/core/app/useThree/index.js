@@ -46,6 +46,7 @@ async function bindMaterials(template, meshModelList) {
     updateMesh(mesh, view, template);
   }
   const fn = useDebounceFn((o) => {
+    console.log('更新模型', o);
     if (!o.isAll) {
       update(o.viewId);
     } else {
@@ -54,5 +55,5 @@ async function bindMaterials(template, meshModelList) {
       });
     }
   }, 100);
-  useGlobalDesigner().app.watchBase64Event.on((o) => fn(o));
+  useGlobalDesigner().app.watchBase64Event.on(fn);
 }

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas to base64</title>
+</head>
+<body>
+  <script>
+    function loadImageAsync(url) {
+      if (typeof url !== 'string') {
+        return Promise.reject(new TypeError('must specify a string'));
+      }
+
+      return new Promise(function(resolve, reject) {
+        const image = new Image();
+        // 允许 canvas 跨域加载图片
+        image.crossOrigin="anonymous";
+        image.onload = function() {
+          const $canvas = document.createElement('canvas');
+          const ctx = $canvas.getContext('2d');
+          const width = this.width;
+          const height = this.height;
+          let imageData;
+          
+          $canvas.width = width;
+          $canvas.height = height;
+          ctx.drawImage(image, 0, 0, width, height);
+          imageData = ctx.getImageData(0, 0, $canvas.width, $canvas.height);
+          resolve({image, imageData});
+        };
+
+        image.onerror = function() {
+          reject(new Error('Could not load image at ' + url));
+        };
+
+        image.src = url;
+      });
+    }
+    
+    function blobToDataURL(blob) {
+      return new Promise((fulfill, reject) => {
+        let reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (e) => fulfill(reader.result);
+        reader.readAsDataURL(blob);
+      })
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      loadImageAsync('https://cdn-images-1.medium.com/max/1600/1*4lHHyfEhVB0LnQ3HlhSs8g.png')
+        .then(function (image) {
+          // jpeg-web-worker.js https://github.com/kentmw/jpeg-web-worker
+          const worker = new Worker('jpeg-web-worker.js');
+          worker.postMessage({
+            image: image.imageData,
+            quality: 50
+          });
+          worker.onmessage = function(e) {
+            // e.data is the imageData of the jpeg. {data: U8IntArray, height: int, width: int}
+            // you can still convert the jpeg imageData into a blog like this:
+            const blob = new Blob( [e.data.data], {type: 'image/png'} );
+            blobToDataURL(blob).then((imageURL) => {
+              console.log('imageUrl:', imageURL);
+            })
+          }
+        })
+        .catch(function (err) {
+          console.log('Error：', err.message);
+        });
+    });
+  </script>
+</body>
+</html>

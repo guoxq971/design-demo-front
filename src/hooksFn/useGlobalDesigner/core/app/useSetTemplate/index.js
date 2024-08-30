@@ -102,8 +102,6 @@ function useTemplate(template) {
     template.viewList.forEach((view) => {
       view.base64 = ''; // 预览图
       view.textureCanvas = shallowRef(null); // 3d texture canvas
-      // view.canvas = shallowRef(null); // 预览图
-      // view.imageData = shallowRef(null); // 预览图
       view.canvasNodes = null; // canvas节点
       // 设计列表
       view.designList = getDesignList(view);

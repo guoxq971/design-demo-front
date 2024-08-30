@@ -1,15 +1,17 @@
-import { ComputedRef, Ref, computed, ref } from 'vue';
+import { ComputedRef, Ref, computed, ref, shallowRef, reactive } from 'vue';
 import { useSetTemplate } from './useSetTemplate';
 import { useContainer } from './useContainer';
 import { useDesign } from '@/hooksFn/useGlobalDesigner/core/app/useDesign';
 import { useDesignerAppTool } from '@/hooksFn/useGlobalDesigner/core/app/useDesignerTool';
 import { Template } from '@/hooksFn/useGlobalDesigner/core/app/useSetTemplate/template';
 import { createEventHook } from '@vueuse/core';
+import { fnCreateEventHook } from '@/hooksFn/useGlobalDesigner/core/app/useFnCreateEvenetHook';
 
 export function useApp() {
   // 配置
   const config = useConfig();
-  const watchBase64Event = createEventHook();
+  // 监听生成base64事件
+  const watchBase64Event = fnCreateEventHook();
 
   const loading = ref(false);
   const threeLoading = ref(false);
@@ -64,6 +66,7 @@ export function useApp() {
 
   // 销毁所有数据
   function destroy() {
+    watchBase64Event.offAll();
     templateList.value.forEach((template) => {
       // 销毁3d
       if (template.three) {
@@ -178,6 +181,10 @@ function useConfig() {
     // canvas容器
     getCanvasContainerId(id) {
       return 'canvasContainerId' + id;
+    },
+    // 预览图容器
+    getPreviewContainerId(id) {
+      return `preview_canvas_${id}`;
     },
     // 画布ID
     createCanvasIds: {

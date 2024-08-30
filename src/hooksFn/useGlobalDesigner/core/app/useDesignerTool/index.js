@@ -254,7 +254,7 @@ export function useDesignerAppTool(view) {
         // 销毁
         d && d.node.destroy();
         // 生成base64
-        tool.generateBase64Debounce();
+        tool.generateBase64Fn();
       });
     } else if ([designs.bgColor].includes(design.type)) {
       useGlobalDesigner().app.activeTemplate.value.viewList.forEach((view) => {
@@ -263,7 +263,7 @@ export function useDesignerAppTool(view) {
         // 销毁
         d && d.node.destroy();
         // 生成base64
-        tool.generateBase64Debounce();
+        tool.generateBase64Fn();
       });
     }
   }

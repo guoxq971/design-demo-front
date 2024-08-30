@@ -1,5 +1,6 @@
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { nextTick } from 'vue';
 
 export function setBgColor(color, view) {
   const { designs } = useGlobalDesigner().app.config;
@@ -28,7 +29,7 @@ export function setBgColor(color, view) {
     const watch_attrs = ['fill', 'visible'];
     const attrsProxy = AppUtil.createObjectProsy(node.attrs, watch_attrs);
     node.attrs = attrsProxy.proxy;
-    attrsProxy.onUpdate(() => tool.generateBase64Fn());
+    attrsProxy.onUpdate(() => nextTick(() => tool.generateBase64Fn()));
     // 添加到canvas
     view.canvasNodes.bgcGroup.add(node);
     // 生成base64

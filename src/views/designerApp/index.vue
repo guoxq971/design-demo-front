@@ -31,7 +31,6 @@ import AppCanvas from '@/views/designerApp/shows/AppCanvas';
 import AppToolBar from '@/views/designerApp/shows/AppToolBar';
 import AppMenu from '@/views/designerApp/shows/AppMenu';
 import AppTabs from '@/views/designerApp/shows/AppTabs';
-
 // 测试键盘事件
 onKeyStroke('ArrowDown', () => {
   Message.success('ArrowDown');

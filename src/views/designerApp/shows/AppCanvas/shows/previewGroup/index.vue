@@ -16,7 +16,7 @@
       <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" v-for="(item, index) in activeTemplate.viewList" :key="'preview' + item.id">
         <img :src="getActiveColorViewImage(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
-        <canvas :id="`preview_canvas_${item.id}`" width="90" height="90" style="position: absolute;" :style="style(item.id)"></canvas>
+        <canvas :id="getPreviewContainerId(item.id)" :width="canvas_preview_size" :height="canvas_preview_size" style="position: absolute;" :style="style(item.id)"></canvas>
         <!--<img v-if="getBase64ByViewId(item.id)" :src="getBase64ByViewId(item.id)" class="fn-full" style="position: absolute;" :style="style(item.id)" />-->
         <img :src="getActiveColorViewImage(item.id).texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
@@ -41,7 +41,7 @@ const props = defineProps({
 
 // 设计器基础数据
 const { templateList, getBase64ByViewId, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useGlobalDesigner().app;
-const { templateType } = useGlobalDesigner().app.config;
+const { templateType, getPreviewContainerId, canvas_preview_size } = useGlobalDesigner().app.config;
 // 样式管理
 const { previewCanvasStyle, leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
 // 模板类型
@@ -73,7 +73,7 @@ const style = computed(() => {
 
 // 样式管理
 function useStyle() {
-  const sizeNum = 92; //px
+  const sizeNum = canvas_preview_size; //px
   const size = `${sizeNum / 10}rem`;
   const previewCanvasStyle = { width: sizeNum + 'px', height: sizeNum + 'px' };
   // 滚动条宽度
