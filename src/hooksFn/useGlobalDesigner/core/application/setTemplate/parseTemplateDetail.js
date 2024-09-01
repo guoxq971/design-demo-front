@@ -8,6 +8,7 @@ import { setNode } from '@/hooksFn/useGlobalDesigner/core/application/viewUtil/s
 import { nextTick } from 'vue';
 import { update2DCanvas } from '@/hooksFn/useGlobalDesigner/core/application/viewUtil/updateCanvas';
 import { useDebounceFn } from '@vueuse/core';
+import { addColor } from '@/hooksFn/useGlobalDesigner/core/application/design/addColor';
 
 /**
  * 解析模板详情
@@ -46,6 +47,8 @@ export function parseTemplateDetail(detail) {
       setMode: (mode) => setMode(mode, v),
       /**@typedef {import('d').view.addImage}*/
       addImage: (detail, options = {}) => addImage(detail, v, options),
+      /**@typedef {import('d').view.addColor}*/
+      addColor: (color) => addColor(color, v),
       /**@typedef {import('d').view.removeDesign}*/
       removeDesign: (design) => {
         const index = v.designList.findIndex((d) => d === design);

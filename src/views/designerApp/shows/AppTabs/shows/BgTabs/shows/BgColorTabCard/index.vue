@@ -14,10 +14,10 @@ import { ref, watch, watchEffect } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 // utils
 import ColorPicker from './shows/ColorPicker';
-import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 
 const color = ref('');
-const fn = useDebounceFn(() => useGlobalDesigner().app.setDesignBgColor(color.value), 300);
+const fn = useDebounceFn(() => useDesignerApplication().addColor(color.value), 300);
 watch(
   () => color.value,
   () => fn(),

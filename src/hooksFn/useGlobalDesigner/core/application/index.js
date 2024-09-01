@@ -65,10 +65,25 @@ export const useDesignerApplication = createGlobalState(() => {
     }
     view.addImage(detail);
   }
+  /**
+   * 添加设计颜色
+   * @typedef {import('d').view.addColor}
+   * @param {string} color
+   * @param {import('d').view} view
+   */
+  function addColor(color, view) {
+    if (!view) view = activeView.value;
+    if (!view) {
+      console.error('添加设计颜色失败, view is undefined');
+      return;
+    }
+    view.addColor(color);
+  }
 
   return {
     // 添加设计
     addImage,
+    addColor,
     activeDesign,
     // 设置模板
     setTemplate,

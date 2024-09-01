@@ -9,25 +9,25 @@ import { setNodeClipFunc } from '@/hooksFn/useGlobalDesigner/core/app/useCanvas/
  */
 export function setMode(mode, view) {
   // 设置裁剪
-  const targetNode = view.canvasNodes.designGroup;
+  const targetNodes = [view.canvasNodes.designGroup, view.canvasNodes.bgcGroup, view.canvasNodes.bgGroup];
   switch (mode) {
     case useDesignerAppConfig().mode_type_preview:
       if (view.print_d) {
-        setNodeClipFunc(targetNode, view.print_d);
+        targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.print_d));
       } else {
-        setNodeClipFunc(targetNode, null);
+        targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
       }
       break;
     case useDesignerAppConfig().mode_type_edit:
       // 如果是全幅产品
       if (view.printout) {
         // setNodeClipFunc(targetNode, { width: width, height: height, gap: 2 });
-        setNodeClipFunc(targetNode, null);
+        targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
       } else {
         if (view.print_d) {
-          setNodeClipFunc(targetNode, view.print_d);
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.print_d));
         } else {
-          setNodeClipFunc(targetNode, null);
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
         }
       }
       break;

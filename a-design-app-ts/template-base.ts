@@ -111,6 +111,8 @@ export interface view {
   destroy: () => {};
   // 添加图片
   addImage: (detail: designImageDetail, options: addImageOptions) => {};
+  // 添加颜色
+  addColor: (color: string) => {};
   // 视图的父级模板
   $template: template;
 
