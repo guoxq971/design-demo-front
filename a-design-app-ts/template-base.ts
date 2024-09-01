@@ -126,8 +126,6 @@ export interface view {
   $template: template;
   // 3d
   textureCanvas: HTMLCanvasElement;
-  // 3d材质
-  mesh: ShallowRef<THREE.Mesh>;
   //更新3d视图
   update3DCanvas: Function;
   //更新3d视图-防抖

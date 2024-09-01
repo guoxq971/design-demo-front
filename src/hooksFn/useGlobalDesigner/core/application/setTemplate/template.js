@@ -73,11 +73,6 @@ export function getTemplateInterface() {
       // 销毁3d
       view?.textureCanvas?.remove();
       view.textureCanvas = null;
-
-      // 销毁3d mesh
-      if (isRef(view.mesh)) {
-        view.mesh.value = null;
-      }
     });
     // 销毁3d
     template.three?.destroy();

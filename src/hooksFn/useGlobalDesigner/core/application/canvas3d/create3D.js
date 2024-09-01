@@ -5,6 +5,7 @@ import { getMaterialName, updateMesh } from './updateMesh';
 import { useDebounceFn } from '@vueuse/core';
 import * as THREE from 'three';
 import { registerMouseEvent } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/registerMouseEvent';
+import { isRef, shallowRef } from 'vue';
 
 /**
  * 创建3D
@@ -48,15 +49,32 @@ async function bindMaterials(template, meshModelList) {
   meshModelList.forEach((mesh) => {
     const materialName = getMaterialName(mesh);
     const view = template.getViewByMaterialName(materialName);
-    if (view) view.mesh.value = mesh;
     updateMesh(mesh, view, template);
   });
 
   // 给view注册更新材质事件
   template.viewList.forEach((view) => {
+    const mesh = getMeshByMaterialName(getMaterialNameByView(view), meshModelList);
     /**@type {import('d').update3DCanvas}*/
-    view.update3DCanvas = () => updateMesh(view.mesh.value, view, template);
+    view.update3DCanvas = () => updateMesh(mesh, view, template);
     /**@type {import('d').update3DCanvasDebounce}*/
     view.update3DCanvasDebounce = useDebounceFn(view.update3DCanvas, 100);
   });
+}
+
+/**
+ * 通过材质名称获取mesh
+ * @param {string} materialName
+ * @param {THREE.Mesh[]} meshList
+ */
+function getMeshByMaterialName(materialName, meshList) {
+  return meshList.find((mesh) => getMaterialName(mesh) === materialName);
+}
+
+/**
+ * 获取材质名称
+ * @param {import('d').view} view
+ */
+function getMaterialNameByView(view) {
+  return view.$template.config.viewList.find((v) => String(v.viewId) === view.id).materialName;
 }

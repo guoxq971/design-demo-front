@@ -17,9 +17,6 @@ export function destroyView(view) {
   view.designList = [];
   // 销毁3d
   view?.textureCanvas?.remove();
-  if (isRef(view.mesh)) {
-    view.mesh.value = null;
-  }
   view.textureCanvas = null;
   view.canvasNodes = null;
 }
