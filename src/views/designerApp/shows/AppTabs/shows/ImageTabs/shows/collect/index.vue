@@ -21,6 +21,7 @@ import TabBody from '@/views/designerApp/shows/AppTabs/components/Tab/TabBody.vu
 import TabList from '@/views/designerApp/shows/AppTabs/components/Tab/TabList.vue';
 import TabPagination from '@/views/designerApp/shows/AppTabs/components/Tab/TabPagination.vue';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 
 // 收藏图库
 const { list, total, params, loading, getList, onClick } = useCollectImageData();
@@ -33,9 +34,7 @@ const { onContextmenuImage } = useGlobalDesigner().contextmenu;
 function useCollectImageData() {
   const { list, total, params, loading, getList } = useGlobalDesigner().collectImage;
   onMounted(() => getList());
-  const onClick = (detail) => {
-    useGlobalDesigner().app.setDesignImage(detail);
-  };
+  const onClick = (detail) => useDesignerApplication().addImage(detail);
   return {
     list,
     total,

@@ -75,6 +75,8 @@ export interface addImageOptions {
   isCenter?: boolean;
   // 是否选中
   isSet?: boolean;
+  // 是否设置模式
+  isSetMode?: boolean;
   // 自定义属性
   attrs?: attrs;
 }
@@ -91,6 +93,8 @@ export interface view {
   canvasNodes: canvasNodes;
   //更新2d视图
   update2DCanvas: Function;
+  //更新2d视图-防抖
+  update2DCanvasDebounce: Function;
   // 创建2d视图
   create2DCanvas: () => {};
   // 设置节点

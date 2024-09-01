@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { useDesignerContainerEl } from '@/hooksFn/useGlobalDesigner/core/contaienr';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
+import { useDebounceFn } from '@vueuse/core';
 
 /**
  * 创建canvas
@@ -234,6 +235,10 @@ export function addWatchStage(view) {
       // 模拟点击
       node.fire('mousedown', e);
     }
+  });
+
+  view.canvasNodes.stage.on('mouseup', (e) => {
+    view.update2DCanvasDebounce();
   });
 
   // 获取设计图子节点

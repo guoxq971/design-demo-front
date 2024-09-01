@@ -13,7 +13,7 @@
     </el-dropdown>
 
     <div class="preview-box-group" style="width: fit-content">
-      <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" v-for="(item, index) in activeTemplate.viewList" :key="'preview' + item.id">
+      <div class="preview-box" v-for="(item, index) in activeTemplate.viewList" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" :key="'preview' + item.id">
         <img :src="getActiveColorViewImage(item.id)?.image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
         <canvas :id="getPreviewContainerId(item.id)" :width="preview_canvas_size" :height="preview_canvas_size" style="position: absolute;" :style="style(item.id)"></canvas>
@@ -47,8 +47,11 @@ const { getPreviewContainerId, preview_canvas_size } = useDesignerAppConfig();
 const { leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
 // 模板类型
 const activeTemplateType = computed(() => activeTemplate.value?.type || useDesignerAppConfig().template_type_common);
+// 模板类型-zh
 const activeTemplateTypeName = computed(() => (activeTemplateType.value === useDesignerAppConfig().template_type_common ? '通用设计' : '精细设计'));
+// 模板类型-common-disabled
 const commonDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_common));
+// 模板类型-refine-disabled
 const refineDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_refine));
 
 // 裁剪样式
@@ -59,7 +62,7 @@ const style = computed(() => {
       return {};
     }
     // return `polygon(0 0, 10px 0, 10px 10px, 0 10px);`;
-    const radio = sizeNum / useGlobalDesigner().app.config.canvas_SIZE_ORG;
+    const radio = sizeNum / useDesignerAppConfig().canvas_size_org;
     const x1 = view.offsetX * radio;
     const y1 = view.offsetY * radio;
     const x2 = (view.offsetX + view.width) * radio;
@@ -74,7 +77,7 @@ const style = computed(() => {
 
 // 样式管理
 function useStyle() {
-  const sizeNum = preview_canvas_size; //px
+  const sizeNum = useDesignerAppConfig().preview_canvas_size; //px
   const size = `${sizeNum / 10}rem`;
   // 滚动条宽度
   const scrollGap = '1.2rem';
@@ -132,10 +135,12 @@ function useStyle() {
     color: #000c01;
     line-height: 1.9rem;
     cursor: pointer;
+
     &:hover {
       opacity: 0.9;
     }
   }
+
   // 预览box
   .preview-box-group {
     margin-top: @designBtnGap;
@@ -144,6 +149,7 @@ function useStyle() {
     //overflow: auto;
     display: flex;
     flex-direction: column;
+
     .preview-box {
       width: @size;
       height: @size;
@@ -151,9 +157,11 @@ function useStyle() {
       border: 1px solid #e9e9e9;
       cursor: pointer;
       position: relative;
+
       &:last-child {
         margin-bottom: 0;
       }
+
       &:hover {
         border-color: var(--fn-primary-color);
       }
@@ -174,6 +182,7 @@ function useStyle() {
         line-height: 1.6rem;
       }
     }
+
     .active {
       border-color: var(--fn-primary-color);
     }

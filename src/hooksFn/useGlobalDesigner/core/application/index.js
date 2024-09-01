@@ -44,7 +44,11 @@ export const useDesignerApplication = createGlobalState(() => {
   const activeDesign = computed(() => activeView.value?.designList.find((d) => d.attrs.uuid === activeDesignId.value));
 
   const setColorId = (id) => (activeColorId.value = id);
-  const setViewId = (id) => (activeViewId.value = id);
+  const setViewId = (id) => {
+    activeViewId.value = id;
+    activeView.value?.setMode(useDesignerAppConfig().mode_type_preview);
+    activeTemplate.value?.viewList.forEach((v) => v.setNode(null));
+  };
   const setSizeId = (id) => (activeSizeId.value = id);
 
   /**

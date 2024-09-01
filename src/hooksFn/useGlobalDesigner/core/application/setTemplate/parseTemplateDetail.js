@@ -6,6 +6,8 @@ import { destroyView } from '@/hooksFn/useGlobalDesigner/core/application/setTem
 import { addImage } from '@/hooksFn/useGlobalDesigner/core/application/design/addImage';
 import { setNode } from '@/hooksFn/useGlobalDesigner/core/application/viewUtil/setNode';
 import { nextTick } from 'vue';
+import { update2DCanvas } from '@/hooksFn/useGlobalDesigner/core/application/viewUtil/updateCanvas';
+import { useDebounceFn } from '@vueuse/core';
 
 /**
  * 解析模板详情
@@ -22,6 +24,7 @@ export function parseTemplateDetail(detail) {
     const print = detail.printAreas.find((e) => e.defaultView.id === view.id);
     const printout = detail.pointoutPrintAreas.find((e) => e.defaultView.id === view.id);
 
+    const update2DCanvasDebounce = useDebounceFn(() => update2DCanvas(v), 100);
     /**@typedef {import('d').view}*/
     const v = {
       id: view.id,
@@ -33,7 +36,10 @@ export function parseTemplateDetail(detail) {
       // 方法
       destroy: () => destroyView(v),
       /**@typedef {import('d').view.clearDesign}*/
-      clearDesign: () => v.designList.forEach((design) => design.remove()),
+      clearDesign: () => {
+        v.designList.forEach((design) => design.remove());
+        v.update2DCanvasDebounce();
+      },
       /**@typedef {import('d').view.seNode}*/
       setNode: (design) => setNode(design, v),
       /**@typedef {import('d').view.setMode}*/
@@ -54,7 +60,10 @@ export function parseTemplateDetail(detail) {
           v.designList.sort((a, b) => b.attrs.zIndex - a.attrs.zIndex);
         });
       },
-      update2DCanvas: () => {},
+      /**@typedef {import('d').view.update2DCanvas}*/
+      update2DCanvas: () => update2DCanvas(v),
+      /**@typedef {import('d').view.update2DCanvasDebounce}*/
+      update2DCanvasDebounce: () => update2DCanvasDebounce(),
       create2DCanvas: () => create2dCanvas(v),
 
       // 基础属性

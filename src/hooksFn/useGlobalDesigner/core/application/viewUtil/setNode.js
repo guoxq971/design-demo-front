@@ -11,11 +11,19 @@ export function setNode(design, view) {
   if (!design) {
     view.canvasNodes.transformer.nodes([]);
     view.canvasNodes.transformer.visible(false);
-    useDesignerApplication().activeDesignId.value = '';
+    if (useDesignerApplication().activeViewId.value === view.id) {
+      useDesignerApplication().activeDesignId.value = '';
+    }
     return;
   }
   // 设置选中,并显示transformer
   view.canvasNodes.transformer.nodes([design.node]);
   view.canvasNodes.transformer.visible(true);
   useDesignerApplication().activeDesignId.value = design.attrs.uuid;
+  // 其他的视图取消选中
+  view.$template.viewList.forEach((v) => {
+    if (v.id !== view.id) {
+      v.setNode(null);
+    }
+  });
 }

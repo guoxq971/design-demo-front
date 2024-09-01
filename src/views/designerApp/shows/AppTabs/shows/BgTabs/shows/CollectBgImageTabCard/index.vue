@@ -21,11 +21,12 @@ import TabPagination from '@/views/designerApp/shows/AppTabs/components/Tab/TabP
 // utils
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 
 // 背景收藏图
 const { list, total, params, loading, getList } = useGlobalDesigner().collectBgImage;
 onMounted(() => getList());
-const onClick = (detail) => useGlobalDesigner().app.setDesignImage(detail);
+const onClick = (detail) => useDesignerApplication().addImage(detail);
 // 鼠标经过
 const { onMouseenterImage, onMouseleave } = useGlobalDesigner().hover;
 // 右键菜单

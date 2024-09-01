@@ -5,6 +5,9 @@ import { useImage } from '@vueuse/core';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { getScaleMax } from '@/hooksFn/useGlobalDesigner/core/application/design/scaleMax';
+import { loadImage } from '@/hooksFn/useGlobalDesigner/core/application/design/loadImage';
+import { nextTick } from 'vue';
 
 /**
  * 添加图片
@@ -17,12 +20,43 @@ export async function addImage(detail, view, options = {}) {
   options = Object.assign(
     {
       isCenter: true,
+      isSetMode: true,
       isSet: true,
       attrs: {},
     },
     options,
   );
+  if (!detail.isBg) {
+    _addImage(detail, view, options);
+  } else {
+    const pAll = view.$template.viewList.map((v) => {
+      return _addImage(detail, v, {
+        ...options,
+        isSetMode: false,
+        isSet: false,
+        attrs: {
+          ...options.attrs,
+          type: useDesignerAppConfig().design_type_background_image,
+        },
+      });
+    });
+    Promise.all(pAll).then((_) => {
+      options.isSetMode && view.setMode(useDesignerAppConfig().mode_type_edit);
+      if (options.isSet) {
+        const design = view.designList.find((d) => d.isBackgroundImage);
+        options.isSet && view.setNode(design);
+      }
+    });
+  }
+}
 
+/**
+ * 添加图片
+ * @param {import('d').designImageDetail} detail
+ * @param {import('d').view} view
+ * @param {import('d').addImageOptions} options
+ */
+async function _addImage(detail, view, options = {}) {
   // 获取父级节点
   const parentNode = view.canvasNodes.designGroup;
   // 获取图片解析后的尺寸
@@ -70,7 +104,7 @@ export async function addImage(detail, view, options = {}) {
   // 触发更新canvas
   view.update2DCanvas();
   // 设置模式
-  view.setMode(useDesignerAppConfig().mode_type_edit);
+  options.isSetMode && view.setMode(useDesignerAppConfig().mode_type_edit);
   // 设置index
   view.setDesignListIndex();
 }
@@ -130,6 +164,7 @@ function createDesign(node, view) {
             }
           });
           v.setDesignListIndex();
+          v.update2DCanvasDebounce();
         });
       }
       // 背景色
@@ -143,6 +178,7 @@ function createDesign(node, view) {
             }
           });
           v.setDesignListIndex();
+          v.update2DCanvasDebounce();
         });
       }
       // 图片|文字
@@ -151,23 +187,28 @@ function createDesign(node, view) {
         design.cancelActive();
         design.attrs.visible = !visible;
         view.setDesignListIndex();
+        view.update2DCanvasDebounce();
       }
     },
     moveToTop: () => {
       design?.node.moveToTop();
       view.setDesignListIndex();
+      view.update2DCanvasDebounce();
     },
     moveToBottom: () => {
       design?.node.moveToBottom();
       view.setDesignListIndex();
+      view.update2DCanvasDebounce();
     },
     moveUp: () => {
       design?.node.moveUp();
       view.setDesignListIndex();
+      view.update2DCanvasDebounce();
     },
     moveDown: () => {
       design?.node.moveDown();
       view.setDesignListIndex();
+      view.update2DCanvasDebounce();
     },
     remove: () => {
       // 背景图
@@ -175,12 +216,13 @@ function createDesign(node, view) {
         view.$template.viewList.forEach((v) => {
           v.designList.forEach((d) => {
             if (d.isBackgroundImage) {
-              design.cancelActive();
-              design?.node.destroy();
+              d.cancelActive();
+              d?.node.destroy();
               v.removeDesign(d);
             }
           });
           v.setDesignListIndex();
+          v.update2DCanvasDebounce();
         });
       }
       // 背景色
@@ -188,12 +230,13 @@ function createDesign(node, view) {
         view.$template.viewList.forEach((v) => {
           v.designList.forEach((d) => {
             if (d.isBackgroundColor) {
-              design.cancelActive();
-              design?.node.destroy();
+              d.cancelActive();
+              d?.node.destroy();
               v.removeDesign(d);
             }
           });
           v.setDesignListIndex();
+          v.update2DCanvasDebounce();
         });
       }
       // 图片|文字
@@ -202,21 +245,26 @@ function createDesign(node, view) {
         design?.node.destroy();
         view.removeDesign(design);
         view.setDesignListIndex();
+        view.update2DCanvasDebounce();
       }
     },
     center: () => {
       design?.node.x(view.width / 2);
       design?.node.y(view.height / 2);
+      view.update2DCanvasDebounce();
     },
     centerX: () => {
       design?.node.x(view.width / 2);
+      view.update2DCanvasDebounce();
     },
     centerY: () => {
       design?.node.y(view.height / 2);
+      view.update2DCanvasDebounce();
     },
     scale: (n) => {
       design?.node.scaleX(n);
       design?.node.scaleY(n);
+      view.update2DCanvasDebounce();
     },
     scaleUp: () => {
       // 翻转状态
@@ -229,6 +277,7 @@ function createDesign(node, view) {
         scaleX: x * flipX,
         scaleY: y * flipY,
       });
+      view.update2DCanvasDebounce();
     },
     scaleDown: () => {
       // 翻转状态
@@ -241,27 +290,31 @@ function createDesign(node, view) {
         scaleX: x * flipX,
         scaleY: y * flipY,
       });
+      view.update2DCanvasDebounce();
     },
     rotation: (n = 5) => {
-      // 翻转状态
       design?.node.rotation(n);
+      view.update2DCanvasDebounce();
     },
     rotationLeft: (n = 5) => {
-      // 翻转状态
       design?.node.rotation(design.node.rotation() - n);
+      view.update2DCanvasDebounce();
     },
     rotationRight: (n = 5) => {
-      // 翻转状态
       design?.node.rotation(design.node.rotation() + n);
+      view.update2DCanvasDebounce();
     },
     rotationReset: () => {
       design?.node.rotation(0);
+      view.update2DCanvasDebounce();
     },
     flipX: () => {
       design?.node.scaleX(design.node.scaleX() * -1);
+      view.update2DCanvasDebounce();
     },
     flipY: () => {
       design?.node.scaleY(design.node.scaleY() * -1);
+      view.update2DCanvasDebounce();
     },
     copy: () => {
       const detail = design.detail;
@@ -309,6 +362,7 @@ function createDesign(node, view) {
         x: view.width / 2,
         y: view.height / 2,
       });
+      view.update2DCanvasDebounce();
     },
     hasActive: () => {
       return useDesignerApplication().activeDesignId.value === design.attrs.uuid;
@@ -325,56 +379,4 @@ function createDesign(node, view) {
   };
 
   return design;
-}
-
-/**
- * 加载图片
- * @param {string} src
- * @param {string|number} width
- * @param {string|number} height
- * @returns {Promise<HTMLImageElement>}
- */
-async function loadImage(src, width, height) {
-  // 加载图片
-  const result = await useImage({ src, crossorigin: true, width, height });
-  if (!result.isReady.value) return Promise.reject('图片加载失败1');
-  if (!result.state.value) return Promise.reject('图片加载失败2');
-  return result.state.value;
-}
-
-/**
- * 最大化操作的缩放比例
- * @param {import('d').design_max_type} type width:宽度 height:高度
- * @param {{width:number,height:number}} inch
- * @param {import('d').view} view
- * @param {{width:number,height:number}} imageDOMSize
- */
-export function getScaleMax(type = useDesignerAppConfig().design_max_type_width, inch, view, imageDOMSize) {
-  const iSize = inch;
-  const pSize = view;
-  const l = iSize.width / pSize.width; // l:设计图宽/打印区宽
-  const p = iSize.height / pSize.height; // p:设计图高/打印区高
-  let u;
-  // 没有d是非全幅，铺满不能出现红线
-  if (view?.print_d) {
-    u = Math.min(l, p); // 取较小值
-  } else {
-    u = Math.max(l, p); // 取较大值[改]
-  }
-  if (useDesignerAppConfig().design_max_type_width === type) u = l;
-  if (useDesignerAppConfig().design_max_type_height === type) u = p;
-  if (u < 1) u = 1;
-
-  // 最大化后的宽高
-  const width = iSize.width / u;
-  const height = iSize.height / u;
-
-  // imageDom是当前使用的DOM的宽高可能是小图的宽高
-  const scaleX = width / imageDOMSize.width;
-  const scaleY = height / imageDOMSize.height;
-
-  return {
-    scaleX: scaleX,
-    scaleY: scaleY,
-  };
 }

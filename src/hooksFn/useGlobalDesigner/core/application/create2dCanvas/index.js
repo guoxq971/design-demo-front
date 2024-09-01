@@ -20,5 +20,6 @@ export function create2dCanvas(view) {
   nextTick(() => addWatchStage(view));
   // 设置默认预览模式
   nextTick(() => view.setMode(useDesignerAppConfig().mode_type_preview));
-  // console.log('创建2d画布成功', view);
+  // 触发更新
+  nextTick(() => view.update2DCanvasDebounce());
 }
