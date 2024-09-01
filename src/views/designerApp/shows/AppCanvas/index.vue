@@ -4,11 +4,11 @@
       <!--舞台容器-->
       <div class="stage-container" v-for="item in activeTemplate.viewList" :key="`canvas_${item.id}`" v-show="item.id === activeViewId">
         <!--产品图-->
-        <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id).image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
+        <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id)?.image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
         <!--canvas-->
         <div :id="getCanvasContainerId(item.id)" style="width: 100%;height: 100%;"></div>
         <!--背景图-->
-        <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id).texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
+        <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id)?.texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
       </div>
       <!--three 容器-->
       <div v-loading="threeLoading">
@@ -43,33 +43,34 @@ import { computed, ref } from 'vue';
 import PreviewGroup from './shows/previewGroup';
 import IconCard from './shows/iconCard';
 import TipCard from './shows/tipCard';
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
-import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
+import { useDesignerContainerEl } from '@/hooksFn/useGlobalDesigner/core/contaienr';
 
 // 设计器基础数据
-const { loading, threeLoading, activeTemplate, activeViewId, activeView, getActiveColorViewImage, mode } = useGlobalDesigner().app;
-const { modes } = useGlobalDesigner().app.config;
+const { loading, threeLoading, activeTemplate, activeViewId, activeView, getActiveColorViewImage, mode } = useDesignerApplication();
 // 容器
-const { canvasElRef, imgElRef } = useGlobalDesigner().app.container;
+const { canvasElRef, imgElRef } = useDesignerContainerEl();
 // 预览样式
 const { previewStyle } = usePreviewStyle();
 // canvas配置
-const { imgSize, getCanvasContainerId } = useCanvasConfig();
+const imgSize = useDesignerAppConfig().canvas_size;
+const getCanvasContainerId = useDesignerAppConfig().get2dCanvasId;
 
-// 是否展示产品图 TODO:可以考虑将mode相关的放在一起
+// 是否展示产品图
 const isShowProdImg = computed(() => {
-  if (useGlobalDesigner().app.mode.value === modes.edit && !activeView.value.printout) {
+  if (useDesignerApplication().mode.value === useDesignerAppConfig().mode_type_edit && !activeView.value.printout) {
     if (isShowThree.value) return false;
     return true;
   }
-  if (mode.value === modes.preview) {
+  if (mode.value === useDesignerAppConfig().mode_type_preview) {
     if (isShowThree.value) return false;
     return true;
   }
 });
 // 是否展示3d
 const isShowThree = computed(() => {
-  if (activeTemplate.value.has3d() && mode.value === modes.preview) {
+  if (activeTemplate.value.is3d && mode.value === useDesignerAppConfig().mode_type_preview) {
     return true;
   }
 });
@@ -81,7 +82,7 @@ function usePreviewStyle() {
     top: '-9999999px',
   });
 
-  const { onUpdate } = useGlobalDesigner().app.container;
+  const { onUpdate } = useDesignerContainerEl();
   // 容器属性服务
   onUpdate((rect) => {
     const { stageWidth, stageHeight, drawWidth, drawHeight, offsetX, offsetY } = rect;
@@ -92,16 +93,6 @@ function usePreviewStyle() {
   });
   return {
     previewStyle,
-  };
-}
-
-// canvas配置
-function useCanvasConfig() {
-  const { canvasConfig } = useGlobalData().defineData;
-  return {
-    canvasConfig,
-    imgSize: canvasConfig.canvasDefine.size,
-    getCanvasContainerId: canvasConfig.getCanvasContainerId,
   };
 }
 </script>

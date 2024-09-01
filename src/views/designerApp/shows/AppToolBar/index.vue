@@ -58,53 +58,58 @@ import hotkeySvg from '@/views/designerApp/components/svg/hotkeySvg.vue';
 import settingSvg from '@/views/designerApp/components/svg/settingSvg.vue';
 import saveSvg from '@/views/designerApp/components/svg/saveSvg.vue';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 
 const [DefineSvgTemplate, ReuseSvgTemplate] = createReusableTemplate();
 
 const app = useGlobalDesigner().app.tool();
+const activeTemplate = useDesignerApplication().activeTemplate;
+const activeView = useDesignerApplication().activeView;
+const activeDesign = useDesignerApplication().activeDesign;
 const list = [
   { content: '上一步', component: undoSvg, fn: () => {} },
   { content: '下一步', component: redoSvg, fn: () => {} },
   {
     content: '清空',
     component: clearSvg,
-    fn: () => app.clearView(),
+    fn: () => activeView.value?.clearDesign(),
     children: [
-      { content: '清空当前视图', component: maxSvg, fn: () => app.clearView() },
-      { content: '清空全部视图', component: maxSvg, fn: () => app.clearAllView() },
+      { content: '清空当前视图', component: maxSvg, fn: () => activeView.value?.clearDesign() },
+      { content: '清空全部视图', component: maxSvg, fn: () => activeTemplate.value?.viewList.forEach((v) => v.clearDesign()) },
     ],
   },
   { type: 'shu' },
-  { content: '居中', component: centerSvg, fn: () => app.centerXY() },
+  { content: '居中', component: centerSvg, fn: () => activeDesign.value?.center() },
   {
     content: '最大化',
     component: maxSvg,
-    fn: () => app.max(),
+    fn: () => activeDesign.value?.max(useDesignerAppConfig().design_max_type_width),
     children: [
-      { content: '宽度最大化', component: maxSvg, fn: () => app.max(null, 'width') },
-      { content: '高度最大化', component: maxSvg, fn: () => app.max(null, 'height') },
+      { content: '宽度最大化', component: maxSvg, fn: () => activeDesign.value?.max(useDesignerAppConfig().design_max_type_width) },
+      { content: '高度最大化', component: maxSvg, fn: () => activeDesign.value?.max(useDesignerAppConfig().design_max_type_height) },
     ],
   },
-  { content: '上移一层', component: layerUpSvg, fn: () => app.upDesign() },
-  { content: '下移一层', component: layerDownSvg, fn: () => app.downDesign() },
-  { content: '置顶', component: layerTopSvg, fn: () => app.topDesign() },
-  { content: '置底', component: layerBottomSvg, fn: () => app.bottomDesign() },
-  { content: '复制', component: copySvg, fn: () => app.copy() },
-  { content: '删除', component: deleteSvg, fn: () => app.delDesign() },
-  { content: '水平翻转', component: mirrorXSvg, fn: () => app.flipX() },
-  { content: '垂直翻转', component: mirrorYSvg, fn: () => app.flipY() },
-  { content: '水平居中', component: centerXSvg, fn: () => app.centerX() },
-  { content: '垂直居中', component: centerYSvg, fn: () => app.centerY() },
-  { content: '放大', component: scaleUpSvg, fn: () => app.scaleUp() },
-  { content: '缩小', component: scaleDownSvg, fn: () => app.scaleDown() },
+  { content: '上移一层', component: layerUpSvg, fn: () => activeDesign.value?.moveUp() },
+  { content: '下移一层', component: layerDownSvg, fn: () => activeDesign.value?.moveDown() },
+  { content: '置顶', component: layerTopSvg, fn: () => activeDesign.value?.moveToTop() },
+  { content: '置底', component: layerBottomSvg, fn: () => activeDesign.value?.moveToBottom() },
+  { content: '复制', component: copySvg, fn: () => activeDesign.value?.copy() },
+  { content: '删除', component: deleteSvg, fn: () => activeDesign.value?.remove() },
+  { content: '水平翻转', component: mirrorXSvg, fn: () => activeDesign.value?.flipX() },
+  { content: '垂直翻转', component: mirrorYSvg, fn: () => activeDesign.value?.flipY() },
+  { content: '水平居中', component: centerXSvg, fn: () => activeDesign.value?.centerX() },
+  { content: '垂直居中', component: centerYSvg, fn: () => activeDesign.value?.centerY() },
+  { content: '放大', component: scaleUpSvg, fn: () => activeDesign.value?.scaleUp() },
+  { content: '缩小', component: scaleDownSvg, fn: () => activeDesign.value?.scaleDown() },
   {
     content: '旋转',
     component: rotationSvg,
-    fn: () => app.rotationRight(),
+    fn: () => activeDesign.value?.rotationRight(),
     children: [
-      { content: '左旋转5°', component: maxSvg, fn: () => app.rotationLeft(null, 5) },
-      { content: '右旋转5°', component: maxSvg, fn: () => app.rotationRight(null, 5) },
-      { content: '旋转重置', component: maxSvg, fn: () => app.rotationReset() },
+      { content: '左旋转5°', component: maxSvg, fn: () => activeDesign.value?.rotationLeft() },
+      { content: '右旋转5°', component: maxSvg, fn: () => activeDesign.value?.rotationRight() },
+      { content: '旋转重置', component: maxSvg, fn: () => activeDesign.value?.rotationReset() },
     ],
   },
   { content: '平铺', component: tileSvg, fn: () => {} },

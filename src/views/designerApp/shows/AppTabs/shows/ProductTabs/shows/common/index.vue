@@ -39,17 +39,18 @@ import SearchCard from '@/views/designerApp/shows/AppTabs/components/TabCard/Sea
 // utils
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 
 // 通用模板数据
 const { list, total, params, loading, getList, onSearch } = useGlobalDesigner().commonTemplate;
-onMounted(() => getList().then((_) => list.value.length && useGlobalDesigner().app.setTemplate(list.value[0])));
-const onClick = (detail) => useGlobalDesigner().app.setTemplate(detail);
+onMounted(() => getList().then((_) => list.value.length && useDesignerApplication().setTemplate(list.value[0])));
+const onClick = (detail) => useDesignerApplication().setTemplate(detail);
 // 右键菜单
 const { onContextmenuTemplate } = useGlobalDesigner().contextmenu;
 // 鼠标经过
 const { onMouseenterTemplate, onMouseleaveTemplate } = useGlobalDesigner().hover;
 // 激活模板
-const { activeTemplateId } = useGlobalDesigner().app;
+const { activeTemplateId } = useDesignerApplication();
 </script>
 
 <style scoped lang="less"></style>

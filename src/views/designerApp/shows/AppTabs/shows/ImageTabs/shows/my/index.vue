@@ -27,8 +27,6 @@
 
 <script setup>
 import { onMounted } from 'vue';
-// utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 // components
 import TabConditionSecond from '@/views/designerApp/shows/AppTabs/components/Tab/TabConditionSecond.vue';
 import ImageTypeButton from '../../../../components/ImageTypeButton/index.vue';
@@ -40,6 +38,9 @@ import TabList from '@/views/designerApp/shows/AppTabs/components/Tab/TabList.vu
 import TabPagination from '@/views/designerApp/shows/AppTabs/components/Tab/TabPagination.vue';
 import SearchCard from '@/views/designerApp/shows/AppTabs/components/TabCard/SearchCard.vue';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+// utils
+import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 
 // 我的图库
 const { list, total, params, loading, getList, onSearch, accountListService } = useGlobalDesigner().myImage;
@@ -51,12 +52,12 @@ const { onContextmenuImage } = useGlobalDesigner().contextmenu;
 
 // 我的图库
 function useMyImageData() {
-  const { getList, onSearch, accountListService } = useGlobalDesigner().myImage;
+  const { onSearch, accountListService } = useGlobalDesigner().myImage;
   const { getList: getAccountList, list: accountList, loading: accountLoading } = accountListService;
 
   onMounted(() => {
     // 获取列表
-    getList();
+    onSearch();
     // 获取账户列表(图片来源)
     getAccountList().then((_) => {
       // 默认赋值
@@ -67,9 +68,7 @@ function useMyImageData() {
   });
 
   // 设置设计图
-  const onClick = (detail) => {
-    useGlobalDesigner().app.setDesignImage(detail);
-  };
+  const onClick = (detail) => useDesignerApplication().addImage(detail);
 
   return {
     accountList,

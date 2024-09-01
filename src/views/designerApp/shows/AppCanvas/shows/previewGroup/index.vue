@@ -14,11 +14,10 @@
 
     <div class="preview-box-group" style="width: fit-content">
       <div class="preview-box" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" v-for="(item, index) in activeTemplate.viewList" :key="'preview' + item.id">
-        <img :src="getActiveColorViewImage(item.id).image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
+        <img :src="getActiveColorViewImage(item.id)?.image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
-        <canvas :id="getPreviewContainerId(item.id)" :width="canvas_preview_size" :height="canvas_preview_size" style="position: absolute;" :style="style(item.id)"></canvas>
-        <!--<img v-if="getBase64ByViewId(item.id)" :src="getBase64ByViewId(item.id)" class="fn-full" style="position: absolute;" :style="style(item.id)" />-->
-        <img :src="getActiveColorViewImage(item.id).texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
+        <canvas :id="getPreviewContainerId(item.id)" :width="preview_canvas_size" :height="preview_canvas_size" style="position: absolute;" :style="style(item.id)"></canvas>
+        <img :src="getActiveColorViewImage(item.id)?.texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
       </div>
     </div>
@@ -31,6 +30,8 @@ import { computed, defineEmits, defineProps } from 'vue';
 import conrner from '@/views/designerApp/components/conrner.vue';
 // utils
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 
 const emit = defineEmits(['onView']);
 const props = defineProps({
@@ -40,15 +41,15 @@ const props = defineProps({
 });
 
 // 设计器基础数据
-const { templateList, getBase64ByViewId, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useGlobalDesigner().app;
-const { templateType, getPreviewContainerId, canvas_preview_size } = useGlobalDesigner().app.config;
+const { templateList, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useDesignerApplication();
+const { getPreviewContainerId, preview_canvas_size } = useDesignerAppConfig();
 // 样式管理
-const { previewCanvasStyle, leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
+const { leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
 // 模板类型
-const activeTemplateType = computed(() => activeTemplate.value?.type || templateType.common);
-const activeTemplateTypeName = computed(() => (activeTemplateType.value === templateType.common ? '通用设计' : '精细设计'));
-const commonDisabled = computed(() => !templateList.value.some((t) => t.type === templateType.common));
-const refineDisabled = computed(() => !templateList.value.some((t) => t.type === templateType.refine));
+const activeTemplateType = computed(() => activeTemplate.value?.type || useDesignerAppConfig().template_type_common);
+const activeTemplateTypeName = computed(() => (activeTemplateType.value === useDesignerAppConfig().template_type_common ? '通用设计' : '精细设计'));
+const commonDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_common));
+const refineDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_refine));
 
 // 裁剪样式
 const style = computed(() => {
@@ -73,9 +74,8 @@ const style = computed(() => {
 
 // 样式管理
 function useStyle() {
-  const sizeNum = canvas_preview_size; //px
+  const sizeNum = preview_canvas_size; //px
   const size = `${sizeNum / 10}rem`;
-  const previewCanvasStyle = { width: sizeNum + 'px', height: sizeNum + 'px' };
   // 滚动条宽度
   const scrollGap = '1.2rem';
   // 和canvas的间距
@@ -96,7 +96,6 @@ function useStyle() {
 
   return {
     leftStyle,
-    previewCanvasStyle,
     size,
     sizeNum,
     scrollGap,

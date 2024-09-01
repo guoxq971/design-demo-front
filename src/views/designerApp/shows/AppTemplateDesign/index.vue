@@ -22,7 +22,7 @@
         <div class="title">尺码:</div>
         <el-scrollbar class="item-list" :wrapStyle="{ width: '100%' }" :viewStyle="{ display: 'flex' }">
           <div class="box-item size-item" :class="{ active: activeSizeId === item.id }" @click="setSizeId(item.id)" v-for="item in activeTemplate.sizeList" :key="'size' + item.id">
-            <div class="size">{{ item.sizeName }}</div>
+            <div class="size">{{ item.size }}</div>
           </div>
         </el-scrollbar>
       </div>
@@ -35,7 +35,7 @@
               <div class="fun-btn render-btn">渲染</div>
               <div class="fun-btn preview-btn">预览</div>
               <el-carousel trigger="click" indicator-position="outside" arrow="always" :loop="false" :autoplay="false">
-                <el-carousel-item v-for="item in activeColor?.multiList || []" :key="item.id">
+                <el-carousel-item v-for="item in activeColor?.multiImageList || []" :key="item.id">
                   <div class="show-box">
                     <img class="child-box" :src="AppUtil.setStartHttp(item.bgImg)" />
                     <img class="child-box" :src="AppUtil.setStartHttp(item.prodImg)" />
@@ -57,7 +57,7 @@
         </div>
       </div>
       <el-scrollbar class="list" v-show="designListVisible">
-        <div class="item-list" v-for="design in activeView?.designList || []" :key="design.uuid">
+        <div class="item-list" v-for="design in activeView?.designList" :key="`${design.attrs.uuid}_${design.attrs.zIndex}`">
           <div class="design-item">
             <div class="head-design">
               <template v-if="isImg(design) || isBgImg(design)">
@@ -65,38 +65,38 @@
                 <div class="name">{{ showImagName(design) }}</div>
               </template>
               <template v-if="isBgc(design)">
-                <div class="img" :style="{ background: design.fill }"></div>
-                <div class="name bgc" :style="{ '--color': design.fill }">{{ design.fill }}</div>
+                <div class="img" :style="{ background: design.attrs.fill }"></div>
+                <div class="name bgc" :style="{ '--color': design.attrs.fill }">{{ design.attrs.fill }}</div>
               </template>
               <template v-if="isText(design)">
-                <div class="img" :style="{ background: design.fill }"></div>
-                <div class="name bgc" :style="{ '--color': design.fill }">{{ design.text }}</div>
+                <div class="img" :style="{ background: design.attrs.fill }"></div>
+                <div class="name bgc" :style="{ '--color': design.attrs.fill }">{{ design.attrs.text }}</div>
               </template>
             </div>
             <div class="fun-list">
               <template v-if="isImg(design) || isBgImg(design)">
                 <!--收藏-->
-                <div class="fun-box" :class="{ active: isCollect(design) }" @click="setCollect(design)">
+                <div class="fun-box" :class="{ active: design.isCollect() }" @click="design.collect()">
                   <CollectSvg />
                 </div>
               </template>
               <template v-if="isImg(design)">
                 <!--置顶-->
-                <div class="fun-box" :class="{ disabled: false }" @click="upDesign(design)">
+                <div class="fun-box" :class="{ disabled: false }" @click="design.moveUp()">
                   <LayerTopSvg />
                 </div>
                 <!--置底-->
-                <div class="fun-box" :class="{ disabled: false }" @click="downDesign(design)">
+                <div class="fun-box" :class="{ disabled: false }" @click="design.moveDown()">
                   <LayerBottomSvg />
                 </div>
               </template>
               <!--显示/隐藏-->
-              <div class="fun-box" @click="visibleDesign(design)">
-                <VisibleSvg v-if="design.visible" />
+              <div class="fun-box" @click="design.visible()">
+                <VisibleSvg v-if="design.attrs.visible" />
                 <NoVisibleSvg v-else />
               </div>
               <!--删除-->
-              <div class="fun-box" @click="delDesign(design)">
+              <div class="fun-box" @click="design.remove()">
                 <DeleteSvg />
               </div>
             </div>
@@ -118,25 +118,23 @@ import LayerTopSvg from '@/views/designerApp/components/svg/layerTopSvg.vue';
 import CollectSvg from '@/views/designerApp/components/svg/collectSvg.vue';
 // utils
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 
 // 图层开关
 const designListVisible = ref(true);
 // 模板属性
-console.log(useGlobalDesigner().app);
-const { activeTemplate, activeView, activeColor, activeSizeId, activeColorId, setColorId, setSizeId } = useGlobalDesigner().app;
-const { designs } = useGlobalDesigner().app.config;
-const { isCollect, setCollect, topDesign, bottomDesign, upDesign, downDesign, visibleDesign, delDesign } = useGlobalDesigner().app.tool();
-const { designHandle, showImagName } = useTemplateData();
+const { activeTemplate, activeView, activeColor, activeSizeId, activeColorId, setColorId, setSizeId } = useDesignerApplication();
+const { showImagName } = useTemplateData();
 
 // 是否设计图
-const isImg = computed(() => (design) => [designs.image].includes(design.type));
+const isImg = computed(() => (design) => [useDesignerAppConfig().design_type_image].includes(design.type));
 // 是否背景图
-const isBgImg = computed(() => (design) => [designs.bgImage].includes(design.type));
+const isBgImg = computed(() => (design) => [useDesignerAppConfig().design_type_background_image].includes(design.type));
 // 是否背景色
-const isBgc = computed(() => (design) => [designs.bgColor].includes(design.type));
+const isBgc = computed(() => (design) => [useDesignerAppConfig().design_type_background_color].includes(design.type));
 // 文字
-const isText = computed(() => (design) => [designs.text].includes(design.type));
+const isText = computed(() => (design) => [useDesignerAppConfig().design_type_text].includes(design.type));
 
 // 模板属性
 function useTemplateData() {
