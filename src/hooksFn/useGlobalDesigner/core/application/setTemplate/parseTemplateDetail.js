@@ -40,8 +40,12 @@ export function parseTemplateDetail(detail) {
       destroy: () => destroyView(v),
       /**@typedef {import('d').view.clearDesign}*/
       clearDesign: () => {
-        v.designList.forEach((design) => design.remove());
-        v.update2DCanvasDebounce();
+        let i = v.designList.length;
+        while (v.designList.length) {
+          i--;
+          const design = v.designList[i];
+          design.remove();
+        }
       },
       /**@typedef {import('d').view.seNode}*/
       setNode: (design) => setNode(design, v),
