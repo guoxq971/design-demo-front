@@ -4,8 +4,8 @@ import { setNodeClipFunc } from '@/hooksFn/useGlobalDesigner/core/app/useCanvas/
 
 /**
  * 设置视图模式
- * @param {import('d').mode_type} mode 视图模式
- * @param {import('d').view} view 视图
+ * @param {import('../../../../../../d').mode_type} mode 视图模式
+ * @param {import('../../../../../../d').view} view 视图
  */
 export function setMode(mode, view) {
   // 设置裁剪

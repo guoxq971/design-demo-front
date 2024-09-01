@@ -2,9 +2,9 @@ import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/applica
 
 /**
  * 设置节点选中
- * @typedef {import('d').view.setNode}
- * @param {import('d').design} design
- * @param {import('d').view} view
+ * @typedef {import('../../../../../../d').view.setNode}
+ * @param {import('../../../../../../d').design} design
+ * @param {import('../../../../../../d').view} view
  */
 export function setNode(design, view) {
   // 没有传,就是清空

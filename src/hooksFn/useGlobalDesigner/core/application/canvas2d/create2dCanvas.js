@@ -1,6 +1,6 @@
 import { useDesignerContainerEl } from '@/hooksFn/useGlobalDesigner/core/contaienr';
-import { addWatchStage, createCanvasNode } from '@/hooksFn/useGlobalDesigner/core/application/create2dCanvas/createNodes';
-import { setNodeClipFunc } from '@/hooksFn/useGlobalDesigner/core/application/create2dCanvas/canvasClip';
+import { addWatchStage, createCanvasNode } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/createNodes';
+import { setNodeClipFunc } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/canvasClip';
 import { nextTick } from 'vue';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 
