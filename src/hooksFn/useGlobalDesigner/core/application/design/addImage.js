@@ -1,14 +1,10 @@
-import { cloneDeep } from 'lodash';
 import { getImageSize } from '@/hooksFn/useGlobalDesigner/core/application/design/imageSize';
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { useImage } from '@vueuse/core';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
-import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
-import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
-import { getScaleMax } from '@/hooksFn/useGlobalDesigner/core/application/design/scaleMax';
 import { loadImage } from '@/hooksFn/useGlobalDesigner/core/application/design/loadImage';
-import { nextTick } from 'vue';
 import { createDesign } from '@/hooksFn/useGlobalDesigner/core/application/design/createDesign';
+import { Message } from 'element-ui';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 
 /**
  * 添加图片
@@ -28,8 +24,10 @@ export async function addImage(detail, view, options = {}) {
     options,
   );
   if (!detail.isBg) {
+    if (!imgMax(view)) return Promise.reject('设计图数量限制');
     _addImage(detail, view, options);
   } else {
+    if (!bgImgMax(view)) return Promise.reject('背景图数量限制');
     const pAll = view.$template.viewList.map((v) => {
       return _addImage(detail, v, {
         ...options,
@@ -49,6 +47,42 @@ export async function addImage(detail, view, options = {}) {
       }
     });
   }
+}
+
+/**
+ * 背景图限制
+ * @param {import('d').view} view
+ * @returns {boolean}
+ */
+function bgImgMax(view = null) {
+  const { activeTemplate, activeView } = useDesignerApplication();
+  view = view || activeView.value;
+
+  // 设计图数量限制
+  for (let i = 0; i < activeTemplate.value.viewList.length; i++) {
+    const v = activeTemplate.value.viewList[i];
+    if (v.designList.length >= 5) {
+      Message.warning(`每个图层最多5张设计图, 图层${i + 1}已达到最大数量`);
+      return false;
+    }
+  }
+  // 背景图唯一限制
+  const isSome = view.designList.some((d) => d?.detail?.isBg);
+  if (isSome) {
+    Message.warning('背景图已存在,只能添加一个背景图');
+    return false;
+  }
+  return true;
+}
+// 设计图限制
+function imgMax(view = null) {
+  view = view || useDesignerApplication().activeView.value;
+  // 设计图数量限制
+  if (view.designList.length >= 5) {
+    Message.warning('每个图层最多5张设计图');
+    return false;
+  }
+  return true;
 }
 
 /**
