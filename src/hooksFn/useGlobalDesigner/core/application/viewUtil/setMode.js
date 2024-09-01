@@ -52,6 +52,20 @@ export function setMode(mode, view) {
       break;
   }
 
+  // 3d
+  if (view.$template.is3d) {
+    switch (mode) {
+      // 预览模式
+      case useDesignerAppConfig().mode_type_preview:
+        view.$template.three.animateFlag = true;
+        break;
+      // 编辑模式
+      case useDesignerAppConfig().mode_type_edit:
+        view.$template.three.animateFlag = false;
+        break;
+    }
+  }
+
   // 设置模式
   useDesignerApplication().mode.value = mode;
 }

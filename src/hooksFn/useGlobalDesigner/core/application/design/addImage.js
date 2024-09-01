@@ -19,48 +19,49 @@ export async function addImage(detail, view, options = {}) {
       isCenter: true,
       isSetMode: true,
       isSet: true,
+      isSort: true,
       attrs: {},
+      attrsList: [],
     },
     options,
   );
   if (!detail.isBg) {
     if (!imgMax(view)) return Promise.reject('设计图数量限制');
-    _addImage(detail, view, options);
+    await _addImage(detail, view, options);
   } else {
     if (!bgImgMax(view)) return Promise.reject('背景图数量限制');
     const pAll = view.$template.viewList.map((v) => {
+      let attrs = options.attrsList.find((a) => a.viewId === v.id);
+      // 优先使用view的attrs
+      if (!attrs) attrs = options.attrs;
       return _addImage(detail, v, {
         ...options,
         isSetMode: false,
         isSet: false,
         attrs: {
-          ...options.attrs,
+          ...attrs,
           type: useDesignerAppConfig().design_type_background_image,
         },
       });
     });
-    Promise.all(pAll).then((_) => {
-      options.isSetMode && view.setMode(useDesignerAppConfig().mode_type_edit);
-      if (options.isSet) {
-        const design = view.designList.find((d) => d.isBackgroundImage);
-        options.isSet && view.setNode(design);
-      }
-    });
+    await Promise.all(pAll);
+    options.isSetMode && view.setMode(useDesignerAppConfig().mode_type_edit);
+    if (options.isSet) {
+      const design = view.designList.find((d) => d.isBackgroundImage);
+      options.isSet && view.setNode(design);
+    }
   }
 }
 
 /**
  * 背景图限制
  * @param {import('d').view} view
- * @returns {boolean}
+ * @returns {boolean} 是否通过 true:通过 false:不通过
  */
 function bgImgMax(view = null) {
-  const { activeTemplate, activeView } = useDesignerApplication();
-  view = view || activeView.value;
-
   // 设计图数量限制
-  for (let i = 0; i < activeTemplate.value.viewList.length; i++) {
-    const v = activeTemplate.value.viewList[i];
+  for (let i = 0; i < view.$template.viewList.length; i++) {
+    const v = view.$template.viewList[i];
     if (v.designList.length >= 5) {
       Message.warning(`每个图层最多5张设计图, 图层${i + 1}已达到最大数量`);
       return false;
@@ -74,9 +75,13 @@ function bgImgMax(view = null) {
   }
   return true;
 }
-// 设计图限制
+
+/**
+ * 设计图限制
+ * @param {import('d').view} view
+ * @returns {boolean} 是否通过 true:通过 false:不通过
+ */
 function imgMax(view = null) {
-  view = view || useDesignerApplication().activeView.value;
   // 设计图数量限制
   if (view.designList.length >= 5) {
     Message.warning('每个图层最多5张设计图');
@@ -93,7 +98,7 @@ function imgMax(view = null) {
  */
 async function _addImage(detail, view, options = {}) {
   // 获取父级节点
-  const parentNode = view.canvasNodes.designGroup;
+  const parentNode = detail.isBg ? view.canvasNodes.bgGroup : view.canvasNodes.designGroup;
   // 获取图片解析后的尺寸
   const imageSize = getImageSize(detail.size, view.$template.detail.dpi, view);
   const { width, height } = imageSize.size;
@@ -141,5 +146,5 @@ async function _addImage(detail, view, options = {}) {
   // 设置模式
   options.isSetMode && view.setMode(useDesignerAppConfig().mode_type_edit);
   // 设置index
-  view.setDesignListIndex();
+  options.isSort && view.setDesignListIndex();
 }

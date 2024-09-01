@@ -5,7 +5,7 @@ import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/applicati
 import { destroyView } from '@/hooksFn/useGlobalDesigner/core/application/setTemplate/destroy';
 import { addImage } from '@/hooksFn/useGlobalDesigner/core/application/design/addImage';
 import { setNode } from '@/hooksFn/useGlobalDesigner/core/application/viewUtil/setNode';
-import { nextTick } from 'vue';
+import { nextTick, shallowRef } from 'vue';
 import { update2DCanvas } from '@/hooksFn/useGlobalDesigner/core/application/viewUtil/updateCanvas';
 import { useDebounceFn } from '@vueuse/core';
 import { addColor } from '@/hooksFn/useGlobalDesigner/core/application/design/addColor';
@@ -25,16 +25,18 @@ export function parseTemplateDetail(detail) {
     const print = detail.printAreas.find((e) => e.defaultView.id === view.id);
     const printout = detail.pointoutPrintAreas.find((e) => e.defaultView.id === view.id);
 
-    const update2DCanvasDebounce = useDebounceFn(() => update2DCanvas(v), 100);
     /**@typedef {import('d').view}*/
     const v = {
       id: view.id,
       name: view.name,
+      // 3d材质
+      mesh: shallowRef(null),
       /**@type {import('d').design[]}*/
       designList: [],
       // 视图的父级模板
       $template: template,
       // 方法
+      /**@typedef {import('d').view.destroy}*/
       destroy: () => destroyView(v),
       /**@typedef {import('d').view.clearDesign}*/
       clearDesign: () => {
@@ -59,14 +61,19 @@ export function parseTemplateDetail(detail) {
       /**@typedef {import('d').view.setDesignListIndex}*/
       setDesignListIndex: () => {
         nextTick(() => {
-          v.designList.forEach((d, i) => (d.attrs.zIndex = d.node.index));
+          v.designList.forEach((d, i) => {
+            if (d.isBackgroundImage) d.attrs.zIndex = -1;
+            else if (d.isBackgroundColor) d.attrs.zIndex = -2;
+            else d.attrs.zIndex = d.node.index;
+          });
           v.designList.sort((a, b) => b.attrs.zIndex - a.attrs.zIndex);
         });
       },
       /**@typedef {import('d').view.update2DCanvas}*/
       update2DCanvas: () => update2DCanvas(v),
       /**@typedef {import('d').view.update2DCanvasDebounce}*/
-      update2DCanvasDebounce: () => update2DCanvasDebounce(),
+      update2DCanvasDebounce: useDebounceFn(() => update2DCanvas(v), 100),
+      /**@typedef {import('d').view.create2Dcanvas}*/
       create2DCanvas: () => create2dCanvas(v),
 
       // 基础属性

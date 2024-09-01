@@ -38,7 +38,7 @@ export async function getRefineConfig(templateNo) {
     e.type = useDesignerAppConfig().template_type_refine;
     e.is2dFlag = e.hasUpload2d === 1 && e.openflag2d === 0;
     e.is3dFlag = e.hasUpload3d === 1 && e.openflag3d === 0 && e.uvdflag === 1 && e.glbPath;
-    return e.isFlag;
+    return e.is2dFlag;
   });
   const isUseRefine = resp.length > 0;
   // console.log('精细 (可用)', refineConfigList);
@@ -46,4 +46,20 @@ export async function getRefineConfig(templateNo) {
   return {
     list: resp,
   };
+}
+
+/**
+ * 获取模板详情-根据尺码
+ * @param {string} templateNo
+ * @param {string} size
+ * @returns {Promise<import('d').templateDetail>}
+ */
+export async function getTemplateDetailWithSize(templateNo, size) {
+  const param = {
+    templateNo: templateNo,
+    size: size,
+  };
+  const res = await GRequest(`/base-web/CMProductTemplateAct/selectTemplateList4DesignWithSize.act`, METHOD.POST, param);
+  if (res.data.retState !== '0') return Promise.reject('获取模板详情失败');
+  return res.data;
 }

@@ -12,7 +12,7 @@
       </div>
       <!--three 容器-->
       <div v-loading="threeLoading">
-        <div v-show="isShowThree" :style="`width:${imgSize}px;height:${imgSize}px;position:relative`" id="three-container" />
+        <div v-show="isShowThree" :style="`width:${imgSize}px;height:${imgSize}px;position:relative`" :id="useDesignerAppConfig().three_container_id" />
       </div>
 
       <!--预览图列表 + 精细/通用-->

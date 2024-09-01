@@ -1,6 +1,6 @@
 import { createEventHook, createGlobalState, useElementBounding } from '@vueuse/core';
 import { computed, ComputedRef, ref, Ref, watchEffect } from 'vue';
-import { setTemplate } from './setTemplate';
+import { setTemplate, useTemplate } from './setTemplate';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { cloneDeep } from 'lodash';
 
@@ -26,7 +26,7 @@ export const useDesignerApplication = createGlobalState(() => {
   const threeLoading = ref(false);
 
   /**@type {import('d').templateComputed} 当前激活的模板*/
-  const activeTemplate = computed(() => templateList.value?.find((t) => t.id === activeTemplateId.value));
+  const activeTemplate = computed(() => templateList.value?.find((t) => t.uuid === activeTemplateId.value));
   /**@type {ComputedRef<import('d').view>} 当前激活的视图*/
   const activeView = computed(() => activeTemplate.value?.viewList.find((v) => v.id === activeViewId.value));
   /**@type {ComputedRef<import('d').size>} 当前激活的尺码*/
@@ -87,6 +87,7 @@ export const useDesignerApplication = createGlobalState(() => {
     activeDesign,
     // 设置模板
     setTemplate,
+    useTemplate,
     setColorId,
     setViewId,
     setSizeId,

@@ -25,4 +25,9 @@ export function update2DCanvas(view) {
   const ctx2 = canvasDom.getContext('2d');
   ctx2.clearRect(0, 0, canvas.width, canvas.height);
   ctx2.drawImage(canvas._canvas, 0, 0);
+
+  // 3d
+  if (view.update3DCanvasDebounce) {
+    view.update3DCanvasDebounce();
+  }
 }

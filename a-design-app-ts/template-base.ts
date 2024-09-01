@@ -3,7 +3,12 @@ import { printArea, printoutArea, templateDetail } from './template-detail';
 import { mode_type, template_type } from './designerAppConfig';
 import { templateConfig, templateRefineConfig } from './template-config';
 import Konva from 'konva';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { designImageDetail } from './design-image-detail';
+import { ShallowRef } from 'vue';
 
 // 模板尺码
 export interface size {
@@ -77,8 +82,12 @@ export interface addImageOptions {
   isSet?: boolean;
   // 是否设置模式
   isSetMode?: boolean;
+  // 是否排序
+  isSort?: boolean;
   // 自定义属性
   attrs?: attrs;
+  // 自定义属性
+  attrsList?: attrs[];
 }
 
 // 模板视图
@@ -110,11 +119,19 @@ export interface view {
   // 切换模板类型销毁数据
   destroy: () => {};
   // 添加图片
-  addImage: (detail: designImageDetail, options: addImageOptions) => {};
+  addImage: (detail: designImageDetail, options: addImageOptions) => Promise<any>;
   // 添加颜色
   addColor: (color: string) => {};
   // 视图的父级模板
   $template: template;
+  // 3d
+  textureCanvas: HTMLCanvasElement;
+  // 3d材质
+  mesh: ShallowRef<THREE.Mesh>;
+  //更新3d视图
+  update3DCanvas: Function;
+  //更新3d视图-防抖
+  update3DCanvasDebounce: Function;
 
   // 视图距离500x500左上角的偏移量
   offsetX: string;
@@ -136,12 +153,18 @@ export interface view {
 
 // 模板
 export interface template {
+  //自定义id
+  uuid: string;
   //id
   id: string;
   // 模板号
   templateNo: string;
   // 模板类型
   type: template_type;
+  // 是否通用模板
+  isCommon: boolean;
+  // 是否精细模板
+  isRefine: boolean;
   // 模板尺码
   size: string;
   // 3d是否可用
@@ -156,4 +179,49 @@ export interface template {
   colorList: color[];
   //尺码列表
   sizeList: size[];
+  // three
+  three: threeTemplate;
+  // 创建3d
+  create3D: () => {};
+  // 销毁
+  destroy: () => {};
+  // 是否睡眠
+  isSleep: boolean;
+  // 睡眠
+  sleep: () => {};
+  // 醒来
+  unsleep: () => {};
+  // 获取视图
+  getViewByMaterialName: (materialName: string) => view;
+}
+
+// 模板3d配置项
+export interface threeTemplateOptions {
+  path: string;
+  container: HTMLElement;
+  loadModelBefore?: Function;
+  loadModelSuccess?: Function;
+  loadModelFinally?: Function;
+}
+// 模板3d配
+export interface threeTemplate {
+  fnUid: string;
+  rid: string;
+  container: HTMLElement;
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  renderer: THREE.WebGLRenderer;
+  light: THREE.Light;
+  texture: THREE.Texture;
+  model: THREE.Group;
+  controls: OrbitControls;
+  dracoLoader: DRACOLoader;
+  loader: GLTFLoader;
+  hdrLoader: THREE.TextureLoader;
+  animate: () => {};
+  animateFlag: boolean;
+  destroyMouse: () => {};
+  create: (options: threeTemplateOptions) => {};
+  destroy: () => {};
+  disposeDracoLoader: () => {};
 }

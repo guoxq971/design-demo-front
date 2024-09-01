@@ -7,8 +7,8 @@
         </div>
       </conrner>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item :disabled="commonDisabled">通用设计</el-dropdown-item>
-        <el-dropdown-item :disabled="refineDisabled">精细设计</el-dropdown-item>
+        <el-dropdown-item @click.native="onClickTemplateType(template_type_common)" :disabled="commonDisabled">通用设计</el-dropdown-item>
+        <el-dropdown-item @click.native="onClickTemplateType(template_type_refine)" :disabled="refineDisabled">精细设计</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
 
@@ -29,9 +29,9 @@ import { computed, defineEmits, defineProps } from 'vue';
 // components
 import conrner from '@/views/designerApp/components/conrner.vue';
 // utils
-import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
+import { Message } from 'element-ui';
 
 const emit = defineEmits(['onView']);
 const props = defineProps({
@@ -42,7 +42,7 @@ const props = defineProps({
 
 // 设计器基础数据
 const { templateList, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useDesignerApplication();
-const { getPreviewContainerId, preview_canvas_size } = useDesignerAppConfig();
+const { getPreviewContainerId, preview_canvas_size, template_type_common, template_type_refine } = useDesignerAppConfig();
 // 样式管理
 const { leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
 // 模板类型
@@ -53,6 +53,23 @@ const activeTemplateTypeName = computed(() => (activeTemplateType.value === useD
 const commonDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_common));
 // 模板类型-refine-disabled
 const refineDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_refine));
+// 切换模板类型
+function onClickTemplateType(type) {
+  if (useDesignerApplication().activeTemplate.value.type === type) {
+    return;
+  }
+  if (type === useDesignerAppConfig().template_type_common) {
+    // Message.success('切换为通用设计');
+    const template = templateList.value.find((t) => t.type === type);
+    useDesignerApplication().useTemplate(template);
+  } else if (type === useDesignerAppConfig().template_type_refine) {
+    // Message.success('切换为精细设计');
+    const template = templateList.value.find((t) => t.type === type);
+    useDesignerApplication().useTemplate(template);
+  } else {
+    Message.error('未知模板类型');
+  }
+}
 
 // 裁剪样式
 const style = computed(() => {
