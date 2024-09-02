@@ -6,7 +6,7 @@
         <!--产品图-->
         <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id)?.image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
         <!--canvas-->
-        <div :id="getCanvasContainerId(item.id)" style="width: 100%;height: 100%;"></div>
+        <div :id="get2dCanvasId(item.id)" style="width: 100%;height: 100%;"></div>
         <!--背景图-->
         <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id)?.texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
       </div>
@@ -55,7 +55,7 @@ const { canvasElRef, imgElRef } = useDesignerContainerEl();
 const { previewStyle } = usePreviewStyle();
 // canvas配置
 const imgSize = useDesignerAppConfig().canvas_size;
-const getCanvasContainerId = useDesignerAppConfig().get2dCanvasId;
+const get2dCanvasId = useDesignerAppConfig().get2dCanvasId;
 
 // 是否展示产品图
 const isShowProdImg = computed(() => {

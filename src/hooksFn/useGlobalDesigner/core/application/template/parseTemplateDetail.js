@@ -1,14 +1,15 @@
 import { create2dCanvas } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/create2dCanvas';
 import { parseMulti } from '@/hooksFn/useGlobalDesigner/core/application/template/parseMulti';
 import { setMode } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/setMode';
-import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/template/template';
-import { destroyView } from '@/hooksFn/useGlobalDesigner/core/application/template/destroy';
+import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/template/templateInterface';
+import { destroyView } from '@/hooksFn/useGlobalDesigner/core/application/template/destroyView';
 import { addImage } from '@/hooksFn/useGlobalDesigner/core/application/design/addImage';
 import { setNode } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/setNode';
 import { nextTick, shallowRef } from 'vue';
 import { update2DCanvas } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/updateCanvas';
 import { useDebounceFn } from '@vueuse/core';
 import { addColor } from '@/hooksFn/useGlobalDesigner/core/application/design/addColor';
+import { syncViewAttrs } from '@/hooksFn/useGlobalDesigner/core/application/template/sleep';
 
 /**
  * 解析模板详情
@@ -79,6 +80,8 @@ export function parseTemplateDetail(detail) {
       update2DCanvasDebounce: useDebounceFn(() => update2DCanvas(v), 100),
       /**@typedef {import('d').view.create2Dcanvas}*/
       create2DCanvas: () => create2dCanvas(v),
+      /**@typedef {import('d').view.syncAttrs}*/
+      syncAttrs: () => syncViewAttrs(v),
 
       // 基础属性
       print: print,

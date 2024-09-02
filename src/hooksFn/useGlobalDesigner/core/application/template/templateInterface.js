@@ -3,7 +3,10 @@ import { getViewByMaterialName } from '@/hooksFn/useGlobalDesigner/core/applicat
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 import { isRef, nextTick } from 'vue';
 import { cloneDeep } from 'lodash';
-import { sleep, unsleep } from '@/hooksFn/useGlobalDesigner/core/application/template/sleep';
+import { sleep, syncAttrs, unsleep } from '@/hooksFn/useGlobalDesigner/core/application/template/sleep';
+import { destroy } from '@/hooksFn/useGlobalDesigner/core/application/template/destroy';
+import { renderMulti } from '@/hooksFn/useGlobalDesigner/core/application/template/multi';
+import { getSubmitData } from '@/hooksFn/useGlobalDesigner/core/application/template/getSubmitData';
 
 /**
  * 获取模板的基础数据
@@ -26,21 +29,21 @@ export function getTemplateInterface() {
     sizeList: [],
   };
   /**@typedef {import('d').template.destroy}*/
-  template.destroy = () => {
-    template.viewList.forEach((view) => {
-      /**@typedef {import('d').view.destroy}*/
-      view.destroy();
-    });
-    template.three?.destroy();
-  };
+  template.destroy = () => destroy(template);
   /**@typedef {import('d').template.create3D}*/
   template.create3D = () => create3D(template);
   /**@typedef {import('d').template.getViewByMaterialName}*/
   template.getViewByMaterialName = (materialName) => getViewByMaterialName(materialName, template);
   /**@typedef {import('d').template.sleep}*/
   template.sleep = () => sleep(template);
+  /**@typedef {import('d').template.syncAttrs}*/
+  template.syncAttrs = () => syncAttrs(template);
   /**@typedef {import('d').template.unsleep}*/
   template.unsleep = () => unsleep(template);
+  /**@typedef {import('d').template.renderMulti}*/
+  template.renderMulti = () => renderMulti(template);
+  /**@typedef {import('d').template.getSubmitData}*/
+  template.getSubmitData = () => getSubmitData(template);
 
   return template;
 }

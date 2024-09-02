@@ -3,8 +3,8 @@ import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 
 /**
  * 更新2D画布
- * @typedef {import('../../../../../../d').view.update2DCanvas} view
- * @param {import('../../../../../../d').view} view
+ * @typedef {import('d').view.update2DCanvas} view
+ * @param {import('d').view} view
  */
 export function update2DCanvas(view) {
   // 更新预览2d画布
@@ -18,7 +18,7 @@ export function update2DCanvas(view) {
     pixelRatio: useDesignerAppConfig().preview_canvas_pixel_ratio,
   });
   if (!canvas) {
-    console.error('生成base64失败, canvas还未生成');
+    console.error('更新2d画布失败, canvas还未生成');
     return;
   }
   const canvasDom = document.getElementById(useDesignerAppConfig().getPreviewContainerId(view.id));
@@ -30,4 +30,7 @@ export function update2DCanvas(view) {
   if (view.update3DCanvasDebounce) {
     view.update3DCanvasDebounce();
   }
+
+  // 同步attrs
+  view.syncAttrs();
 }

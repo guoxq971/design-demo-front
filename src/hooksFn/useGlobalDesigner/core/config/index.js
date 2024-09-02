@@ -80,10 +80,46 @@ export const useDesignerAppConfig = createGlobalState(() => {
   const design_max_type_height = 'height';
   /***********--设计-最大化类型--end*************/
 
+  /***********--保存模板--start*************/
+  /**@type {import('d').save_template_type_save}*/
+  const save_template_type_save = '0';
+  /**@type {import('d').save_template_type_color}*/
+  const save_template_type_color = '1';
+  /**@type {import('d').save_template_type_org}*/
+  const save_template_type_org = '2';
+  /**@type {import('d').save_template_type_render}*/
+  const save_template_type_render = '3';
+  /***********--保存模板--end*************/
+
+  /***********--提交设计类型--start*************/
+  /**@type {import('d').submit_design_type_design}*/
+  const submit_design_type_design = 'design';
+  /**@type {import('d').submit_design_type_background_color}*/
+  const submit_design_type_background_color = 'backgroundColor';
+  /***********--提交设计类型--start*************/
+
+  /***********--模板来源--start*************/
+  /**@type {import('d').template_source_type_self}*/
+  const template_source_type_self = '1';
+  /**@type {import('d').template_source_type_out}*/
+  const template_source_type_out = '0';
+  /***********--模板来源--end*************/
+
   // 默认颜色
   const primary_color = '#fc6b20';
 
   return {
+    // 提交设计类型
+    submit_design_type_design,
+    submit_design_type_background_color,
+    // 模板来源
+    template_source_type_self,
+    template_source_type_out,
+    // 保存模板
+    save_template_type_save,
+    save_template_type_color,
+    save_template_type_org,
+    save_template_type_render,
     // 设计-最大化类型
     design_max_type_width,
     design_max_type_height,

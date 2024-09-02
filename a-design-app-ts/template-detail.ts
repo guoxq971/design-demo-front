@@ -292,7 +292,7 @@ export interface templateDetail {
   templateName: string;
   // 模板型号
   templateModel: string;
-  // 模板类型 0-普通模板 1-精细模板
+  // 模板类型 0-自产 1-外采
   templateType: string;
   // 长描述(没用）
   description: string;

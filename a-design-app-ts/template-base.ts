@@ -1,6 +1,6 @@
 import { attrs, design } from './design';
 import { printArea, printoutArea, templateDetail } from './template-detail';
-import { mode_type, template_type } from './designerAppConfig';
+import { mode_type, save_template_type, template_type } from './designerAppConfig';
 import { templateConfig, templateRefineConfig } from './template-config';
 import Konva from 'konva';
 import * as THREE from 'three';
@@ -130,6 +130,8 @@ export interface view {
   update3DCanvas: Function;
   //更新3d视图-防抖
   update3DCanvasDebounce: Function;
+  //同步attrs
+  syncAttrs: Function;
 
   // 视图距离500x500左上角的偏移量
   offsetX: string;
@@ -185,12 +187,18 @@ export interface template {
   destroy: () => {};
   // 是否睡眠
   isSleep: boolean;
+  // 同步attrs
+  syncAttrs: () => {};
   // 睡眠
   sleep: () => {};
   // 醒来
   unsleep: () => {};
   // 获取视图
   getViewByMaterialName: (materialName: string) => view;
+  // 渲染多角度
+  renderMulti: () => {};
+  // 获取提交数据
+  getSubmitData: (template: template, saveType: save_template_type) => object;
 }
 
 // 模板3d配置项

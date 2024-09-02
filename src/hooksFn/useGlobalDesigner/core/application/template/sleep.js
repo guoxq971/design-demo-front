@@ -2,6 +2,43 @@ import { cloneDeep } from 'lodash';
 import { nextTick } from 'vue';
 
 /**
+ * 同步属性
+ * @typedef {import('d').view.syncAttrs}
+ * @param {import('d').view} view
+ */
+export function syncViewAttrs(view) {
+  // 保留2d设计数据
+  view.designList.forEach((design) => {
+    design.attrs.x = design.node.x();
+    design.attrs.y = design.node.y();
+    design.attrs.width = design.node.width();
+    design.attrs.height = design.node.height();
+    design.attrs.rotation = design.node.rotation();
+    design.attrs.scaleX = design.node.scaleX();
+    design.attrs.scaleY = design.node.scaleY();
+    design.attrs.fill = design.node.attrs.fill;
+    design.attrs.visible = design.node.attrs.visible;
+    design.attrs.viewId = view.id;
+    design.attrs.uuid = design.node.attrs.uuid;
+    if (design.isBackgroundImage) design.attrs.zIndex = -1;
+    else if (design.isBackgroundColor) design.attrs.zIndex = -2;
+    else design.attrs.zIndex = design.node.index;
+  });
+}
+/**
+ * 同步属性
+ * @typedef {import('d').template.syncAttrs}
+ * @param {import('d').template} template
+ */
+export function syncAttrs(template) {
+  // 销毁2d
+  template.viewList.forEach((view) => {
+    // 保留2d设计数据
+    view.syncAttrs();
+  });
+}
+
+/**
  * 休眠
  * @typedef {import('d').template.sleep}
  * @param {import('d').template} template
@@ -9,25 +46,10 @@ import { nextTick } from 'vue';
 export function sleep(template) {
   template.isSleep = true;
   // 清除2dCanvas,3dCanvas,3dMesh,3dTexture;保存2d设计数据
+  // 保留2d设计数据
+  syncAttrs(template);
   // 销毁2d
   template.viewList.forEach((view) => {
-    // 保留2d设计数据
-    view.designList.forEach((design) => {
-      design.attrs.x = design.node.x();
-      design.attrs.y = design.node.y();
-      design.attrs.width = design.node.width();
-      design.attrs.height = design.node.height();
-      design.attrs.rotation = design.node.rotation();
-      design.attrs.scaleX = design.node.scaleX();
-      design.attrs.scaleY = design.node.scaleY();
-      design.attrs.fill = design.node.attrs.fill;
-      design.attrs.visible = design.node.attrs.visible;
-      design.attrs.viewId = view.id;
-      design.attrs.uuid = design.node.attrs.uuid;
-      if (design.isBackgroundImage) design.attrs.zIndex = -1;
-      else if (design.isBackgroundColor) design.attrs.zIndex = -2;
-      else design.attrs.zIndex = design.node.index;
-    });
     // 销毁2d设计节点
     view?.designList.forEach((design) => {
       design?.node?.destroy();

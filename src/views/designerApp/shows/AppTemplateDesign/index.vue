@@ -28,19 +28,22 @@
       </div>
 
       <!--多角度-->
-      <div class="multi-wrap">
+      <div class="multi-wrap" v-loading="renderLoading">
         <div class="multi-box">
           <div class="multi-box-bd">
             <div class="multi-content">
-              <div class="fun-btn render-btn">渲染</div>
+              <div class="fun-btn render-btn" @click="onRender">渲染</div>
               <div class="fun-btn preview-btn">预览</div>
               <el-carousel trigger="click" indicator-position="outside" arrow="always" :loop="false" :autoplay="false">
-                <el-carousel-item v-for="item in activeColor?.multiImageList || []" :key="item.id">
-                  <div class="show-box">
-                    <img class="child-box" :src="AppUtil.setStartHttp(item.bgImg)" />
-                    <img class="child-box" :src="AppUtil.setStartHttp(item.prodImg)" />
-                  </div>
-                </el-carousel-item>
+                <template v-if="activeColor?.multiImageList">
+                  <el-carousel-item v-for="item in activeColor.multiImageList || []" :key="item.id">
+                    <div class="show-box">
+                      <img class="child-box" :src="AppUtil.setStartHttp(item.bgImg)" />
+                      <img class="child-box" v-if="item.designImg" :src="item.designImg" alt="" />
+                      <img class="child-box" :src="AppUtil.setStartHttp(item.prodImg)" />
+                    </div>
+                  </el-carousel-item>
+                </template>
               </el-carousel>
             </div>
           </div>
@@ -124,8 +127,13 @@ import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 // 图层开关
 const designListVisible = ref(true);
 // 模板属性
-const { activeTemplate, activeView, activeColor, activeSizeId, activeColorId, setColorId, setSizeId } = useDesignerApplication();
+const { renderLoading, activeTemplate, activeView, activeColor, activeSizeId, activeColorId, setColorId, setSizeId } = useDesignerApplication();
 const { showImagName } = useTemplateData();
+
+// 多角度-渲染
+function onRender() {
+  activeTemplate.value.renderMulti();
+}
 
 // 是否设计图
 const isImg = computed(() => (design) => [useDesignerAppConfig().design_type_image].includes(design.type));

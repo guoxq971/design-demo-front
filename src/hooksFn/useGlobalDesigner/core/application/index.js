@@ -24,6 +24,8 @@ export const useDesignerApplication = createGlobalState(() => {
   const loading = ref(false);
   /**@type {Ref<boolean>} 3d加载中*/
   const threeLoading = ref(false);
+  /**@type {Ref<boolean>} 多角度加载中*/
+  const renderLoading = ref(false);
 
   /**@type {import('d').templateComputed} 当前激活的模板*/
   const activeTemplate = computed(() => templateList.value?.find((t) => t.uuid === activeTemplateId.value));
@@ -101,6 +103,7 @@ export const useDesignerApplication = createGlobalState(() => {
     mode,
     loading,
     threeLoading,
+    renderLoading,
     activeTemplate,
     activeView,
     activeSize,
