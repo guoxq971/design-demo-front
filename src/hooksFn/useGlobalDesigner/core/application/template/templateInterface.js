@@ -7,6 +7,7 @@ import { sleep, syncAttrs, unsleep } from '@/hooksFn/useGlobalDesigner/core/appl
 import { destroy } from '@/hooksFn/useGlobalDesigner/core/application/template/destroy';
 import { renderMulti } from '@/hooksFn/useGlobalDesigner/core/application/template/multi';
 import { getSubmitData } from '@/hooksFn/useGlobalDesigner/core/application/template/getSubmitData';
+import { createMulti3D } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/createMulti3D';
 
 /**
  * 获取模板的基础数据
@@ -27,11 +28,15 @@ export function getTemplateInterface() {
     viewList: [],
     colorList: [],
     sizeList: [],
+    multi2DList: [],
+    multi3DList: [],
   };
   /**@typedef {import('d').template.destroy}*/
   template.destroy = () => destroy(template);
   /**@typedef {import('d').template.create3D}*/
   template.create3D = () => create3D(template);
+  /**@typedef {import('d').template.createMulti3D}*/
+  template.createMulti3D = () => createMulti3D(template);
   /**@typedef {import('d').template.getViewByMaterialName}*/
   template.getViewByMaterialName = (materialName) => getViewByMaterialName(materialName, template);
   /**@typedef {import('d').template.sleep}*/

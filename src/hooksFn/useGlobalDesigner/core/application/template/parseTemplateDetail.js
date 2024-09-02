@@ -82,6 +82,8 @@ export function parseTemplateDetail(detail) {
       create2DCanvas: () => create2dCanvas(v),
       /**@typedef {import('d').view.syncAttrs}*/
       syncAttrs: () => syncViewAttrs(v),
+      /**@typedef {import('d').view.getMaterialName}*/
+      getMaterialName: () => v.$template.config.viewList.find((v) => String(v.viewId) === view.id).materialName,
 
       // 基础属性
       print: print,

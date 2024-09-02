@@ -6,13 +6,13 @@
         <!--产品图-->
         <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id)?.image" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img" />
         <!--canvas-->
-        <div :id="get2dCanvasId(item.id)" style="width: 100%;height: 100%;"></div>
+        <div v-show="isShow2DCanvas" :id="get2dCanvasId(item.id)" style="width: 100%;height: 100%;"></div>
         <!--背景图-->
         <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id)?.texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
       </div>
       <!--three 容器-->
-      <div v-loading="threeLoading">
-        <div v-show="isShowThree" :style="`width:${imgSize}px;height:${imgSize}px;position:relative`" :id="useDesignerAppConfig().three_container_id" />
+      <div v-loading="threeLoading" style="border: 2px dashed #7e7e7e;" v-show="isShowThree">
+        <div :style="`width:${imgSize}px;height:${imgSize}px;position:relative`" :id="useDesignerAppConfig().three_container_id" />
       </div>
 
       <!--预览图列表 + 精细/通用-->
@@ -67,6 +67,13 @@ const isShowProdImg = computed(() => {
     if (isShowThree.value) return false;
     return true;
   }
+});
+// 是否展示2dCanvas
+const isShow2DCanvas = computed(() => {
+  if (activeTemplate.value.is3d && mode.value === useDesignerAppConfig().mode_type_preview) {
+    return false;
+  }
+  return true;
 });
 // 是否展示3d
 const isShowThree = computed(() => {

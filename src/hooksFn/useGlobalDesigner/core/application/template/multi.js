@@ -17,8 +17,9 @@ export async function renderMulti(template) {
     if (res.data.retState !== '0') return Promise.reject('渲染多角度失败');
     // console.log('activeColor', activeColor);
     console.log('多角度接口返回值', JSON.parse(JSON.stringify(res.data)));
+    template.multi2DList = res.data.cutList;
     for (let item of activeColor.multiImageList) {
-      const d = res.data.cutList.find((e) => e.composeId === item.composeId || item.multiId === e.multiId);
+      const d = template.multi2DList.find((e) => e.composeId === item.composeId || item.multiId === e.multiId);
       item.designImg = d?.img;
     }
   } finally {

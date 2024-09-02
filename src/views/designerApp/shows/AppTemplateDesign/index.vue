@@ -36,10 +36,15 @@
               <div class="fun-btn preview-btn">预览</div>
               <el-carousel trigger="click" indicator-position="outside" arrow="always" :loop="false" :autoplay="false">
                 <template v-if="activeColor?.multiImageList">
-                  <el-carousel-item v-for="item in activeColor.multiImageList || []" :key="item.id">
+                  <el-carousel-item v-for="item in activeColor.multiImageList" :key="item.id">
                     <div class="show-box">
                       <img class="child-box" :src="AppUtil.setStartHttp(item.bgImg)" />
-                      <img class="child-box" v-if="item.designImg" :src="item.designImg" alt="" />
+                      <template v-if="isMulti3D(item)">
+                        <div v-loading="getMulti3d(item)?.loading" class="child-box" :id="getMultiContainerId(item.id)"></div>
+                      </template>
+                      <template v-else>
+                        <img class="child-box" v-if="item.designImg" :src="item.designImg" alt="" />
+                      </template>
                       <img class="child-box" :src="AppUtil.setStartHttp(item.prodImg)" />
                     </div>
                   </el-carousel-item>
@@ -134,6 +139,18 @@ const { showImagName } = useTemplateData();
 function onRender() {
   activeTemplate.value.renderMulti();
 }
+// 多角度-3d
+const { getMultiContainerId } = useDesignerAppConfig();
+const getMulti3d = computed(() => {
+  /**@param {import('d').colorMultiImageItem} item*/
+  return (item) => {
+    return activeTemplate.value?.multi3DList.find((m) => m.multiId === item.multiId || m.composeId === item.composeId);
+  };
+});
+const isMulti3D = computed(() => {
+  /**@param {import('d').colorMultiImageItem} item*/
+  return (item) => getMulti3d.value(item)?.config.glbPath;
+});
 
 // 是否设计图
 const isImg = computed(() => (design) => [useDesignerAppConfig().design_type_image].includes(design.type));

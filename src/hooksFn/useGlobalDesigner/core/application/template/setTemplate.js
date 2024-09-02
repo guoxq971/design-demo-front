@@ -103,8 +103,13 @@ export async function useTemplate(template) {
     template.viewList.forEach((view) => view.create2DCanvas());
   });
 
-  // 加载3d
-  nextTick(() => template.create3D());
+  // 加载模板3d
+  nextTick(() => {
+    template.create3D().then((_) => {
+      // 加载模板多角度3d
+      template.createMulti3D();
+    });
+  });
 
   // 激活的模板是否是睡眠状态
   nextTick(() => template.isSleep && template.unsleep());

@@ -215,6 +215,45 @@ export interface templateDetailView {
   ];
 }
 
+// 3d
+export interface angle3d {
+  templateNo: '2267';
+  useflag: 1;
+  updateUser: '';
+  updateTime: {
+    date: 25;
+    hours: 13;
+    seconds: 31;
+    month: 6;
+    timezoneOffset: -480;
+    year: 124;
+    minutes: 35;
+    time: 1721885731000;
+    day: 4;
+  };
+  configType: 0;
+  templateId: 'b0de7c70-6dac-4c1f-99d3-ceaeebe8478b';
+  angleName: 'positive';
+  sortno: 0;
+  zipPath: '';
+  size: '';
+  createTime: {
+    date: 25;
+    hours: 13;
+    seconds: 31;
+    month: 6;
+    timezoneOffset: -480;
+    year: 124;
+    minutes: 35;
+    time: 1721885731000;
+    day: 4;
+  };
+  versionNo: '2';
+  createUser: 'de5f04fe-df6c-4fba-b463-53291d7e6dcf_11';
+  glbPath: '/fnplatformfiles/template_3d_angle/2267_202407251335303050/2267-positive.glb';
+  seqId: '1816346520383954946';
+}
+
 // 模板详情
 export interface templateDetail {
   // 默认值
@@ -239,7 +278,7 @@ export interface templateDetail {
   // printout列表
   pointoutPrintAreas: printoutArea[];
   // 3d多角度列表
-  '3dAngleList': [];
+  '3dAngleList': angle3d[];
   // 模板图片
   templateImages: [];
   // 推荐配置

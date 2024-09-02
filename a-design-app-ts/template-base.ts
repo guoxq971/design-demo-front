@@ -1,5 +1,5 @@
 import { attrs, design } from './design';
-import { printArea, printoutArea, templateDetail } from './template-detail';
+import { angle3d, printArea, printoutArea, templateDetail } from './template-detail';
 import { mode_type, save_template_type, template_type } from './designerAppConfig';
 import { templateConfig, templateRefineConfig } from './template-config';
 import Konva from 'konva';
@@ -29,6 +29,26 @@ export interface colorView {
   image: string;
 }
 
+// 多角度图片
+export interface colorMultiImageItem {
+  // 排序id
+  multiId: string;
+  // 组合id
+  composeId: string;
+  // 多角度id multiId
+  id: string;
+  // 背景图 image
+  bgImg: string;
+  // 设计图 (渲染接口的图)
+  designImg: string;
+  // 产品图
+  prodImg: string;
+  // 多角度item
+  multiItem: object;
+  // 没用到
+  noShow: boolean;
+}
+
 // 模板颜色
 export interface color {
   // id
@@ -42,24 +62,7 @@ export interface color {
   // 视图图片列表
   viewImageList: colorView[];
   // 多角度图片列表
-  multiImageList: {
-    // 排序id
-    multiId: string;
-    // 组合id
-    composeId: string;
-    // 多角度id multiId
-    id: string;
-    // 背景图 image
-    bgImg: string;
-    // 设计图 (渲染接口的图)
-    designImg: string;
-    // 产品图
-    prodImg: string;
-    // 多角度item
-    multiItem: object;
-    // 没用到
-    noShow: boolean;
-  }[];
+  multiImageList: colorMultiImageItem[];
 }
 
 // 视图canvas节点
@@ -124,8 +127,10 @@ export interface view {
   addColor: (color: string) => {};
   // 视图的父级模板
   $template: template;
-  // 3d
+  // 模板3d-的视图部位的canvas
   textureCanvas: HTMLCanvasElement;
+  // 获取材质名称
+  getMaterialName: () => string;
   //更新3d视图
   update3DCanvas: Function;
   //更新3d视图-防抖
@@ -149,6 +154,21 @@ export interface view {
   print_d: string;
   print_width: string;
   print_height: string;
+}
+
+export interface multi3D {
+  config: angle3d;
+  colorMultiItem: colorMultiImageItem;
+  three: multiThree;
+  loading: boolean;
+  // 简单多角度id
+  multiId: '1';
+  // 复杂多角度id
+  composeId: '1';
+  // 3d模型的更新材质,根据viewId
+  updateMeshObj: {
+    [key: string]: () => {};
+  };
 }
 
 // 模板
@@ -182,7 +202,21 @@ export interface template {
   // three
   three: threeTemplate;
   // 创建3d
-  create3D: () => {};
+  create3D: () => Promise<void>;
+  // 创建多角度3d
+  createMulti3D: () => {};
+  // 多角度2d列表
+  multi2DList: {
+    img: 'http://fnfile.testcustomwe.com\\designtemp\\design_product_temp_realtime\\2024_09_02\\2267\\2a38a275-bcdb-42d9-a068-9d28abeeb87a_0_martix.png';
+    appearanceId: '1';
+    viewId: '1';
+    // 简单多角度id
+    multiId: '1';
+    // 复杂多角度id
+    composeId: '1';
+  }[];
+  // 多角度3d列表
+  multi3DList: multi3D[];
   // 销毁
   destroy: () => {};
   // 是否睡眠
@@ -209,7 +243,7 @@ export interface threeTemplateOptions {
   loadModelSuccess?: Function;
   loadModelFinally?: Function;
 }
-// 模板3d配
+// 模板3d
 export interface threeTemplate {
   fnUid: string;
   rid: string;
@@ -230,4 +264,25 @@ export interface threeTemplate {
   create: (options: threeTemplateOptions) => {};
   destroy: () => {};
   disposeDracoLoader: () => {};
+}
+
+// 模板多角度3d
+export interface multiThree {
+  rid: string;
+  container: HTMLElement;
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  renderer: THREE.WebGLRenderer;
+  light: THREE.Light;
+  texture: THREE.Texture;
+  model: THREE.Group;
+  controls: OrbitControls;
+  dracoLoader: DRACOLoader;
+  loader: GLTFLoader;
+  hdrLoader: THREE.TextureLoader;
+  animate: () => {};
+  create: (options: threeTemplateOptions) => {};
+  destroy: () => {};
+  disposeDracoLoader: () => {};
+  exportBase64: () => {};
 }

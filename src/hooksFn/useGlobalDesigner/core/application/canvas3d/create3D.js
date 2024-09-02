@@ -13,30 +13,34 @@ import { isRef, shallowRef } from 'vue';
  * @param {import('d').template} template
  */
 export function create3D(template) {
-  if (!template.is3d) {
-    return;
-  }
-  const container = document.getElementById(useDesignerAppConfig().three_container_id);
-  if (!container) {
-    console.error('3d容器不存在');
-    return;
-  }
-  const options = {
-    path: process.env.VUE_APP_API_BASE_IMG_URL + template.config.glbPath,
-    container: container,
-    loadModelBefore: () => (useDesignerApplication().threeLoading.value = true),
-    loadModelFinally: () => (useDesignerApplication().threeLoading.value = false),
-    loadModelSuccess: (model, meshModelList) => {
-      // 绑定材质
-      bindMaterials(template, meshModelList);
-      // 显示模型
-      setTimeout(() => model && (model.visible = true), 0);
-      // 绑定事件
-      template.three.destroyMouse = registerMouseEvent(template.three.renderer.domElement);
-    },
-  };
-  template.three = new CreateThree();
-  template.three.create(options);
+  return new Promise((resolve) => {
+    if (!template.is3d) {
+      return;
+    }
+    const container = document.getElementById(useDesignerAppConfig().three_container_id);
+    if (!container) {
+      console.error('3d容器不存在');
+      return;
+    }
+    const options = {
+      path: process.env.VUE_APP_API_BASE_IMG_URL + template.config.glbPath,
+      container: container,
+      loadModelBefore: () => (useDesignerApplication().threeLoading.value = true),
+      loadModelFinally: () => (useDesignerApplication().threeLoading.value = false),
+      loadModelSuccess: (model, meshModelList) => {
+        // 绑定材质
+        bindMaterials(template, meshModelList).then((_) => {
+          resolve();
+        });
+        // 显示模型
+        setTimeout(() => model && (model.visible = true), 0);
+        // 绑定事件
+        template.three.destroyMouse = registerMouseEvent(template.three.renderer.domElement);
+      },
+    };
+    template.three = new CreateThree();
+    template.three.create(options);
+  });
 }
 
 /**
@@ -54,7 +58,7 @@ async function bindMaterials(template, meshModelList) {
 
   // 给view注册更新材质事件
   template.viewList.forEach((view) => {
-    const mesh = getMeshByMaterialName(getMaterialNameByView(view), meshModelList);
+    const mesh = getMeshByMaterialName(view.getMaterialName(), meshModelList);
     /**@type {import('d').update3DCanvas}*/
     view.update3DCanvas = () => updateMesh(mesh, view, template);
     /**@type {import('d').update3DCanvasDebounce}*/
@@ -69,12 +73,4 @@ async function bindMaterials(template, meshModelList) {
  */
 function getMeshByMaterialName(materialName, meshList) {
   return meshList.find((mesh) => getMaterialName(mesh) === materialName);
-}
-
-/**
- * 获取材质名称
- * @param {import('d').view} view
- */
-function getMaterialNameByView(view) {
-  return view.$template.config.viewList.find((v) => String(v.viewId) === view.id).materialName;
 }

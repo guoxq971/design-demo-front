@@ -71,6 +71,12 @@ export function updateMesh(mesh, view = null, template = null) {
     ctx.drawImage(designCanvas._canvas, 0, 0);
     // 设置更新
     mesh.material.map.needsUpdate = true;
+    // 如果存在多角度3d, 则更新
+    template.multi3DList.forEach((multi3D) => {
+      if (multi3D.updateMeshObj[view.id]) {
+        multi3D.updateMeshObj[view.id]();
+      }
+    });
   }
 
   // 更新材质
