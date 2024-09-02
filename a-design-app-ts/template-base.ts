@@ -119,7 +119,7 @@ export interface view {
   // 切换模板类型销毁数据
   destroy: () => {};
   // 添加图片
-  addImage: (detail: designImageDetail, options: addImageOptions) => Promise<any>;
+  addImage: (detail: designImageDetail, options: addImageOptions) => Promise<design>;
   // 添加颜色
   addColor: (color: string) => {};
   // 视图的父级模板

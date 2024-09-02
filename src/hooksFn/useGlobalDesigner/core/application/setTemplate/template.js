@@ -2,6 +2,7 @@ import { create3D } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/
 import { getViewByMaterialName } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/updateMesh';
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 import { isRef, nextTick } from 'vue';
+import { cloneDeep } from 'lodash';
 
 /**
  * 获取模板的基础数据
@@ -87,18 +88,17 @@ export function getTemplateInterface() {
     let bgColor = '';
     for (const view of template.viewList) {
       // 2d设计
-      const _designList = view.designList;
-      _designList.reverse();
+      const _designList = cloneDeep(view.designList);
       view.designList = [];
       // 设计图|文字
-      for (const design of _designList) {
-        if (design.isImage || design.isText) {
-          await view.addImage(design.detail, {
+      for (const _design of _designList) {
+        if (_design.isImage || _design.isText) {
+          await view.addImage(_design.detail, {
             isCenter: false,
             isSet: false,
             isSetMode: false,
             isSort: false,
-            attrs: design.attrs,
+            attrs: _design.attrs,
           });
         }
       }
@@ -106,6 +106,16 @@ export function getTemplateInterface() {
       const bgImage = _designList.find((d) => d.isBackgroundImage);
       if (bgImage) bgImageList.push(bgImage);
       bgColor = _designList.find((d) => d.isBackgroundColor)?.attrs.fill;
+
+      // 重置vue的视图排序
+      nextTick(() => {
+        view.designList.forEach((d, i) => {
+          const oldDesign = _designList.find((old) => old.attrs.uuid === d.attrs.uuid);
+          if (oldDesign) {
+            d.node.zIndex(oldDesign.attrs.zIndex);
+          }
+        });
+      });
     }
     // 背景色
     if (bgColor) template.viewList[0].addColor(bgColor);

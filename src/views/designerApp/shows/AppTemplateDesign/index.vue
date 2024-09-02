@@ -471,6 +471,8 @@ function useTemplateData() {
               font-size: 14px;
             }
             .img {
+              min-width: 4rem;
+              min-height: 4rem;
               width: 4rem;
               height: 4rem;
               border-radius: 4px;

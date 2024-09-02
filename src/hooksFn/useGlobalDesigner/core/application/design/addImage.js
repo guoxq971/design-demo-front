@@ -12,6 +12,7 @@ import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/applica
  * @param {import('d').designImageDetail} detail
  * @param {import('d').view} view
  * @param {import('d').addImageOptions} options
+ * @returns {Promise<import('d').design>}
  */
 export async function addImage(detail, view, options = {}) {
   options = Object.assign(
@@ -27,7 +28,7 @@ export async function addImage(detail, view, options = {}) {
   );
   if (!detail.isBg) {
     if (!imgMax(view)) return Promise.reject('设计图数量限制');
-    await _addImage(detail, view, options);
+    return await _addImage(detail, view, options);
   } else {
     if (!bgImgMax(view)) return Promise.reject('背景图数量限制');
     const pAll = view.$template.viewList.map((v) => {
@@ -62,7 +63,7 @@ function bgImgMax(view = null) {
   // 设计图数量限制
   for (let i = 0; i < view.$template.viewList.length; i++) {
     const v = view.$template.viewList[i];
-    if (v.designList.length >= 5) {
+    if (v.designList.filter((d) => !d.isBackgroundColor).length >= 5) {
       Message.warning(`每个图层最多5张设计图, 图层${i + 1}已达到最大数量`);
       return false;
     }
@@ -83,7 +84,7 @@ function bgImgMax(view = null) {
  */
 function imgMax(view = null) {
   // 设计图数量限制
-  if (view.designList.length >= 5) {
+  if (view.designList.filter((d) => !d.isBackgroundColor).length >= 5) {
     Message.warning('每个图层最多5张设计图');
     return false;
   }
@@ -147,4 +148,6 @@ async function _addImage(detail, view, options = {}) {
   options.isSetMode && view.setMode(useDesignerAppConfig().mode_type_edit);
   // 设置index
   options.isSort && view.setDesignListIndex();
+
+  return design;
 }
