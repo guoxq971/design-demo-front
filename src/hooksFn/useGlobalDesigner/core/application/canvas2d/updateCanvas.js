@@ -3,7 +3,7 @@ import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 
 /**
  * 更新2D画布
- * @typedef {import('d').view.update2DCanvas} view
+ * @typedef {import('d').view.update2DCanvas}
  * @param {import('d').view} view
  */
 export function update2DCanvas(view) {

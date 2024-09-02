@@ -10,6 +10,7 @@ import { update2DCanvas } from '@/hooksFn/useGlobalDesigner/core/application/can
 import { useDebounceFn } from '@vueuse/core';
 import { addColor } from '@/hooksFn/useGlobalDesigner/core/application/design/addColor';
 import { syncViewAttrs } from '@/hooksFn/useGlobalDesigner/core/application/template/sleep';
+import { addText } from '@/hooksFn/useGlobalDesigner/core/application/design/addText';
 
 /**
  * 解析模板详情
@@ -56,6 +57,8 @@ export function parseTemplateDetail(detail) {
       addImage: (detail, options = {}) => addImage(detail, v, options),
       /**@typedef {import('d').view.addColor}*/
       addColor: (color) => addColor(color, v),
+      /**@typedef {import('d').view.addText}*/
+      addText: (textOptions) => addText(textOptions, v),
       /**@typedef {import('d').view.removeDesign}*/
       removeDesign: (design) => {
         const index = v.designList.findIndex((d) => d === design);

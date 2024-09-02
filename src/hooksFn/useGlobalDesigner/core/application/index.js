@@ -82,10 +82,25 @@ export const useDesignerApplication = createGlobalState(() => {
     view.addColor(color);
   }
 
+  /**
+   * 添加设计文字
+   * @param textOptions
+   * @param {import('d').view} view
+   */
+  function addText(textOptions, view) {
+    if (!view) view = activeView.value;
+    if (!view) {
+      console.error('添加设计文字失败, view is undefined');
+      return;
+    }
+    view.addText(textOptions);
+  }
+
   return {
     // 添加设计
     addImage,
     addColor,
+    addText,
     activeDesign,
     // 设置模板
     setTemplate,

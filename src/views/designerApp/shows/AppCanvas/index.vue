@@ -59,24 +59,30 @@ const get2dCanvasId = useDesignerAppConfig().get2dCanvasId;
 
 // 是否展示产品图
 const isShowProdImg = computed(() => {
+  // 编辑模式 && 激活视图没有车线
   if (useDesignerApplication().mode.value === useDesignerAppConfig().mode_type_edit && !activeView.value.printout) {
+    // 如果显示3d,则不显示产品图
     if (isShowThree.value) return false;
     return true;
   }
+  // 预览模式
   if (mode.value === useDesignerAppConfig().mode_type_preview) {
+    // 如果显示3d,则不显示产品图
     if (isShowThree.value) return false;
     return true;
   }
 });
 // 是否展示2dCanvas
 const isShow2DCanvas = computed(() => {
-  if (activeTemplate.value.is3d && mode.value === useDesignerAppConfig().mode_type_preview) {
+  // 加载3d && 预览模式
+  if (isShowThree.value) {
     return false;
   }
   return true;
 });
 // 是否展示3d
 const isShowThree = computed(() => {
+  // 加载3d && 预览模式
   if (activeTemplate.value.is3d && mode.value === useDesignerAppConfig().mode_type_preview) {
     return true;
   }

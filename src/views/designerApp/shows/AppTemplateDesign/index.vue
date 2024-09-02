@@ -68,27 +68,27 @@
         <div class="item-list" v-for="design in activeView?.designList" :key="`${design.attrs.uuid}_${design.attrs.zIndex}`">
           <div class="design-item">
             <div class="head-design">
-              <template v-if="isImg(design) || isBgImg(design)">
+              <template v-if="design.isImage || design.isBackgroundImage">
                 <img class="img" :src="AppUtil.getImageUrl(design.detail)" alt="" />
                 <div class="name">{{ showImagName(design) }}</div>
               </template>
-              <template v-if="isBgc(design)">
+              <template v-if="design.isBackgroundColor">
                 <div class="img" :style="{ background: design.attrs.fill }"></div>
                 <div class="name bgc" :style="{ '--color': design.attrs.fill }">{{ design.attrs.fill }}</div>
               </template>
-              <template v-if="isText(design)">
+              <template v-if="design.isText">
                 <div class="img" :style="{ background: design.attrs.fill }"></div>
                 <div class="name bgc" :style="{ '--color': design.attrs.fill }">{{ design.attrs.text }}</div>
               </template>
             </div>
             <div class="fun-list">
-              <template v-if="isImg(design) || isBgImg(design)">
+              <template v-if="design.isImage || design.isBackgroundImage">
                 <!--收藏-->
                 <div class="fun-box" :class="{ active: design.isCollect() }" @click="design.collect()">
                   <CollectSvg />
                 </div>
               </template>
-              <template v-if="isImg(design)">
+              <template v-if="design.isImage || design.isText">
                 <!--置顶-->
                 <div class="fun-box" :class="{ disabled: false }" @click="design.moveUp()">
                   <LayerTopSvg />
@@ -151,15 +151,6 @@ const isMulti3D = computed(() => {
   /**@param {import('d').colorMultiImageItem} item*/
   return (item) => getMulti3d.value(item)?.config.glbPath;
 });
-
-// 是否设计图
-const isImg = computed(() => (design) => [useDesignerAppConfig().design_type_image].includes(design.type));
-// 是否背景图
-const isBgImg = computed(() => (design) => [useDesignerAppConfig().design_type_background_image].includes(design.type));
-// 是否背景色
-const isBgc = computed(() => (design) => [useDesignerAppConfig().design_type_background_color].includes(design.type));
-// 文字
-const isText = computed(() => (design) => [useDesignerAppConfig().design_type_text].includes(design.type));
 
 // 模板属性
 function useTemplateData() {

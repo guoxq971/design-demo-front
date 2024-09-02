@@ -20,6 +20,13 @@ export function syncViewAttrs(view) {
     design.attrs.visible = design.node.attrs.visible;
     design.attrs.viewId = view.id;
     design.attrs.uuid = design.node.attrs.uuid;
+    // 文字
+    design.attrs.fontSize = design.node.attrs.fontSize;
+    design.attrs.fontFamily = design.node.attrs.fontFamily;
+    design.attrs.fontItalic = design.node.attrs.fontItalic;
+    design.attrs.fontWeight = design.node.attrs.fontWeight;
+    design.attrs.textDecoration = design.node.attrs.textDecoration;
+    design.attrs.text = design.node.attrs.text;
     if (design.isBackgroundImage) design.attrs.zIndex = -1;
     else if (design.isBackgroundColor) design.attrs.zIndex = -2;
     else design.attrs.zIndex = design.node.index;

@@ -10,7 +10,7 @@ import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/applica
  * @param {import('d').template} template
  * @param {import('d').save_template_type} saveType
  */
-export function getSubmitData(template, saveType) {
+export async function getSubmitData(template, saveType) {
   // console.log('getSubmitData', template);
   // 保存类型
   // const saveType = useDesignerAppConfig().save_template_type_color;
@@ -56,11 +56,19 @@ export function getSubmitData(template, saveType) {
     let designList = view.designList.filter((d) => d.attrs.visible);
     const bgList = [];
     const list = [];
-    designList.forEach((d) => {
-      if (d.isBackgroundColor) bgList.unshift(getSubmitDataBackgroundColor(d));
-      else if (d.isBackgroundImage) bgList.unshift(getSubmitDataImage(d));
-      else if (d.isImage) list.push(getSubmitDataImage(d));
-    });
+    for (let design of designList) {
+      // 背景色
+      if (design.isBackgroundColor) bgList.unshift(getSubmitDataBackgroundColor(design));
+      // 背景图
+      else if (design.isBackgroundImage) bgList.unshift(getSubmitDataImage(design));
+      // 设计图
+      else if (design.isImage) list.push(getSubmitDataImage(design));
+      // 文字
+      else if (design.isText) {
+        const data = await getSubmitDataText(design);
+        list.push(data);
+      }
+    }
     configurations.unshift(...bgList, ...list.toReversed());
   }
   if (configurations.length === 0) {
@@ -94,6 +102,7 @@ export function getSubmitData(template, saveType) {
     static_batchid: static_batchid,
     saveNumBtn: saveType,
     adminImage: adminImage,
+    // 设计图
     configurations: configurations,
     // 固定值
     creator: 'Tablomat8',
@@ -157,6 +166,47 @@ function getSubmitDataImage(design) {
           width: width,
           height: height,
           isBg: Number(design.detail.isBg),
+          transform: `rotate(${rotation},${width / 2},${height / 2})`,
+          hspacing: 0,
+          vspacing: 0,
+          printColorRGBs: '',
+          tileType: '',
+        },
+      },
+    },
+    printType: { id: 17 },
+    isCopy: '',
+    isText: false,
+    textId: '',
+    restrictions: { changeable: true },
+  };
+  data.fnData = { ...design.attrs, node: '' };
+  return data;
+}
+
+/**
+ * 获取提交数据-文字
+ * @param {import('d').design} design
+ */
+async function getSubmitDataText(design) {
+  // TODO:上传图片方法
+  const designId = '';
+  const rotation = '0';
+  const width = design.$view.width;
+  const height = design.$view.height;
+  const data = {
+    type: useDesignerAppConfig().submit_design_type_design,
+    printArea: { id: design.attrs.viewId },
+    offset: { x: 1, y: 1, unit: 'mm' },
+    content: {
+      dpi: design.$template.detail.dpi,
+      unit: 'mm',
+      svg: {
+        image: {
+          designId: designId,
+          width: width,
+          height: height,
+          isBg: 0,
           transform: `rotate(${rotation},${width / 2},${height / 2})`,
           hspacing: 0,
           vspacing: 0,

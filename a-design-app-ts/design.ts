@@ -1,9 +1,9 @@
 import { design_max_type, design_type } from './designerAppConfig';
 import { designImageDetail } from './design-image-detail';
 import Konva from 'konva';
-import { template, view } from './template-base';
+import { template, textOptions, view } from './template-base';
 
-export interface attrs {
+export interface attrs extends textOptions {
   x: number;
   y: number;
   width: number;
@@ -28,13 +28,17 @@ export interface attrs {
 export interface designImage extends Konva.Image {
   attrs: attrs;
 }
+// 设计-文
+export interface designText extends Konva.Text {
+  attrs: attrs;
+}
 
 // 设计
 export interface design {
   // 设计类型
   type: design_type;
   // 节点
-  node: designImage;
+  node: designImage | designText;
   // 属性
   attrs: attrs;
   // 详情

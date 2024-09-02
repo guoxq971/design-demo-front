@@ -1,7 +1,7 @@
 <template>
   <div class="tab">
     <!--色板-->
-    <ColorPicker v-model="param.color" />
+    <ColorPicker v-model="param.fill" />
     <!--文字-->
     <el-input v-model="param.text" />
     <el-button @click="onSure">确认</el-button>
@@ -15,38 +15,41 @@ import { ref, watch, watchEffect } from 'vue';
 import { useDebounceFn, watchDebounced } from '@vueuse/core';
 // utils
 import ColorPicker from './shows/ColorPicker';
-import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
 import { getParam } from '@/hooksFn/useDesignerApplication/core/app/utils/createText';
 import { Message } from 'element-ui';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { getTextOptions } from '@/hooksFn/useGlobalDesigner/core/application/design/addText';
+import { cloneDeep } from 'lodash';
 
-const { setDesignText, templateData } = useGlobalApplication();
-const param = ref(getParam());
+const param = ref(getTextOptions());
 function onSure() {
   if (!param.value.uuid && !param.value.text) {
     Message.warning('内容不能为空');
     return;
   }
-  setDesignText(param.value);
+  useDesignerApplication().addText(param.value);
 }
 // 监听文字参数变化
 watch(
   () => param.value,
   useDebounceFn((val) => {
-    param.value.uuid && setDesignText(param.value);
+    // console.log('监听文字参数变化 param.value', param.value);
+    param.value.uuid && useDesignerApplication().addText(cloneDeep(param.value));
   }, 300),
   { deep: true },
 );
 // 监听当前设计信息
 watch(
-  () => templateData.activeDesign.value,
+  () => useDesignerApplication().activeDesignId.value,
   useDebounceFn((val) => {
-    if (!val) {
+    // console.log('监听当前设计信息 val', val);
+    if (!useDesignerApplication().activeDesign.value || !useDesignerApplication().activeDesign.value?.isText) {
       param.value.uuid = '';
     } else {
-      param.value = getParam(val);
+      param.value = getTextOptions(useDesignerApplication().activeDesign.value.node.attrs);
     }
-  }, 300),
-  { deep: true },
+  }, 100),
+  // { deep: true },
 );
 </script>
 

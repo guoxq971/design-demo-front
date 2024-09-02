@@ -93,6 +93,18 @@ export interface addImageOptions {
   attrsList?: attrs[];
 }
 
+// 文字选项
+export interface textOptions {
+  text: string;
+  uuid: string;
+  fill: string;
+  fontSize: number;
+  fontFamily: string;
+  fontItalic: string;
+  fontWeight: string;
+  textDecoration: string;
+}
+
 // 模板视图
 export interface view {
   //id
@@ -125,6 +137,8 @@ export interface view {
   addImage: (detail: designImageDetail, options: addImageOptions) => Promise<design>;
   // 添加颜色
   addColor: (color: string) => {};
+  // 添加文字
+  addText: (textOptions: textOptions) => {};
   // 视图的父级模板
   $template: template;
   // 模板3d-的视图部位的canvas
@@ -136,7 +150,7 @@ export interface view {
   //更新3d视图-防抖
   update3DCanvasDebounce: Function;
   //同步attrs
-  syncAttrs: Function;
+  syncAttrs: () => {};
 
   // 视图距离500x500左上角的偏移量
   offsetX: string;
@@ -232,7 +246,7 @@ export interface template {
   // 渲染多角度
   renderMulti: () => {};
   // 获取提交数据
-  getSubmitData: (template: template, saveType: save_template_type) => object;
+  getSubmitData: (template: template, saveType: save_template_type) => Promise<object>;
 }
 
 // 模板3d配置项

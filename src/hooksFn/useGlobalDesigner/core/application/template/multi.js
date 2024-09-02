@@ -11,7 +11,7 @@ export async function renderMulti(template) {
   try {
     const activeColor = useDesignerApplication().activeColor.value;
     useDesignerApplication().renderLoading.value = true;
-    const data = template.getSubmitData(template, useDesignerAppConfig().save_template_type_render);
+    const data = await template.getSubmitData(template, useDesignerAppConfig().save_template_type_render);
     console.log('多角度接口请求参数', JSON.parse(JSON.stringify(data)));
     const res = await DRequest(`/designer-web/CMDesignAct/realTimeCutMulti2.act?mediaType=json`, METHOD.POST, data, { timeout: 3 * 60 * 1000 });
     if (res.data.retState !== '0') return Promise.reject('渲染多角度失败');
