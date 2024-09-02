@@ -1,6 +1,6 @@
 import { createEventHook, createGlobalState, useElementBounding } from '@vueuse/core';
 import { computed, ComputedRef, ref, Ref, watchEffect } from 'vue';
-import { setTemplate, useTemplate } from './setTemplate';
+import { setTemplate, useTemplate } from './template/setTemplate';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { cloneDeep } from 'lodash';
 

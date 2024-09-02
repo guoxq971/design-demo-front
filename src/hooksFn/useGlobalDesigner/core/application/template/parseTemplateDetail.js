@@ -1,8 +1,8 @@
 import { create2dCanvas } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/create2dCanvas';
-import { parseMulti } from '@/hooksFn/useGlobalDesigner/core/application/setTemplate/parseMulti';
+import { parseMulti } from '@/hooksFn/useGlobalDesigner/core/application/template/parseMulti';
 import { setMode } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/setMode';
-import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/setTemplate/template';
-import { destroyView } from '@/hooksFn/useGlobalDesigner/core/application/setTemplate/destroy';
+import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/template/template';
+import { destroyView } from '@/hooksFn/useGlobalDesigner/core/application/template/destroy';
 import { addImage } from '@/hooksFn/useGlobalDesigner/core/application/design/addImage';
 import { setNode } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/setNode';
 import { nextTick, shallowRef } from 'vue';

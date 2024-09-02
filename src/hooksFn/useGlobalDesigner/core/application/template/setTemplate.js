@@ -1,10 +1,10 @@
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
-import { getCommon3dConfig, getRefineConfig, getTemplateDetailWithSize } from '@/hooksFn/useGlobalDesigner/core/application/setTemplate/getTemplateConfig';
+import { getCommon3dConfig, getRefineConfig, getTemplateDetailWithSize } from '@/hooksFn/useGlobalDesigner/core/application/template/getTemplateConfig';
 import { Message } from 'element-ui';
-import { parseTemplateDetail } from '@/hooksFn/useGlobalDesigner/core/application/setTemplate/parseTemplateDetail';
+import { parseTemplateDetail } from '@/hooksFn/useGlobalDesigner/core/application/template/parseTemplateDetail';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { nextTick } from 'vue';
-import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/setTemplate/template';
+import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/template/template';
 
 /**
  * 设置模板
