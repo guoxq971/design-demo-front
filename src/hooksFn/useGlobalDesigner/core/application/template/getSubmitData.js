@@ -3,6 +3,9 @@ import { Message } from 'element-ui';
 import { pick, omit } from 'lodash';
 import lodash from 'lodash';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { changeDpiDataUrl } from '@/hooksFn/useGlobalDesigner/core/application/plugin/changeBase64Dpi';
+import { GRequest, METHOD } from '@/utils/request';
 
 /**
  * 获取提交数据
@@ -189,8 +192,9 @@ function getSubmitDataImage(design) {
  * @param {import('d').design} design
  */
 async function getSubmitDataText(design) {
-  // TODO:上传图片方法
-  const designId = '';
+  // 文字设计上传到服务器, 得到designId
+  const { designId } = await textToImageUpload(design);
+  // const designId = '';
   const rotation = '0';
   const width = design.$view.width;
   const height = design.$view.height;
@@ -223,4 +227,345 @@ async function getSubmitDataText(design) {
   };
   data.fnData = { ...design.attrs, node: '' };
   return data;
+}
+
+/**
+ * 文字转图片上传
+ * @param {import('d').design} design
+ * @returns {Promise<{designId: string, width: number, height: number}>}
+ */
+async function textToImageUpload(design) {
+  if (!design.isText) {
+    console.error('文字转图片上传失败, 请传入文字设计');
+    return;
+  }
+
+  const viewId = design.$view.id;
+  const imgWidth = design.$view.width;
+  const imgHeight = design.$view.height;
+  const textParam = {
+    x: design.attrs.x,
+    y: design.attrs.y,
+    rotation: design.attrs.rotation || 0,
+    scaleX: design.attrs.scaleX || 1,
+    scaleY: design.attrs.scaleY || 1,
+    text: design.attrs.text,
+    fontColor: design.attrs.fill,
+    fontSize: design.attrs.fontSize,
+    fontFamily: design.attrs.fontFamily,
+    fontWeight: design.attrs.fontWeight,
+    fontItalic: design.attrs.fontItalic,
+    textDecoration: design.attrs.textDecoration,
+  };
+
+  // 文字转图片base64
+  const options = {
+    pixelRatio: useDesignerAppConfig().text_to_image_pixel_ratio,
+    width: imgWidth,
+    height: imgHeight,
+    callback: async () => {
+      // 创建文字
+      const t = new Konva.Text({
+        text: textParam.text,
+        fontSize: textParam.fontSize,
+        fontStyle: textParam.fontWeight + ' ' + textParam.fontItalic, // 样式
+        textDecoration: textParam.textDecoration, // 下划线
+        fontFamily: textParam.fontFamily,
+        fill: textParam.fontColor,
+      });
+      const offsetX = t.width() / 2;
+      const offsetY = t.height() / 2;
+      t.setAttrs({
+        offsetX,
+        offsetY,
+        x: offsetX,
+        y: offsetY,
+        scaleX: textParam.scaleX,
+        scaleY: textParam.scaleY,
+      });
+      t.setAttrs({
+        x: textParam.x,
+        y: textParam.y,
+        rotation: textParam.rotation,
+      });
+
+      return t;
+    },
+  };
+  let base64 = await designToBase64(options);
+
+  // 修改图片DPI
+  base64 = changeImageDpi(base64);
+  // 上传的图片名称
+  const name = `custom_${AppUtil.uuid()}_${viewId}.png`;
+  // base64转file
+  const file = base64ToFile(base64, name);
+  // 上传到服务器
+  const { checkRes } = await uploadImage(file, name);
+
+  return {
+    designId: checkRes.data.seqId,
+    width: imgWidth,
+    height: imgHeight,
+  };
+}
+
+/**
+ * 根据参数转换为图片base64
+ * @param options
+ * @returns {Promise<string>}
+ */
+async function designToBase64(options) {
+  const _param = Object.assign(
+    {
+      test: false, // ？测试
+      width: 0, // 宽
+      height: 0, // 高
+      callback: null, // 回调函数 (必须返回一个Konva.Image | Konva.text)
+      pixelRatio: 1,
+    },
+    options,
+  );
+
+  if (!_param.width || !_param.height) {
+    console.error('根据参数转换为图片base64失败, 没有宽高');
+    return Promise.reject();
+  }
+
+  if (!_param.callback) {
+    console.error('根据参数转换为图片base64失败, 没有回调函数');
+    return Promise.reject();
+  }
+
+  // 创建一个div
+  const div = document.createElement('div');
+  div.style.width = _param.width + 'px';
+  div.style.height = _param.height + 'px';
+  div.style.position = 'absolute';
+  if (_param.test) {
+    div.style.top = '0';
+    div.style.left = '0';
+    div.style.zIndex = '9999';
+  } else {
+    div.style.top = '-9999px';
+    div.style.left = '-9999px';
+    div.style.zIndex = '-9999';
+  }
+  // 背景色为透明
+  div.style.backgroundColor = 'transparent';
+  document.body.appendChild(div);
+
+  // 创建konva的canvas
+  const stage = new Konva.Stage({
+    container: div,
+    width: _param.width,
+    height: _param.height,
+  });
+
+  const layer = new Konva.Layer();
+  stage.add(layer);
+
+  // 创建设计
+  const design = await _param.callback();
+  layer.add(design);
+
+  // 获取图片
+  const url = await new Promise((resolve) => {
+    stage.toImage({
+      pixelRatio: _param.pixelRatio || 1,
+      callback(img) {
+        resolve(img.src);
+      },
+    });
+  });
+
+  // 销毁
+  if (_param.test) {
+    // 注册dom点击删除
+    div.onclick = () => {
+      stage?.destroy();
+      div?.remove();
+    };
+    setTimeout(() => {
+      stage?.destroy();
+      div?.remove();
+    }, 1000 * 1000);
+  } else {
+    stage.destroy();
+    div.remove();
+  }
+
+  return url;
+}
+
+/**
+ * 修改图片DPI
+ * @param {string} base64
+ */
+function changeImageDpi(base64) {
+  return changeDpiDataUrl(base64, 180);
+}
+
+/**
+ * base64转file
+ * @param base64
+ * @param name
+ * @returns {*}
+ */
+function base64ToFile(base64, name) {
+  // base64转blob
+  const blob = base64ToBlob(base64);
+  // blob转file
+  const file = blobToFile(blob, name);
+  // 组装file信息
+  file.uid = getUid();
+  file.label = file.name.split('.')[0];
+  file.raw = new window.File([file], file.name, { type: file.type });
+  file.isCopyRightGrade = '0'; //侵权
+  file.isFuGrade = '2'; //全幅
+  file.newBasetype = '0'; //图片一级分类
+
+  return file;
+
+  /**
+   * 随机uid, 12位
+   * @returns {string}
+   */
+  function getUid() {
+    return Math.random()
+      .toString()
+      .substr(2, 12);
+  }
+
+  /**
+   * blob转file
+   * @param blob
+   * @param fileName
+   */
+  function blobToFile(blob, fileName) {
+    blob.lastModifiedDate = new Date();
+    blob.name = fileName;
+    return blob;
+  }
+
+  /**
+   * base64转blob
+   * @param base64
+   * @returns {module:buffer.Blob}
+   */
+  function base64ToBlob(base64) {
+    let arr = base64.split(','),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  }
+}
+
+/**
+ * 上传图片到服务器
+ * @param file
+ * @param orgName
+ * @returns {Promise<{checkRes: any, file: any}>}
+ */
+async function uploadImage(file, orgName) {
+  // 上传
+  const uploadRes = await uploadImage(file);
+  // 确认上传
+  const checkRes = designImageUploadConfirm(uploadRes, file, orgName);
+
+  return { checkRes, file };
+
+  /**
+   * 上传图片到服务器
+   * @param file
+   * @returns {Promise<T>}
+   */
+  async function uploadImage(file) {
+    const form = new FormData();
+    const param = {
+      id: file.uid,
+      name: file.label, //file.label-去掉后缀的名称 file.name-没有去掉后缀
+      type: file.raw.type,
+      lastModifiedDate: file.raw.lastModifiedDate,
+      size: file.size,
+      file: file.raw,
+      cut1500Flag: '',
+    };
+    for (let key in param) {
+      form.append(key, param[key]);
+    }
+
+    const res = await GRequest(`/base-web/CMDesignImageAct/ajaxBatchUploadDesign.act`, METHOD.POST, form, {
+      timeout: 50 * 60 * 1000,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    const msg = res.data.retMsg || '上传设计图 失败';
+    if (res.data.retState !== '0') {
+      Message.warning(msg);
+      return Promise.reject(msg);
+    }
+
+    const uploadRes = res.data;
+    return uploadRes;
+  }
+
+  /**
+   * 设计图上传确认
+   * @param {object} imageRes 上传图片的返回结果
+   * @param {File} file
+   * @param {string} orgName 设计图原图名称
+   * @returns {Promise<any>}
+   */
+  async function designImageUploadConfirm(imageRes, file, orgName) {
+    // console.log('imageRes', imageRes);
+    /**
+     * @type {import('@/design').UploadImageCheckParams}
+     */
+    const obj = {
+      fileName: imageRes.fileName,
+      fileSize: imageRes.fileSize,
+      sjsTitle: file.sjsTitle || '',
+      label: file.label,
+      tags: file.tags || '',
+      main_type: [4],
+      // 侵权
+      isCopyRightGrade: file.isCopyRightGrade || '',
+      // 全幅
+      isFuGrade: file.isFuGrade || '',
+      // 图片一级分类
+      newBasetype: file.newBasetype || '',
+      // 图片二级分类
+      newNexttype: file.newNexttype || '',
+      // 小组一级分类
+      teamBasetype: file.teamBasetype || '',
+      // 小组二级分类
+      teamNexttype: file.teamNexttype || '',
+      width: imageRes.width,
+      height: imageRes.height,
+      imageName: orgName,
+      imageDir: imageRes.imageDir,
+      orgImage: imageRes.orgImage,
+      dpi: imageRes.dpi,
+      thumbImage: imageRes.thumbImage,
+      designImage: imageRes.designImage,
+      imageType: imageRes.imageType,
+    };
+    const res = await GRequest(`/base-web/CMDesignImageAct/ajaxSaveBatchDesign.act?usertype=1`, METHOD.POST, obj, {
+      timeout: 60000,
+    });
+    if (res.data.code !== 0) {
+      const msg = res.data.code !== 0 ? '上传设计图-确认 失败' : res.data.msg;
+      Message.warning(msg);
+      return Promise.reject(msg);
+    }
+
+    return res.data;
+  }
 }

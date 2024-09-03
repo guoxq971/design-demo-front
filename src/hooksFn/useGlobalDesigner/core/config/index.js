@@ -36,6 +36,8 @@ export const useDesignerAppConfig = createGlobalState(() => {
   const preview_canvas_size = 90;
   // 3d canvas大小
   const three_canvas_size = 1200;
+  // 工厂用的画布大小
+  const factory_canvas_size = 4060;
   // 画布与原设计区域比例
   const scale = canvas_size / canvas_size_org;
   // 舞台容器id
@@ -48,6 +50,8 @@ export const useDesignerAppConfig = createGlobalState(() => {
   const preview_canvas_pixel_ratio = preview_canvas_size / canvas_size;
   // three画布的canvas pixel ratio
   const three_canvas_pixel_ratio = three_canvas_size / canvas_size;
+  // 文字转图的 pixel ratio
+  const text_to_image_pixel_ratio = factory_canvas_size / canvas_size_org;
   // three 容器id
   const three_container_id = 'threeContainerId';
   /***********--画布配置--end*************/
@@ -174,6 +178,7 @@ export const useDesignerAppConfig = createGlobalState(() => {
     three_canvas_size,
     preview_canvas_pixel_ratio,
     three_canvas_pixel_ratio,
+    text_to_image_pixel_ratio,
     scale,
     three_container_id,
     get2dCanvasId,
