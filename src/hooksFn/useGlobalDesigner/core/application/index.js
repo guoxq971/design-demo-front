@@ -3,6 +3,8 @@ import { computed, ComputedRef, ref, Ref, watchEffect } from 'vue';
 import { setTemplate, useTemplate } from './template/setTemplate';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { cloneDeep } from 'lodash';
+import { DRequest, METHOD } from '@/utils/request';
+import { Message } from 'element-ui';
 
 // 设计器
 export const useDesignerApplication = createGlobalState(() => {
@@ -26,6 +28,8 @@ export const useDesignerApplication = createGlobalState(() => {
   const threeLoading = ref(false);
   /**@type {Ref<boolean>} 多角度加载中*/
   const renderLoading = ref(false);
+  /**@type {Ref<boolean>} 模板保存中*/
+  const saveLoading = ref(false);
 
   /**@type {import('d').templateComputed} 当前激活的模板*/
   const activeTemplate = computed(() => templateList.value?.find((t) => t.uuid === activeTemplateId.value));
@@ -81,7 +85,6 @@ export const useDesignerApplication = createGlobalState(() => {
     }
     view.addColor(color);
   }
-
   /**
    * 添加设计文字
    * @param textOptions
@@ -95,8 +98,43 @@ export const useDesignerApplication = createGlobalState(() => {
     }
     view.addText(textOptions);
   }
+  /**
+   * 保存产品
+   * @param {import('d').save_template_type} type 保存类型
+   */
+  async function saveTemplate(type = useDesignerAppConfig().save_template_type_save) {
+    // 保存产品
+    if (type === useDesignerAppConfig().save_template_type_save) {
+      const template = activeTemplate.value;
+      // 通用
+      if (template.isCommon) {
+        try {
+          saveLoading.value = true;
+          const param = await template.getSubmitData();
+          const res = await DRequest(`/designer-web/CMProductAct/saveProduct.act`, METHOD.POST, param, { timeout: 3 * 60 * 1000 });
+          if (!res.data.status) Message.warning('保存产品失败');
+          Message.success('保存成功');
+        } finally {
+          saveLoading.value = false;
+        }
+      }
+      // 精细
+      else if (template.isRefine) {
+        Message.warning('精细模板保存');
+      }
+    }
+    // 全颜色保存
+    else if (type === useDesignerAppConfig().save_template_type_color) {
+      Message.warning('全颜色保存');
+    } else {
+      Message.warning('保存产品失败, type 错误');
+      console.error('保存产品失败, type 错误');
+    }
+  }
 
   return {
+    // 保存模板
+    saveTemplate,
     // 添加设计
     addImage,
     addColor,
@@ -119,6 +157,7 @@ export const useDesignerApplication = createGlobalState(() => {
     loading,
     threeLoading,
     renderLoading,
+    saveLoading,
     activeTemplate,
     activeView,
     activeSize,

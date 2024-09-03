@@ -20,7 +20,6 @@ export type design_max_type_width = 'width';
 export type design_max_type_height = 'height';
 export type design_max_type = design_max_type_width | design_max_type_height;
 
-// 保存模板
 // 保存产品
 export type save_template_type_save = '0';
 // 全颜色

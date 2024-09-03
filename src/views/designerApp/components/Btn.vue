@@ -19,7 +19,8 @@ const isBlue = props.type === 'blue';
 
 <style scoped lang="less">
 .btn {
-  width: 16rem;
+  padding: 0 var(--fn-gap);
+  //width: 16rem;
   height: 4rem;
   font-size: 1.4rem;
   color: #ffffff;
