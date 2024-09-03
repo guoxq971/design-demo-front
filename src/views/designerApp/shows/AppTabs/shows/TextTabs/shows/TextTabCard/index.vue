@@ -6,7 +6,7 @@
       <!--字体-->
       <div class="font-select">
         <el-select class="font-family-input" v-model="param.fontFamily" placeholder="请选择字体" :loading="fontLoading" :style="{ '--font-family': param.fontFamily }">
-          <el-option v-for="item in fontFamilyList" :key="item.value" :label="item.label" :value="item.value">
+          <el-option v-for="item in fontFamilyList" :key="item.uuid" :label="item.label" :value="item.value">
             <span v-if="item.state === font_load_state_loading" class="el-icon-loading" style="margin-right: 5px;"></span>
             <span :style="{ fontFamily: item.value }" style="font-size: 18px">{{ item.label }}</span>
             <span style="color: #9a9a9a; float: right">{{ item.sourceTypeName }}</span>
@@ -115,6 +115,7 @@ import { getTextOptions } from '@/hooksFn/useGlobalDesigner/core/application/des
 import { cloneDeep } from 'lodash';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { GRequest, METHOD } from '@/utils/request';
+import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 
 // 字体
 function useFontFamily() {
@@ -133,6 +134,7 @@ function useFontFamily() {
         value: 'sans-serif',
         url: '',
         state: font_load_state_success,
+        uuid: AppUtil.uuid(),
       },
     ];
     getList(1);
@@ -164,6 +166,7 @@ function useFontFamily() {
             value: font_prefix_name + e.fontName,
             detail: e,
             url: process.env.VUE_APP_API_BASE_IMG_URL + e.fontPath,
+            uuid: AppUtil.uuid(),
             state: font_load_state_not_loaded,
           };
         }) || [];
