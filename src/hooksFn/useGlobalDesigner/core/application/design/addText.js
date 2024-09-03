@@ -83,7 +83,7 @@ export function getTextOptions(textOptions = {}) {
       text: textOptions.text,
       fill: textOptions.fill || '#000',
       fontSize: textOptions.fontSize || 20,
-      fontFamily: textOptions.fontFamily || 'Calibri',
+      fontFamily: textOptions.fontFamily || 'sans-serif',
       // fontStyle: textOptions.fontItalic + ' ' + textOptions.fontWeight, // 样式
       fontItalic: textOptions.fontItalic || 'normal',
       fontWeight: textOptions.fontWeight || 'normal',

@@ -1,6 +1,6 @@
 import { attrs, design } from './design';
 import { angle3d, printArea, printoutArea, templateDetail } from './template-detail';
-import { mode_type, save_template_type, template_type } from './designerAppConfig';
+import { font_decoration_type, font_italic_type, font_weight_type, mode_type, save_template_type, template_type } from './designerAppConfig';
 import { templateConfig, templateRefineConfig } from './template-config';
 import Konva from 'konva';
 import * as THREE from 'three';
@@ -100,9 +100,12 @@ export interface textOptions {
   fill: string;
   fontSize: number;
   fontFamily: string;
-  fontItalic: string;
-  fontWeight: string;
-  textDecoration: string;
+  // 加粗
+  fontWeight: font_weight_type;
+  // 斜体
+  fontItalic: font_italic_type;
+  // 下划线
+  textDecoration: font_decoration_type;
 }
 
 // 模板视图

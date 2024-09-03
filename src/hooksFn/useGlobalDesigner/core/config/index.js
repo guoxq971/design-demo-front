@@ -107,10 +107,32 @@ export const useDesignerAppConfig = createGlobalState(() => {
   const template_source_type_out = '0';
   /***********--模板来源--end*************/
 
+  /***********--文字--start*************/
+  /**@type {import('d').font_weight_type_bold}*/
+  const font_weight_type_bold = 'bold';
+  /**@type {import('d').font_weight_type_none}*/
+  const font_weight_type_none = 'normal';
+  /**@type {import('d').font_italic_type_italic}*/
+  const font_italic_type_italic = 'italic';
+  /**@type {import('d').font_italic_type_none}*/
+  const font_italic_type_none = 'normal';
+  /**@type {import('d').font_decoration_type_underline}*/
+  const font_decoration_type_underline = 'underline';
+  /**@type {import('d').font_decoration_type_none}*/
+  const font_decoration_type_none = 'none';
+  /***********--文字--end*************/
+
   // 默认颜色
   const primary_color = '#fc6b20';
 
   return {
+    // 文字
+    font_weight_type_bold,
+    font_weight_type_none,
+    font_italic_type_italic,
+    font_italic_type_none,
+    font_decoration_type_underline,
+    font_decoration_type_none,
     // 提交设计类型
     submit_design_type_design,
     submit_design_type_background_color,

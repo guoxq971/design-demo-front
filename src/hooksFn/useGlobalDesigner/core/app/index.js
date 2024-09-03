@@ -4,7 +4,6 @@ import { useContainer } from './useContainer';
 import { useDesign } from '@/hooksFn/useGlobalDesigner/core/app/useDesign';
 import { useDesignerAppTool } from '@/hooksFn/useGlobalDesigner/core/app/useDesignerTool';
 import { Template } from '@/hooksFn/useGlobalDesigner/core/app/useSetTemplate/template';
-import { createEventHook } from '@vueuse/core';
 import { fnCreateEventHook } from '@/hooksFn/useGlobalDesigner/core/app/useFnCreateEvenetHook';
 
 export function useApp() {

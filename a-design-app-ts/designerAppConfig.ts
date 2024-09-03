@@ -40,3 +40,16 @@ export type template_source_type = template_source_type_self | template_source_t
 export type submit_design_type_design = 'design';
 export type submit_design_type_background_color = 'backgroundColor';
 export type submit_design_type = submit_design_type_design | submit_design_type_background_color;
+
+// 字体-加粗
+export type font_weight_type_bold = 'bold';
+export type font_weight_type_none = 'normal';
+export type font_weight_type = font_weight_type_bold | font_weight_type_none;
+// 字体-斜体
+export type font_italic_type_italic = 'italic';
+export type font_italic_type_none = 'normal';
+export type font_italic_type = font_italic_type_italic | font_italic_type_none;
+// 字体下划线
+export type font_decoration_type_underline = 'underline';
+export type font_decoration_type_none = 'none';
+export type font_decoration_type = font_decoration_type_underline | font_decoration_type_none;
