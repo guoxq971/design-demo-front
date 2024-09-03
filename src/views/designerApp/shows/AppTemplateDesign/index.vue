@@ -21,8 +21,9 @@
       <div class="list-wrap">
         <div class="title">尺码:</div>
         <el-scrollbar class="item-list" :wrapStyle="{ width: '100%' }" :viewStyle="{ display: 'flex' }">
-          <div class="box-item size-item" :class="{ active: activeSizeId === item.id }" @click="setSizeId(item.id)" v-for="item in activeTemplate.sizeList" :key="'size' + item.id">
+          <div class="box-item size-item" :class="{ active: activeSizeId === item.id }" @click="setSizeId(item)" v-for="item in activeTemplate.sizeList" :key="'size' + item.id">
             <div class="size">{{ item.size }}</div>
+            <div v-if="isTemplateDesign(item.size)" class="design">设计</div>
           </div>
         </el-scrollbar>
       </div>
@@ -128,12 +129,21 @@ import CollectSvg from '@/views/designerApp/components/svg/collectSvg.vue';
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
+import { computedAsync, useDebounceFn } from '@vueuse/core';
 
 // 图层开关
 const designListVisible = ref(true);
 // 模板属性
 const { renderLoading, activeTemplate, activeView, activeColor, activeSizeId, activeColorId, setColorId, setSizeId } = useDesignerApplication();
 const { showImagName } = useTemplateData();
+
+// 模板是否有设计
+const isTemplateDesign = computed(() => {
+  return (size) => {
+    const t = useDesignerApplication().templateList.value.find((t) => t.size === size);
+    return t?.hasDesign();
+  };
+});
 
 // 多角度-渲染
 function onRender() {
@@ -241,6 +251,10 @@ function useTemplateData() {
       flex: 1;
       display: flex;
       @size: 2.2rem;
+      .design {
+        white-space: nowrap;
+        color: var(--fn-primary-color);
+      }
       .box-item {
         height: fit-content;
         padding: calc(var(--fn-gap-min) * 0.7);

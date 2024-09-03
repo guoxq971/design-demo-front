@@ -61,9 +61,9 @@ export async function getSubmitData(template, saveType) {
     const list = [];
     for (let design of designList) {
       // 背景色
-      if (design.isBackgroundColor) bgList.unshift(getSubmitDataBackgroundColor(design));
+      if (design.isBackgroundColor) bgList.push(getSubmitDataBackgroundColor(design));
       // 背景图
-      else if (design.isBackgroundImage) bgList.unshift(getSubmitDataImage(design));
+      else if (design.isBackgroundImage) bgList.push(getSubmitDataImage(design));
       // 设计图
       else if (design.isImage) list.push(getSubmitDataImage(design));
       // 文字
@@ -72,7 +72,7 @@ export async function getSubmitData(template, saveType) {
         list.push(data);
       }
     }
-    configurations.unshift(...bgList, ...list.toReversed());
+    configurations.unshift(...bgList.toReversed(), ...list.toReversed());
   }
   if (configurations.length === 0) {
     Message.warning('请至少选择一个视图进行设计，再进行保存操作！');

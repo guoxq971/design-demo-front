@@ -31,6 +31,7 @@ export async function setTemplate(detail) {
         template.type = useDesignerAppConfig().template_type_refine;
         template.isRefine = true;
         template.size = config.size;
+        template.sizeType = config.sizeType;
         template.is3d = config.is3dFlag;
         template.config = config;
         useDesignerApplication().templateList.value.push(template);
@@ -43,6 +44,7 @@ export async function setTemplate(detail) {
       template.type = useDesignerAppConfig().template_type_common;
       template.isCommon = true;
       template.size = '';
+      template.sizeType = '';
       template.config = commonConfig.config;
       template.is3d = commonConfig.is3dFlag;
       useDesignerApplication().templateList.value.push(template);
@@ -71,18 +73,25 @@ export async function setTemplate(detail) {
 export async function useTemplate(template) {
   // 如果是精细模板, 获取模板详情
   if (!template.detail && template.isRefine) {
-    template.detail = await getTemplateDetailWithSize(template.config.templateNo, template.size);
-    const t = parseTemplateDetail(template.detail);
-    template.viewList = t.viewList;
-    template.colorList = t.colorList;
-    // 过滤掉不可用的尺码
-    const refineList = useDesignerApplication()
-      .templateList.value.filter((t) => t.isRefine)
-      .map((t) => t.size);
-    template.sizeList = t.sizeList.filter((s) => refineList.includes(s.size));
-    template.id = t.id;
-    template.templateNo = t.templateNo;
-    template.detail = t.detail;
+    try {
+      useDesignerApplication().loading.value = true;
+      template.detail = await getTemplateDetailWithSize(template.config.templateNo, template.size);
+      const t = parseTemplateDetail(template.detail);
+      template.viewList = t.viewList;
+      template.colorList = t.colorList;
+      // 过滤掉不可用的尺码
+      const refineList = useDesignerApplication()
+        .templateList.value.filter((t) => t.isRefine)
+        .map((t) => t.size);
+      template.sizeList = t.sizeList.filter((s) => refineList.includes(s.size));
+      template.id = t.id;
+      template.templateNo = t.templateNo;
+      template.detail = t.detail;
+    } catch (e) {
+      console.error('使用模板 出现错误 e', e);
+    } finally {
+      useDesignerApplication().loading.value = false;
+    }
   }
 
   // 清除上一个模板的数据,2dCanvas,3dCanvas,3dMesh,3dTexture;保存2d设计数据

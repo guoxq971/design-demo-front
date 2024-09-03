@@ -1,6 +1,6 @@
 <template>
   <div class="save-wrap">
-    <el-button :loading="saveLoading" plain class="btn btn-1" @click="(e) => onSave(e, useDesignerAppConfig().save_template_type_color)">全颜色合成</el-button>
+    <el-button :loading="saveLoading" plain class="btn btn-1" @click="(e) => onSave(e, useDesignerAppConfig().save_template_type_color)" :disabled="disabledColor">全颜色合成</el-button>
     <el-button :loading="saveLoading" class="btn btn-2" type="primary" @click="(e) => onSave(e, useDesignerAppConfig().save_template_type_org)">保存模板</el-button>
     <el-button :loading="saveLoading" class="btn btn-3" type="primary" @click="(e) => onSave(e, useDesignerAppConfig().save_template_type_save)">保存产品</el-button>
   </div>
@@ -10,7 +10,17 @@
 import Btn from '@/views/designerApp/components/Btn.vue';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { computed } from 'vue';
 const { saveLoading } = useDesignerApplication();
+// 全颜色合成按钮是否禁用
+const disabledColor = computed(() => {
+  let result = true;
+  if (useDesignerApplication().activeTemplate.value?.detail?.isCanSynthesis) {
+    result = false;
+  }
+  return result;
+});
+// 保存
 function onSave(event, type) {
   let target = event.target;
   if (['SPAN', 'I'].includes(target.nodeName)) {

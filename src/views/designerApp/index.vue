@@ -13,7 +13,6 @@
     <div class="right">
       <!--保存-->
       <AppSave />
-
       <!--模板设计信息-->
       <AppTemplateDesign />
     </div>

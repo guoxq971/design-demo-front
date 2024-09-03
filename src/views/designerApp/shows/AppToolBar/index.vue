@@ -1,5 +1,7 @@
 <template>
   <div class="tool-container">
+    <saveTemplateHistoryPop />
+    <!--复用组件-->
     <DefineSvgTemplate v-slot="{ content, component, type, fn, children }">
       <template v-if="type === 'shu'">
         <div class="shu">|</div>
@@ -27,6 +29,7 @@
       </el-tooltip>
     </DefineSvgTemplate>
 
+    <!--工具条-->
     <ReuseSvgTemplate v-for="item in list" :key="item.content" :content="item.content" :component="item.component" :type="item.type" :fn="item.fn" :children="item.children" />
   </div>
 </template>
@@ -34,6 +37,7 @@
 <script setup>
 import { createReusableTemplate } from '@vueuse/core';
 // components
+import saveTemplateHistoryPop from '@/views/designerApp/components/saveTemplateHistory/saveTemplateHistoryPop.vue';
 import conrner from '@/views/designerApp/components/conrner.vue';
 import undoSvg from '@/views/designerApp/components/svg/undoSvg.vue';
 import redoSvg from '@/views/designerApp/components/svg/redoSvg.vue';
@@ -116,6 +120,15 @@ const list = [
   { content: '快捷键', component: hotkeySvg, fn: () => {} },
   { content: '设置', component: settingSvg, fn: () => {} },
   { content: '保存', component: saveSvg, fn: () => {} },
+  {
+    content: '保存产品记录',
+    component: saveSvg,
+    fn: () => useGlobalDesigner().templateHistory.trigger(),
+    // children: [
+    //   { content: '保存产品记录', component: saveSvg, fn: () => {} },
+    //   { content: '设计操作记录', component: saveSvg, fn: () => {} },
+    // ],
+  },
 ];
 </script>
 

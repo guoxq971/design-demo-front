@@ -21,6 +21,7 @@ export function getTemplateInterface() {
     templateNo: '',
     detail: null,
     size: '',
+    sizeType: '',
     type: '',
     is3d: false,
     sleep: false,
@@ -48,7 +49,9 @@ export function getTemplateInterface() {
   /**@typedef {import('d').template.renderMulti}*/
   template.renderMulti = () => renderMulti(template);
   /**@typedef {import('d').template.getSubmitData}*/
-  template.getSubmitData = () => getSubmitData(template);
+  template.getSubmitData = (saveType) => getSubmitData(template, saveType);
+  /**@typedef {import('d').template.hasDesign}*/
+  template.hasDesign = () => template.viewList.some((v) => v.designList.some((d) => d.attrs.visible));
 
   return template;
 }

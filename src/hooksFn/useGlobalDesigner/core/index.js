@@ -13,6 +13,7 @@ import { useCollectImage } from '@/hooksFn/useGlobalDesigner/core/tabs/useCollec
 import { usePlatformImage } from '@/hooksFn/useGlobalDesigner/core/tabs/usePlatformImage';
 import { useBgImage } from '@/hooksFn/useGlobalDesigner/core/tabs/useBgImage';
 import { useCollectBgImage } from '@/hooksFn/useGlobalDesigner/core/tabs/useCollectBgImage';
+import { useTemplateHistory } from '@/hooksFn/useGlobalDesigner/core/templateHistory';
 
 export const useGlobalDesigner = createGlobalState(() => {
   // 静态
@@ -43,8 +44,12 @@ export const useGlobalDesigner = createGlobalState(() => {
   const contextmenu = useContextmenu();
   // 鼠标经过
   const hover = useHover();
+  // 保存模板-历史记录
+  const templateHistory = useTemplateHistory();
 
   return {
+    // 模板历史记录
+    templateHistory,
     // 设计器
     app: app,
     // 静态变量

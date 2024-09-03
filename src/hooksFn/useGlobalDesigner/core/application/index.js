@@ -4,7 +4,8 @@ import { setTemplate, useTemplate } from './template/setTemplate';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { cloneDeep } from 'lodash';
 import { DRequest, METHOD } from '@/utils/request';
-import { Message } from 'element-ui';
+import { Message, MessageBox } from 'element-ui';
+import { saveTemplate } from '@/hooksFn/useGlobalDesigner/core/application/template/saveTemplate';
 
 // 设计器
 export const useDesignerApplication = createGlobalState(() => {
@@ -49,13 +50,29 @@ export const useDesignerApplication = createGlobalState(() => {
   /**@type {ComputedRef<import('d').design>} 当前激活的设计*/
   const activeDesign = computed(() => activeView.value?.designList.find((d) => d.attrs.uuid === activeDesignId.value));
 
+  // 设置颜色id
   const setColorId = (id) => (activeColorId.value = id);
+  // 设置视图id
   const setViewId = (id) => {
     activeViewId.value = id;
     activeView.value?.setMode(useDesignerAppConfig().mode_type_preview);
     activeTemplate.value?.viewList.forEach((v) => v.setNode(null));
   };
-  const setSizeId = (id) => (activeSizeId.value = id);
+  /**
+   * 设置尺码id
+   * @param {import('d').size} item
+   */
+  const setSizeId = async (item) => {
+    if (item.id === activeSizeId.value) return;
+    // 如果当前是精细设计
+    if (activeTemplate.value?.isRefine) {
+      const t = templateList.value.find((t) => t.size === item.size);
+      if (t) {
+        await useTemplate(t);
+      }
+    }
+    activeSizeId.value = item.id;
+  };
 
   /**
    * 添加设计图
@@ -97,39 +114,6 @@ export const useDesignerApplication = createGlobalState(() => {
       return;
     }
     view.addText(textOptions);
-  }
-  /**
-   * 保存产品
-   * @param {import('d').save_template_type} type 保存类型
-   */
-  async function saveTemplate(type = useDesignerAppConfig().save_template_type_save) {
-    // 保存产品
-    if (type === useDesignerAppConfig().save_template_type_save) {
-      const template = activeTemplate.value;
-      // 通用
-      if (template.isCommon) {
-        try {
-          saveLoading.value = true;
-          const param = await template.getSubmitData();
-          const res = await DRequest(`/designer-web/CMProductAct/saveProduct.act`, METHOD.POST, param, { timeout: 3 * 60 * 1000 });
-          if (!res.data.status) Message.warning('保存产品失败');
-          Message.success('保存成功');
-        } finally {
-          saveLoading.value = false;
-        }
-      }
-      // 精细
-      else if (template.isRefine) {
-        Message.warning('精细模板保存');
-      }
-    }
-    // 全颜色保存
-    else if (type === useDesignerAppConfig().save_template_type_color) {
-      Message.warning('全颜色保存');
-    } else {
-      Message.warning('保存产品失败, type 错误');
-      console.error('保存产品失败, type 错误');
-    }
   }
 
   return {

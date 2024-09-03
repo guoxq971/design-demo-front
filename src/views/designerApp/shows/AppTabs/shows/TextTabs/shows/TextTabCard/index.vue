@@ -249,21 +249,9 @@ function useFontFamily() {
     font_load_state_fail,
   };
 }
+// 字体列表
 const { list: fontFamilyList, loading: fontLoading, font_load_state_loading } = useFontFamily();
 
-// 字体列表
-// const fontFamilyList = [
-//   { label: '宋体', value: '宋体' },
-//   { label: '黑体', value: '黑体' },
-//   { label: '楷体', value: '楷体' },
-//   { label: '仿宋', value: '仿宋' },
-//   { label: '微软雅黑', value: '微软雅黑' },
-//   { label: 'Arial', value: 'Arial' },
-//   { label: 'Georgia', value: 'Georgia' },
-//   { label: 'Impact', value: 'Impact' },
-//   { label: 'Times New Roman', value: 'Times New Roman' },
-//   { label: 'Courier New', value: 'Courier New' },
-// ];
 // 字号列表
 const fontSizeList = [
   { label: '20', value: '20' },

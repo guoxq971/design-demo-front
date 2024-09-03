@@ -204,6 +204,8 @@ export interface template {
   isRefine: boolean;
   // 模板尺码
   size: string;
+  // 模板尺码类型
+  sizeType: string;
   // 3d是否可用
   is3d: boolean;
   //详情
@@ -246,6 +248,8 @@ export interface template {
   unsleep: () => {};
   // 获取视图
   getViewByMaterialName: (materialName: string) => view;
+  // 是否有设计
+  hasDesign: () => boolean;
   // 渲染多角度
   renderMulti: () => {};
   // 获取提交数据
