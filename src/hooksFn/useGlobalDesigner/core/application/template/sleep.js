@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash';
 import { nextTick } from 'vue';
+import { getTextOptions } from '@/hooksFn/useGlobalDesigner/core/application/design/addText';
 
 /**
  * 同步属性
@@ -95,7 +96,8 @@ export async function unsleep(template) {
     view.designList = [];
     // 设计图|文字
     for (const _design of _designList) {
-      if (_design.isImage || _design.isText) {
+      // 设计图
+      if (_design.isImage) {
         await view.addImage(_design.detail, {
           isCenter: false,
           isSet: false,
@@ -103,6 +105,19 @@ export async function unsleep(template) {
           isSort: false,
           attrs: _design.attrs,
         });
+      }
+      // 文字
+      else if (_design.isText) {
+        view.addText(
+          { ...getTextOptions(_design.attrs), uuid: '' },
+          {
+            isCenter: false,
+            isSet: false,
+            isSetMode: false,
+            isSort: false,
+            attrs: _design.attrs,
+          },
+        );
       }
     }
     // 背景图

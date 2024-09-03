@@ -58,7 +58,7 @@ export function parseTemplateDetail(detail) {
       /**@typedef {import('d').view.addColor}*/
       addColor: (color) => addColor(color, v),
       /**@typedef {import('d').view.addText}*/
-      addText: (textOptions) => addText(textOptions, v),
+      addText: (textOptions, options) => addText(textOptions, v, options),
       /**@typedef {import('d').view.removeDesign}*/
       removeDesign: (design) => {
         const index = v.designList.findIndex((d) => d === design);

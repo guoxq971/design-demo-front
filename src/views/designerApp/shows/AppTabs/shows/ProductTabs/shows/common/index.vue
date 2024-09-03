@@ -14,7 +14,7 @@
         @onContextmenu="onContextmenuTemplate"
         @onClick="onClick"
         v-loading="loading"
-        :active="(v) => v.id === activeTemplateId"
+        :active="(v) => v.id === activeTemplate?.id"
       >
         <template slot-scope="{ row }">
           <ImgTrack :url1="AppUtil.getShowImage(row).image" :url2="AppUtil.getShowImage(row).texture" />
@@ -50,7 +50,7 @@ const { onContextmenuTemplate } = useGlobalDesigner().contextmenu;
 // 鼠标经过
 const { onMouseenterTemplate, onMouseleaveTemplate } = useGlobalDesigner().hover;
 // 激活模板
-const { activeTemplateId } = useDesignerApplication();
+const { activeTemplateId, activeTemplate } = useDesignerApplication();
 </script>
 
 <style scoped lang="less"></style>

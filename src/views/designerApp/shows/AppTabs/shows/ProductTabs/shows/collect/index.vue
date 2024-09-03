@@ -7,7 +7,15 @@
         <!--分类-->
         <CategoryTemplate class="fn-mt-gap-min" :params="params" :onSearch="onSearch" />
       </TabCondition>
-      <TabList :list="list" @onMouseenter="onMouseenterTemplate" @onMouseleave="onMouseleaveTemplate" @onContextmenu="onContextmenuTemplate" @onClick="onClick" v-loading="loading">
+      <TabList
+        :list="list"
+        @onMouseenter="onMouseenterTemplate"
+        @onMouseleave="onMouseleaveTemplate"
+        @onContextmenu="onContextmenuTemplate"
+        @onClick="onClick"
+        v-loading="loading"
+        :active="(v) => v.id === activeTemplate?.id"
+      >
         <template slot-scope="{ row }">
           <ImgTrack :url1="AppUtil.getShowImage(row).image" :url2="AppUtil.getShowImage(row).texture" />
         </template>
@@ -21,7 +29,6 @@
 import { onMounted } from 'vue';
 // utils
 import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
-import { useGlobalApplication } from '@/hooksFn/useDesignerApplication/core/app/application';
 // components
 import TabCard from '../../../../components/Tab/TabCard.vue';
 import TabBody from '../../../../components/Tab/TabBody.vue';
@@ -32,11 +39,13 @@ import CategoryTemplate from '../../components/CategoryTemplate.vue';
 import ImgTrack from '@/components/imgTrack/index.vue';
 import SearchCard from '@/views/designerApp/shows/AppTabs/components/TabCard/SearchCard.vue';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 
 // 收藏模板数据
 const { list, total, params, loading, getList, onSearch } = useGlobalDesigner().collectTemplate;
+const { activeTemplate } = useDesignerApplication();
 onMounted(() => getList());
-const onClick = (detail) => useGlobalApplication().setTemplate(detail);
+const onClick = (detail) => useDesignerApplication().setTemplate(detail);
 // 右键菜单
 const { onContextmenuTemplate } = useGlobalDesigner().contextmenu;
 // 鼠标经过

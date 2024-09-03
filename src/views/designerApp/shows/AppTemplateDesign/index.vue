@@ -482,8 +482,9 @@ function useTemplateData() {
               flex: 1;
               text-align: center;
               letter-spacing: 1px;
-              text-shadow: 0 0 3px var(--color);
-              color: #000c01;
+              //text-shadow: 0 0 3px var(--color);
+              //color: #000c01;
+              color: var(--color);
               font-size: 14px;
             }
             .img {

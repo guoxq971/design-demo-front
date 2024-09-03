@@ -141,7 +141,7 @@ export interface view {
   // 添加颜色
   addColor: (color: string) => {};
   // 添加文字
-  addText: (textOptions: textOptions) => {};
+  addText: (textOptions: textOptions, options: addImageOptions) => {};
   // 视图的父级模板
   $template: template;
   // 模板3d-的视图部位的canvas

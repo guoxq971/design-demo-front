@@ -470,13 +470,13 @@ function base64ToFile(base64, name) {
  * 上传图片到服务器
  * @param file
  * @param orgName
- * @returns {Promise<{checkRes: any, file: any}>}
+ * @returns {Promise<{checkRes: {imageCode:1000533,seqId:"1830893510876770304"}, file: File}>}
  */
 async function uploadImage(file, orgName) {
   // 上传
   const uploadRes = await uploadImage(file);
   // 确认上传
-  const checkRes = designImageUploadConfirm(uploadRes, file, orgName);
+  const checkRes = await designImageUploadConfirm(uploadRes, file, orgName);
 
   return { checkRes, file };
 

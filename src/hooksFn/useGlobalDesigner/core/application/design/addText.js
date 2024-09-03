@@ -8,9 +8,21 @@ import { createDesign } from '@/hooksFn/useGlobalDesigner/core/application/desig
  * @typedef {import('d').view.addText}
  * @param {import('d').textOptions} textOptions
  * @param {import('d').view} view
+ * @param {import('d').addImageOptions} options
  */
-export async function addText(textOptions, view) {
+export async function addText(textOptions, view, options = {}) {
   // console.log('添加文字 textOptions', textOptions);
+  options = Object.assign(
+    {
+      isCenter: true,
+      isSetMode: true,
+      isSet: true,
+      isSort: true,
+      attrs: {},
+      attrsList: [],
+    },
+    options,
+  );
   /**@type {import('d').design} design */
   let design;
   if (textOptions.uuid) {
@@ -25,6 +37,7 @@ export async function addText(textOptions, view) {
         textDecoration: textOptions.textDecoration,
         fontItalic: textOptions.fontItalic, //自定义
         fontWeight: textOptions.fontWeight, //自定义
+        ...options.attrs,
       });
     }
   } else {
@@ -45,6 +58,7 @@ export async function addText(textOptions, view) {
       uuid: AppUtil.uuid(),
       fontItalic: textOptions.fontItalic, //自定义
       fontWeight: textOptions.fontWeight, //自定义
+      ...options.attrs,
     });
     // 创建设计
     design = createDesign(node, view);
@@ -58,18 +72,18 @@ export async function addText(textOptions, view) {
       view.setMode(useDesignerAppConfig().mode_type_edit);
     });
     // 设置选中
-    view.setNode(design);
+    options.isSet && view.setNode(design);
     // 居中
-    design.center();
+    options.isCenter && design.center();
     // 设置模式
-    view.setMode(useDesignerAppConfig().mode_type_edit);
+    options.isSetMode && view.setMode(useDesignerAppConfig().mode_type_edit);
   }
   // 设置大小和偏移量
   setSizeAndOffset(design, textOptions);
   // 触发更新canvas
   view.update2DCanvasDebounce();
   // 设置index
-  view.setDesignListIndex();
+  options.isSort && view.setDesignListIndex();
 }
 
 /**
