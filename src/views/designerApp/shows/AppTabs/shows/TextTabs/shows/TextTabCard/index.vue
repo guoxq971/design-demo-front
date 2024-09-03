@@ -276,23 +276,7 @@ const fontSizeList = [
   { label: '30', value: '30' },
 ];
 // 颜色列表
-const defaultColorList = [
-  //
-  '#E01F21',
-  '#FA6402',
-  '#F7B502',
-  '#06D072',
-  '#0099FF',
-  '#9DC1FF',
-  '#005CFF',
-  '#000000',
-  '#757575',
-  '#B9B9B9',
-  '#665544',
-  '#750233',
-  '#817E68',
-  '#FFFFFF',
-];
+const defaultColorList = useDesignerAppConfig().default_color_list;
 function onClickColor(colorCode) {
   param.value.fill = colorCode;
 }
@@ -397,6 +381,7 @@ watch(
     width: 80%;
   }
 }
+// 色块 + 拾色器
 .color-chunk-line {
   display: flex;
   align-items: center;

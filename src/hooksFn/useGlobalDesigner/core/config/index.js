@@ -124,8 +124,28 @@ export const useDesignerAppConfig = createGlobalState(() => {
 
   // 默认颜色
   const primary_color = '#fc6b20';
+  // 颜色列表
+  const default_color_list = [
+    //
+    '#E01F21',
+    '#FA6402',
+    '#F7B502',
+    '#06D072',
+    '#0099FF',
+    '#9DC1FF',
+    '#005CFF',
+    '#000000',
+    '#757575',
+    '#B9B9B9',
+    '#665544',
+    '#750233',
+    '#817E68',
+    '#FFFFFF',
+  ];
 
   return {
+    // 颜色列表
+    default_color_list,
     // 文字
     font_weight_type_bold,
     font_weight_type_none,
