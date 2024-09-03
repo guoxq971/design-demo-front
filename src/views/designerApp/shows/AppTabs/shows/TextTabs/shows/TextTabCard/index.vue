@@ -9,6 +9,7 @@
           <el-option v-for="item in fontFamilyList" :key="item.value" :label="item.label" :value="item.value">
             <span v-if="item.state === font_load_state_loading" class="el-icon-loading" style="margin-right: 5px;"></span>
             <span :style="{ fontFamily: item.value }" style="font-size: 18px">{{ item.label }}</span>
+            <span style="color: #9a9a9a; float: right">{{ item.sourceTypeName }}</span>
           </el-option>
         </el-select>
       </div>
@@ -157,6 +158,8 @@ function useFontFamily() {
       const tempList =
         res.data.data?.records.map((e) => {
           return {
+            sourceType: designerQueryType,
+            sourceTypeName: getSourceType(designerQueryType),
             label: e.fontName,
             value: font_prefix_name + e.fontName,
             detail: e,
@@ -168,6 +171,19 @@ function useFontFamily() {
       list.value.push(...tempList);
     } finally {
       loading.value = false;
+    }
+  }
+  // 获取类型名称
+  function getSourceType(type) {
+    switch (type) {
+      case 1:
+        return '平台';
+      case 2:
+        return '我的';
+      case 3:
+        return '共享';
+      default:
+        return '';
     }
   }
   // 加载字体
