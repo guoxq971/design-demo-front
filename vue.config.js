@@ -28,6 +28,9 @@ module.exports = {
   },
   lintOnSave: false,
   chainWebpack: (config) => {
+    // devtool
+    config.when(process.env.NODE_ENV === 'development', (config) => config.devtool('source-map'));
+
     // set worker-loader
     config.module
       .rule('worker')
