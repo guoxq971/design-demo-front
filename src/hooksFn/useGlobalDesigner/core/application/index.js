@@ -20,6 +20,7 @@ export const useDesignerApplication = createGlobalState(() => {
   const activeDesignId = ref('');
   /**@type {Ref<import('d').mode_type>} 模式*/
   const mode = ref(useDesignerAppConfig().mode_type_preview);
+
   /**@type {Ref<boolean>} 模板加载中*/
   const loading = ref(false);
   /**@type {Ref<boolean>} 3d加载中*/
@@ -28,6 +29,10 @@ export const useDesignerApplication = createGlobalState(() => {
   const renderLoading = ref(false);
   /**@type {Ref<boolean>} 模板保存中*/
   const saveLoading = ref(false);
+  /**@type {Ref<boolean>} 获取模板导出配置加载中*/
+  const exportLoading = ref(false);
+  /**@type {Ref<boolean>} 导出弹窗*/
+  const exportDialogVisible = ref(false);
 
   /**@type {import('d').templateComputed} 当前激活的模板*/
   const activeTemplate = computed(() => templateList.value?.find((t) => t.uuid === activeTemplateId.value));
@@ -137,7 +142,9 @@ export const useDesignerApplication = createGlobalState(() => {
     mode,
     loading,
     threeLoading,
+    exportDialogVisible,
     renderLoading,
+    exportLoading,
     saveLoading,
     activeTemplate,
     activeView,

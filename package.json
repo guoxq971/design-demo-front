@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "jszip": "^3.10.1",
     "@tweenjs/tween.js": "^21.0.0",
     "@vueuse/core": "^10.11.0",
     "@vueuse/integrations": "^10.11.0",

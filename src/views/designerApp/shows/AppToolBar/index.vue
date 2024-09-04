@@ -1,12 +1,14 @@
 <template>
   <div class="tool-container">
-    <saveTemplateHistoryPop />
     <!--复用组件-->
-    <DefineSvgTemplate v-slot="{ content, component, type, fn, children }">
+    <DefineSvgTemplate v-slot="{ disabledContent, content, component, type, fn, children, disabled }">
       <template v-if="type === 'shu'">
         <div class="shu">|</div>
       </template>
-      <el-tooltip v-else placement="bottom" effect="dark" :content="content" transition="none">
+      <el-tooltip v-else placement="bottom" effect="dark" transition="none">
+        <template #content>
+          <span>{{ disabled?.value ? disabledContent : content }}</span>
+        </template>
         <template v-if="children?.length">
           <el-dropdown :disabled="!children?.length" placement="bottom" :hide-on-click="false">
             <conrner>
@@ -22,24 +24,39 @@
           </el-dropdown>
         </template>
         <template v-else>
-          <div class="tool-item" @click="fn">
-            <component :is="component" />
-          </div>
+          <el-tooltip placement="bottom" effect="dark" transition="none" :disabled="!disabled?.value">
+            <template #content>
+              <span>{{ disabled?.value ? disabledContent : content }}</span>
+            </template>
+            <div class="tool-item" @click="() => (disabled?.value ? '' : fn())" :class="{ disabled: disabled?.value }">
+              <component :is="component" />
+            </div>
+          </el-tooltip>
         </template>
       </el-tooltip>
     </DefineSvgTemplate>
 
     <!--工具条-->
-    <ReuseSvgTemplate v-for="item in list" :key="item.content" :content="item.content" :component="item.component" :type="item.type" :fn="item.fn" :children="item.children" />
+    <ReuseSvgTemplate
+      v-for="item in list"
+      :key="item.content"
+      :content="item.content"
+      :component="item.component"
+      :type="item.type"
+      :fn="item.fn"
+      :children="item.children"
+      :disabled="item.disabled"
+      :disabledContent="item.disabledContent"
+    />
   </div>
 </template>
 
 <script setup>
 import { createReusableTemplate } from '@vueuse/core';
 // components
-import saveTemplateHistoryPop from '@/views/designerApp/components/saveTemplateHistory/saveTemplateHistoryPop.vue';
 import conrner from '@/views/designerApp/components/conrner.vue';
 import undoSvg from '@/views/designerApp/components/svg/undoSvg.vue';
+import historySvg from '@/views/designerApp/components/svg/historySvg.vue';
 import redoSvg from '@/views/designerApp/components/svg/redoSvg.vue';
 import clearSvg from '@/views/designerApp/components/svg/clearSvg.vue';
 import centerSvg from '@/views/designerApp/components/svg/centerSvg.vue';
@@ -61,13 +78,19 @@ import tileSvg from '@/views/designerApp/components/svg/tileSvg.vue';
 import hotkeySvg from '@/views/designerApp/components/svg/hotkeySvg.vue';
 import settingSvg from '@/views/designerApp/components/svg/settingSvg.vue';
 import saveSvg from '@/views/designerApp/components/svg/saveSvg.vue';
+import exportSvg from '@/views/designerApp/components/svg/exportSvg.vue';
 // utils
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
+import { computed } from 'vue';
+import { Message } from 'element-ui';
 
 const [DefineSvgTemplate, ReuseSvgTemplate] = createReusableTemplate();
 
+const exportConfigDisabled = computed(() => {
+  return useDesignerApplication().activeTemplate.value?.exportConfig.length === 0;
+});
 const activeTemplate = useDesignerApplication().activeTemplate;
 const activeView = useDesignerApplication().activeView;
 const activeDesign = useDesignerApplication().activeDesign;
@@ -84,7 +107,15 @@ const list = [
     ],
   },
   { type: 'shu' },
-  { content: '居中', component: centerSvg, fn: () => activeDesign.value?.center() },
+  {
+    content: '居中',
+    component: centerSvg,
+    fn: () => activeDesign.value?.center(),
+    children: [
+      { content: '水平居中', component: centerSvg, fn: () => activeDesign.value?.centerX() },
+      { content: '垂直居中', component: centerSvg, fn: () => activeDesign.value?.centerY() },
+    ],
+  },
   {
     content: '最大化',
     component: maxSvg,
@@ -119,13 +150,22 @@ const list = [
   { content: '平铺', component: tileSvg, fn: () => {} },
   { content: '快捷键', component: hotkeySvg, fn: () => {} },
   { content: '设置', component: settingSvg, fn: () => {} },
-  { content: '保存', component: saveSvg, fn: () => {} },
+  // { content: '保存', component: saveSvg, fn: () => {} },
   {
-    content: '保存产品记录',
-    component: saveSvg,
+    content: '导出',
+    disabledContent: '该模板不支持导出',
+    component: exportSvg,
+    fn: () => {
+      useDesignerApplication().exportDialogVisible.value = !useDesignerApplication().exportDialogVisible.value;
+    },
+    disabled: exportConfigDisabled,
+  },
+  {
+    content: '保存产品历史记录',
+    component: historySvg,
     fn: () => useGlobalDesigner().templateHistory.trigger(),
     // children: [
-    //   { content: '保存产品记录', component: saveSvg, fn: () => {} },
+    //   { content: '保存产品记录', component: saveSvg, fn: () => useGlobalDesigner().templateHistory.trigger() },
     //   { content: '设计操作记录', component: saveSvg, fn: () => {} },
     // ],
   },
@@ -165,6 +205,17 @@ const list = [
     }
     &:last-child {
       margin-right: 0;
+    }
+  }
+
+  .disabled {
+    cursor: not-allowed;
+    color: #ccc;
+    border-color: #ccc;
+    //pointer-events: none;
+    &:hover {
+      border-color: #ccc;
+      color: #ccc;
     }
   }
 }

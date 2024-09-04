@@ -27,6 +27,8 @@ export function getTemplateInterface() {
     sleep: false,
     config: null,
     viewList: [],
+    exportConfig: [],
+    isGetExportConfig: false,
     colorList: [],
     sizeList: [],
     multi2DList: [],

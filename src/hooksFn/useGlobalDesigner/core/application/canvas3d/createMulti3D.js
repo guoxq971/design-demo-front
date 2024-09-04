@@ -34,6 +34,7 @@ export function createMulti3D(template) {
   const multiImageList = useDesignerApplication().activeColor.value.multiImageList;
 
   // 匹配上对应的3d配置
+  /**@type {import('d').template.multi3DList}*/
   template.multi3DList = multiImageList
     .map((item) => {
       const d = list.find((a) => item.bgImg.split('_').find((v) => v === a.angleName));
@@ -66,7 +67,7 @@ export function createMulti3D(template) {
             container,
             loadModelBefore: () => (multi3D.loading = true),
             loadModelFinally: () => (multi3D.loading = false),
-            loadModelSuccess: (model, meshModelList, three) => {
+            loadModelSuccess: (_, meshModelList) => {
               // meshModelList中和view绑定的材质名称一致的mesh
               template.viewList.forEach(
                 /**@param {import('d').view} view*/
@@ -98,19 +99,8 @@ export function createMulti3D(template) {
             },
           };
           multi3D.three.create(options);
-          // console.log('创建多角度3D container id', useDesignerAppConfig().getMultiContainerId(item.colorMultiItem.id));
-          // console.log('创建多角度3D item.colorMultiItem.id', item.colorMultiItem.id);
-          // console.log('创建多角度3D item', item);
-          // console.log('创建多角度3D container', container);
         },
       );
     });
   }
 }
-
-/**
- * 更新多角度mesh
- * @param {import('d').view} view
- * @param {import('d').multi3D} multi3D
- */
-function updateMultiMesh(view, multi3D) {}

@@ -1,5 +1,10 @@
 <template>
   <div class="app-container">
+    <!--保存模板-历史记录-->
+    <saveTemplateHistoryPop />
+    <!--导出模板-->
+    <exportTemplateDialog :show.sync="exportDialogVisible" v-if="exportDialogVisible" />
+
     <div class="left">
       <AppMenu />
       <AppTabs />
@@ -30,6 +35,10 @@ import AppCanvas from '@/views/designerApp/shows/AppCanvas';
 import AppToolBar from '@/views/designerApp/shows/AppToolBar';
 import AppMenu from '@/views/designerApp/shows/AppMenu';
 import AppTabs from '@/views/designerApp/shows/AppTabs';
+import SaveTemplateHistoryPop from '@/views/designerApp/components/saveTemplateHistory/saveTemplateHistoryPop.vue';
+import exportTemplateDialog from '@/views/designerApp/components/exportTemplateDialog/exportTemplateDialog.vue';
+import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+const { exportDialogVisible } = useDesignerApplication();
 // 测试键盘事件
 onKeyStroke('ArrowDown', () => {
   Message.success('ArrowDown');

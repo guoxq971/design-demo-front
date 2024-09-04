@@ -5,6 +5,7 @@ import { parseTemplateDetail } from '@/hooksFn/useGlobalDesigner/core/applicatio
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { nextTick } from 'vue';
 import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/template/templateInterface';
+import { getExportConfig } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/exportConfig';
 
 /**
  * 设置模板
@@ -92,6 +93,11 @@ export async function useTemplate(template) {
     } finally {
       useDesignerApplication().loading.value = false;
     }
+  }
+
+  // 获取模板导出配置
+  if (!template.isGetExportConfig) {
+    await getExportConfig(template);
   }
 
   // 清除上一个模板的数据,2dCanvas,3dCanvas,3dMesh,3dTexture;保存2d设计数据

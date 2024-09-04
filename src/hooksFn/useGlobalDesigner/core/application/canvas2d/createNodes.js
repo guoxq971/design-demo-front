@@ -1,7 +1,6 @@
 import Konva from 'konva';
 import { useDesignerContainerEl } from '@/hooksFn/useGlobalDesigner/core/contaienr';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
-import { useDebounceFn } from '@vueuse/core';
 
 /**
  * 创建canvas
@@ -64,7 +63,8 @@ export function createCanvasNode(view) {
     rotateAnchorOffset: 50, // 旋转按钮的偏移量
     rotateAnchorCursor: 'pointer', // 旋转按钮的光标
     // 边框
-    borderStrokeWidth: 1.5, // 边框的宽度
+    borderDash: [4], // 边框的虚线
+    borderStrokeWidth: 2, // 边框的宽度
     borderStroke: useDesignerAppConfig().primary_color, // 边框的颜色
     // 缩放
     keepRatio: true, // 保持比例 (缩放时保持比例)
@@ -76,11 +76,12 @@ export function createCanvasNode(view) {
   if (view.printout_d) {
     let d = view.printout_d;
     let dash = [5];
-    // 如果是精细设计
-    // if (/*isRefine &&*/ is3d) {
-    // d = viewInfo?.uvD;
-    // dash = [];
-    // }
+    // 如果是3d
+    if (view.$template.is3d) {
+      const configView = view.$template.config.viewList.find((v) => v.viewId == view.id);
+      d = configView?.uvD;
+      dash = [];
+    }
 
     // 轮廓线 -  (编辑模式, 红色, 轮廓, 超出隐藏)
     const path = new Konva.Path({
@@ -103,10 +104,13 @@ export function createCanvasNode(view) {
   // 车线-编辑模式-v
   if (view.printout_v) {
     let v = view.printout_v;
-    // 如果是精细设计
-    // if (isRefine) {
-    // v = viewInfo?.uvV;
-    // }
+    let dash = [5];
+    // 如果是3d
+    if (view.$template.is3d) {
+      const configView = view.$template.config.viewList.find((v) => v.viewId == view.id);
+      v = configView?.uvV;
+      dash = [];
+    }
 
     // 车线 - (编辑模式, 红色, 车线)
     const path = new Konva.Path({
@@ -119,7 +123,7 @@ export function createCanvasNode(view) {
       data: v,
       fill: null,
       stroke: 'red',
-      dash: [5],
+      dash: dash,
       strokeWidth: 2,
       opacity: 0.7,
       visible: false,

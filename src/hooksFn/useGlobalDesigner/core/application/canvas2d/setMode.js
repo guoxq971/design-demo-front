@@ -11,13 +11,20 @@ export function setMode(mode, view) {
   // 设置裁剪
   const targetNodes = [view.canvasNodes.designGroup, view.canvasNodes.bgcGroup, view.canvasNodes.bgGroup];
   switch (mode) {
+    // 预览模式
     case useDesignerAppConfig().mode_type_preview:
-      if (view.print_d) {
-        targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.print_d));
+      // 如果是3d
+      if (view.$template.is3d) {
+        targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, { width: view.width, height: view.height }));
       } else {
-        targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
+        if (view.print_d) {
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.print_d));
+        } else {
+          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
+        }
       }
       break;
+    // 编辑模式
     case useDesignerAppConfig().mode_type_edit:
       // 如果是全幅产品
       if (view.printout) {

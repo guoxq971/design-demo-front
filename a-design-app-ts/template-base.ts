@@ -188,6 +188,26 @@ export interface multi3D {
   };
 }
 
+// 导出配置
+export interface exportConfig {
+  seqId: '1816319006806736897';
+  templateId: 'b0de7c70-6dac-4c1f-99d3-ceaeebe8478b';
+  templateNo: '2267';
+  angleName: '2267-positive';
+  createUser: 'de5f04fe-df6c-4fba-b463-53291d7e6dcf_11';
+  createTime: '2024-07-25 11:46:11';
+  updateUser: null;
+  updateTime: '2024-07-25 11:46:11';
+  zipPath: '/fnplatformfiles/template_3d_angle/2267_202407251146093280/2267.zip';
+  glbPath: '/fnplatformfiles/template_3d_angle/2267_202407251146093280/2267-positive.glb';
+  configType: 0;
+  size: null;
+  // 0:开启 1:未开启
+  useflag: 0;
+  sortno: 1;
+  versionNo: '1';
+}
+
 // 模板
 export interface template {
   //自定义id
@@ -212,6 +232,10 @@ export interface template {
   detail: templateDetail;
   // 配置
   config: templateConfig | templateRefineConfig;
+  // 导出配置
+  exportConfig: exportConfig[];
+  // 是否获取过导出配置
+  isGetExportConfig: boolean;
   //视图列表
   viewList: view[];
   //颜色列表
@@ -302,8 +326,8 @@ export interface multiThree {
   loader: GLTFLoader;
   hdrLoader: THREE.TextureLoader;
   animate: () => {};
-  create: (options: threeTemplateOptions) => {};
+  create: (options: threeTemplateOptions) => Promise<void>;
   destroy: () => {};
   disposeDracoLoader: () => {};
-  exportBase64: () => {};
+  exportBase64: () => string;
 }
