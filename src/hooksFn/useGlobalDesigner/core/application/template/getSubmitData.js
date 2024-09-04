@@ -3,7 +3,7 @@ import { Message } from 'element-ui';
 import { pick, omit } from 'lodash';
 import lodash from 'lodash';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { changeDpiDataUrl } from '@/hooksFn/useGlobalDesigner/core/application/plugin/changeBase64Dpi';
 import { GRequest, METHOD } from '@/utils/request';
 

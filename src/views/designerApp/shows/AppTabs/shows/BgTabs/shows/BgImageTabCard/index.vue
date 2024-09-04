@@ -25,7 +25,7 @@ import TabCondition from '@/views/designerApp/shows/AppTabs/components/Tab/TabCo
 import TabList from '@/views/designerApp/shows/AppTabs/components/Tab/TabList.vue';
 import TabPagination from '@/views/designerApp/shows/AppTabs/components/Tab/TabPagination.vue';
 // utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 

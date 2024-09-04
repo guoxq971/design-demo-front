@@ -16,7 +16,7 @@
 import { defineProps, ref } from 'vue';
 import { useVModels } from '@vueuse/core';
 // utils
-import { useGlobalTemplateCategory } from '@/hooksFn/useDesignerApplication/core/template/templateCategory';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 const props = defineProps({
   params: Object,
   onSearch: Function,
@@ -24,7 +24,7 @@ const props = defineProps({
 const { params } = useVModels(props);
 
 // 模板分类
-const { list } = useGlobalTemplateCategory();
+const { list } = useGlobalDesigner().templateCategory;
 // 分类
 const { category, getListByCategory } = useCategory(params);
 

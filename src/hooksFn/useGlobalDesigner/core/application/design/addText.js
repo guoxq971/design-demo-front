@@ -1,5 +1,5 @@
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { nextTick } from 'vue';
 import { createDesign } from '@/hooksFn/useGlobalDesigner/core/application/design/createDesign';
 

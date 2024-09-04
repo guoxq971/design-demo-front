@@ -35,7 +35,7 @@
 <script setup>
 import { computed } from 'vue';
 // utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 // components
 import imgTrack from '@/components/imgTrack';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';

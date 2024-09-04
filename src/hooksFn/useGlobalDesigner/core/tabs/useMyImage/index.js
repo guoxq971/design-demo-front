@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { METHOD } from '@/utils/request';
 import { fnFetch, generateAbout } from '@/hooksFn/useGlobalDesigner/utils';
 

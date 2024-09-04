@@ -30,8 +30,6 @@
 <script setup>
 import { onMounted, defineProps } from 'vue';
 import { useVModels } from '@vueuse/core';
-// utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
 // components
 import TabCard from '../../../../components/Tab/TabCard.vue';
 import TabBody from '../../../../components/Tab/TabBody.vue';
@@ -39,6 +37,8 @@ import TabCondition from '../../../../components/Tab/TabCondition.vue';
 import TabList from '../../../../components/Tab/TabList.vue';
 import TabPagination from '../../../../components/Tab/TabPagination.vue';
 import ImgTrack from '@/components/imgTrack/index.vue';
+// utils
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 const props = defineProps({

@@ -1,10 +1,7 @@
-import { createEventHook, createGlobalState, useElementBounding } from '@vueuse/core';
+import { createGlobalState } from '@vueuse/core';
 import { computed, ComputedRef, ref, Ref, watchEffect } from 'vue';
 import { setTemplate, useTemplate } from './template/setTemplate';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
-import { cloneDeep } from 'lodash';
-import { DRequest, METHOD } from '@/utils/request';
-import { Message, MessageBox } from 'element-ui';
 import { saveTemplate } from '@/hooksFn/useGlobalDesigner/core/application/template/saveTemplate';
 
 // 设计器

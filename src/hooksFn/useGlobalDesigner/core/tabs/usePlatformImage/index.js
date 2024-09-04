@@ -1,8 +1,8 @@
 import { ref } from 'vue';
-import { generateParams } from '@/hooksFn/useDesignerApplication/core/image/myImage';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { METHOD } from '@/utils/request';
 import { fnFetch, generateAbout } from '@/hooksFn/useGlobalDesigner/utils';
+import { generateParams } from '@/hooksFn/useGlobalDesigner/core/tabs/useBgImage/generateParams';
 
 export function usePlatformImage() {
   const list = ref([]);

@@ -37,7 +37,7 @@ import CategoryTemplate from '../../components/CategoryTemplate.vue';
 import ImgTrack from '@/components/imgTrack/index.vue';
 import SearchCard from '@/views/designerApp/shows/AppTabs/components/TabCard/SearchCard.vue';
 // utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 

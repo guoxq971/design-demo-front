@@ -1,9 +1,10 @@
 import { useAxios } from '@vueuse/integrations/useAxios';
+import { createEventHook } from '@vueuse/core';
 import { unref, isRef } from 'vue';
 // utils
 import { Ghost, METHOD } from '@/utils/request';
 import { MessageBox } from 'element-ui';
-import { isObject, has } from 'lodash';
+import { isObject, has, isString } from 'lodash';
 
 export class AppUtil {
   //确认
@@ -24,6 +25,8 @@ export class AppUtil {
 
   // 获取图片id
   static getImageId(item) {
+    // quickimgid是收藏列表进来使用的
+    // id是背景图片列表进来使用的
     let id;
     // 这是从收藏列表进来的
     if (item.quickimgid) {
@@ -126,68 +129,5 @@ export class AppUtil {
    */
   static isObject(value) {
     return isObject(value);
-  }
-
-  /**
-   * 生成 about
-   * @returns {{cancel: (function(): *), set: (function(null=): null)}}
-   */
-  static generateAbout() {
-    let about = null;
-    const cancel = () => about && about();
-    const set = (aboutFn = null) => (about = aboutFn);
-    return { cancel, set };
-  }
-
-  /**
-   * 通用接口封装
-   * @param config
-   * @param consumer
-   * @param callback
-   * @returns {Promise<unknown>}
-   */
-  static async fetch(config, consumer, callback = () => {}) {
-    if (typeof config === 'string') {
-      config = { url: config, method: METHOD.GET, params: {} };
-    } else if (AppUtil.isObject(config) && !config.method) {
-      config.method = METHOD.GET;
-    }
-    const { url, method, params } = config;
-
-    const _loading = {
-      open: () => {
-        isRef(consumer.loading) ? (consumer.loading.value = true) : (consumer.loading = true);
-      },
-      close: () => {
-        isRef(consumer.loading) ? (consumer.loading.value = false) : (consumer.loading = false);
-      },
-    };
-
-    try {
-      consumer.about?.cancel();
-      _loading.open();
-      const { execute, abort, data } = useAxios({ baseURL: Ghost });
-      consumer.about?.set(abort);
-      let _config = {};
-      if (method === METHOD.GET) {
-        _config = { params: params, method: method };
-      } else if (method === METHOD.POST) {
-        _config = { data: params, method: method };
-      }
-      const result = await execute(url, _config);
-      const resp = unref(result.data);
-      if (AppUtil.hasOwn(resp, 'retState')) {
-        if (resp.retState !== '0') return Promise.reject('error1');
-        callback(resp);
-        return resp;
-      } else if (AppUtil.hasOwn(resp, 'code')) {
-        if (resp.code !== 0) return Promise.reject('error2');
-        callback(resp.data);
-        return resp.data;
-      }
-    } finally {
-      _loading.close();
-      consumer.about?.set();
-    }
   }
 }

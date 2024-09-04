@@ -1,6 +1,6 @@
 import { create3D } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/create3D';
 import { getViewByMaterialName } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/updateMesh';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { isRef, nextTick } from 'vue';
 import { cloneDeep } from 'lodash';
 import { sleep, syncAttrs, unsleep } from '@/hooksFn/useGlobalDesigner/core/application/template/sleep';

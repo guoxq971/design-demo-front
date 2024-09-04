@@ -7,7 +7,6 @@ import { useTemplateCategory } from '@/hooksFn/useGlobalDesigner/core/tabs/useTe
 import { useCollectTemplate } from '@/hooksFn/useGlobalDesigner/core/tabs/useCollectTemplate';
 import { useHover } from '@/hooksFn/useGlobalDesigner/core/hover';
 import { useCustomTemplate } from '@/hooksFn/useGlobalDesigner/core/tabs/useCustomTemplate';
-import { useApp } from '@/hooksFn/useGlobalDesigner/core/app';
 import { useMyImage } from '@/hooksFn/useGlobalDesigner/core/tabs/useMyImage';
 import { useCollectImage } from '@/hooksFn/useGlobalDesigner/core/tabs/useCollectImage';
 import { usePlatformImage } from '@/hooksFn/useGlobalDesigner/core/tabs/usePlatformImage';
@@ -37,9 +36,6 @@ export const useGlobalDesigner = createGlobalState(() => {
   const bgImage = useBgImage();
   const collectBgImage = useCollectBgImage();
 
-  // 设计器
-  const app = useApp();
-
   // 右键菜单(收藏)
   const contextmenu = useContextmenu();
   // 鼠标经过
@@ -50,8 +46,6 @@ export const useGlobalDesigner = createGlobalState(() => {
   return {
     // 模板历史记录
     templateHistory,
-    // 设计器
-    app: app,
     // 静态变量
     staticData,
     // 模板

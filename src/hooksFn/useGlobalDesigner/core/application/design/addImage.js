@@ -1,5 +1,5 @@
 import { getImageSize } from '@/hooksFn/useGlobalDesigner/core/application/design/imageSize';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { loadImage } from '@/hooksFn/useGlobalDesigner/core/application/design/loadImage';
 import { createDesign } from '@/hooksFn/useGlobalDesigner/core/application/design/createDesign';

@@ -34,7 +34,7 @@ import SearchCard from '@/views/designerApp/shows/AppTabs/components/TabCard/Sea
 import ImageTypeButton from '@/views/designerApp/shows/AppTabs/components/ImageTypeButton/index.vue';
 import TabConditionSecond from '@/views/designerApp/shows/AppTabs/components/Tab/TabConditionSecond.vue';
 // utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 

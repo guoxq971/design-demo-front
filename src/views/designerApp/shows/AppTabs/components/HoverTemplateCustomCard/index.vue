@@ -1,6 +1,6 @@
 <!--鼠标经过的浮框 - 产品模板-->
 <template>
-  <el-card class="hover-container" v-if="detail" @mouseleave.native="mouseleave()" @mouseenter.native="mouseenter()">
+  <el-card class="hover-container" v-if="detail" @mouseleave.native="onMouseleaveTemplate" @mouseenter.native="onMouseenterCustomTemplate">
     <!--图片-->
     <div class="image-wrap">
       <div class="type-name">{{ typeName }}</div>
@@ -31,23 +31,12 @@
 <script setup>
 import { computed } from 'vue';
 // utils
-import { useGlobalData } from '@/hooksFn/useDesignerApplication/core/globalData';
+import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 
 // 鼠标经过
-const { mouseenter, mouseleave, detail } = useHover();
+const { onMouseenterCustomTemplate, onMouseleaveTemplate, detail } = useGlobalDesigner().hover;
 // 模板数据
 const { typeName, src } = useTemplateData(detail);
-
-// 鼠标经过
-function useHover() {
-  const { hover } = useGlobalData();
-  const { enter, leave, detail } = hover;
-  return {
-    mouseenter: enter,
-    mouseleave: leave,
-    detail,
-  };
-}
 
 // 模板数据
 function useTemplateData(detail) {

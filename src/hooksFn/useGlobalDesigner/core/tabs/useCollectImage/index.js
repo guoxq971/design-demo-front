@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { METHOD } from '@/utils/request';
 import { fnFetch, generateAbout } from '@/hooksFn/useGlobalDesigner/utils';
 
@@ -41,7 +41,7 @@ export function useCollectImage() {
       method: METHOD.POST,
       params: { seqId: AppUtil.getImageId(data) },
     };
-    await AppUtil.fetch(config, { about, loading });
+    await fnFetch(config, { about, loading });
   }
   // 收藏/取消收藏
   async function toggleCollect(data) {

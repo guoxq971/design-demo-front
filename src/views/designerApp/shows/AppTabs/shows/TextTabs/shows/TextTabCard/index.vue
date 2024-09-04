@@ -115,7 +115,7 @@ import { getTextOptions } from '@/hooksFn/useGlobalDesigner/core/application/des
 import { cloneDeep } from 'lodash';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { GRequest, METHOD } from '@/utils/request';
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 
 // 字体
 function useFontFamily() {

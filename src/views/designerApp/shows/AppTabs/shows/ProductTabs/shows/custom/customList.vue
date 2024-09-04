@@ -20,7 +20,7 @@
 <script setup>
 import { onMounted, defineEmits } from 'vue';
 // utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 // components
 import TabCard from '../../../../components/Tab/TabCard.vue';
 import TabBody from '../../../../components/Tab/TabBody.vue';

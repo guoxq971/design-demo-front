@@ -1,8 +1,8 @@
 import { ref } from 'vue';
-import { AppUtil } from '@/hooksFn/useDesignerApp/core/util';
 import { METHOD } from '@/utils/request';
 import { fnFetch, generateAbout } from '@/hooksFn/useGlobalDesigner/utils';
 import { generateParams } from '@/hooksFn/useGlobalDesigner/core/tabs/useBgImage/generateParams';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 
 export function useCollectBgImage() {
   const list = ref([]);

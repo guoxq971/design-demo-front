@@ -14,7 +14,7 @@
 <script setup>
 import { onMounted } from 'vue';
 // utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 // components
 import TabCard from '@/views/designerApp/shows/AppTabs/components/Tab/TabCard.vue';
 import TabBody from '@/views/designerApp/shows/AppTabs/components/Tab/TabBody.vue';

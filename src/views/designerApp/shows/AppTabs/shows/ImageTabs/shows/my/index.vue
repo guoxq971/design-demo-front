@@ -39,7 +39,7 @@ import TabPagination from '@/views/designerApp/shows/AppTabs/components/Tab/TabP
 import SearchCard from '@/views/designerApp/shows/AppTabs/components/TabCard/SearchCard.vue';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 // utils
-import { AppUtil } from '@/hooksFn/useDesignerApplication/utils/utils';
+import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 
 // 我的图库
