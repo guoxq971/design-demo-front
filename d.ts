@@ -3,6 +3,7 @@ import { template, color } from './a-design-app-ts/template-base';
 export * from './a-design-app-ts/template-detail';
 export * from './a-design-app-ts/template-base';
 export * from './a-design-app-ts/template-config';
+export * from './a-design-app-ts/template-submit';
 export * from './a-design-app-ts/design';
 export * from './a-design-app-ts/design-image-detail';
 export * from './a-design-app-ts/designerAppConfig';

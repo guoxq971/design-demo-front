@@ -93,8 +93,10 @@ export async function getSubmitData(template, saveType) {
       configurations.unshift(configurationItem);
     }
   }
+
   // 组装提交信息
   const data = {
+    fnData: getTemplateFnData(template),
     asyncFlag: asyncFlag,
     appearance: { id: useDesignerApplication().activeColorId.value },
     defaultValues: { defaultView: { id: useDesignerApplication().activeViewId.value } },
@@ -115,9 +117,48 @@ export async function getSubmitData(template, saveType) {
       example: false,
     },
   };
-  console.log('data', data);
+  // console.log('组装提交信息 data', data);
 
   return data;
+}
+
+/**
+ * 获取模板的提交数据 fnData
+ * @param {import('d').template} template
+ * @returns {import('d').templateSubmit.fnData}
+ */
+export function getTemplateFnData(template) {
+  return {
+    viewList: template.viewList.map((v) => {
+      return {
+        ...pick(v, ['id']),
+        designList: v.designList.map((d) => {
+          return {
+            ...pick(d, ['type', 'attrs', 'detail', 'isImage', 'isBackgroundImage', 'isBackgroundColor', 'isText']),
+          };
+        }),
+      };
+    }),
+  };
+}
+
+/**
+ * 使用模板的提交数据 fnData
+ * @param {import('d').templateSubmit.fnData} fnData 提交数据
+ * @param {import('d').template} template 模板
+ */
+export function useTemplateFnData(fnData, template) {
+  if (!fnData) {
+    console.error('使用模板的提交数据失败, fnData为空');
+    return;
+  }
+  if (fnData) {
+    template.viewList.forEach((view) => {
+      const fdView = fnData.viewList.find((v) => v.id == view.id);
+      view.designList.push(...fdView.designList);
+    });
+    template.unsleep();
+  }
 }
 
 /**
@@ -147,6 +188,7 @@ function getSubmitDataBackgroundColor(design) {
 /**
  * 获取提交数据-设计图
  * @param {import('d').design} design
+ * @returns {import('d').templateSubmit}
  */
 function getSubmitDataImage(design) {
   const width = lodash.round(design.attrs.width * Math.abs(design.attrs.scaleX), 2);

@@ -13,7 +13,7 @@ import { useCollectImage } from '@/hooksFn/useGlobalDesigner/core/tabs/useCollec
 import { usePlatformImage } from '@/hooksFn/useGlobalDesigner/core/tabs/usePlatformImage';
 import { useBgImage } from '@/hooksFn/useGlobalDesigner/core/tabs/useBgImage';
 import { useCollectBgImage } from '@/hooksFn/useGlobalDesigner/core/tabs/useCollectBgImage';
-import { useTemplateHistory } from '@/hooksFn/useGlobalDesigner/core/templateHistory';
+import { useTemplateHistory } from '@/hooksFn/useGlobalDesigner/core/templateHistory/templateHistory';
 
 export const useGlobalDesigner = createGlobalState(() => {
   // 静态

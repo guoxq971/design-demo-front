@@ -42,11 +42,8 @@
 
 <script setup>
 import pageContainer from './page.vue';
-import { useDraggable } from '@vueuse/core';
-import { computed, onMounted, ref } from 'vue';
-import { GRequest, METHOD } from '@/utils/request';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
-const { visible, el, x, y, style, loading, list, params, showList, total, getList, onClose, onDel } = useGlobalDesigner().templateHistory;
+const { visible, el, x, y, style, loading, list, params, showList, total, getList, onSel, onClose, onDel } = useGlobalDesigner().templateHistory;
 </script>
 
 <style scoped lang="less">
@@ -65,11 +62,14 @@ const { visible, el, x, y, style, loading, list, params, showList, total, getLis
   align-items: center;
   font-size: 1.3rem;
   font-weight: bold;
-  //cursor: default;
+  user-select: none;
   cursor: move;
 
   .refresh {
     cursor: pointer;
+    &:hover {
+      color: var(--fn-primary-color);
+    }
   }
 
   .close {
@@ -104,9 +104,9 @@ const { visible, el, x, y, style, loading, list, params, showList, total, getLis
       cursor: pointer;
       font-size: 1.6rem;
       z-index: 2;
-      color: #333;
+      color: var(--fn-primary-color);
       &:hover {
-        color: var(--fn-primary-color);
+        opacity: 0.7;
       }
     }
 
