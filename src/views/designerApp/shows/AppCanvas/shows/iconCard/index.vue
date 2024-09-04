@@ -3,12 +3,17 @@
     <div>
       <testCard />
 
-      <div class="group_20 flex-col" id="Block__77_45937" data-design="solid" style="box-sizing: border-box;width: 44.00px;height: 18.00px;border: 1px dashed rgb(252, 107, 32);;"></div>
+      <div
+        class="group_20 flex-col"
+        id="Block__77_45937"
+        data-design="solid"
+        style="box-sizing: border-box;width: 44.00px;height: 18.00px;border: 1px dashed rgb(252, 107, 32);position: absolute;"
+      ></div>
       <span
         class="paragraph_1"
         id="Text__444444444444444444_32273"
         data-design="solid"
-        style="box-sizing: border-box;width: 223.00px;height: 220.00px;overflow-wrap: break-word;color: rgba(0,12,1,1);font-size: 12.00px;font-family: MicrosoftYaHei;font-weight: normal;text-align: left;line-height: 22.00px;margin: 12px 0 0 8px"
+        style="box-sizing: border-box;width: 223.00px;height: 220.00px;overflow-wrap: break-word;color: rgba(0,12,1,1);font-size: 12.00px;font-family: MicrosoftYaHei;font-weight: normal;text-align: left;line-height: 22.00px;margin: 12px 0 0 8px;"
       >
         <span style="margin-left: 46px;">印花线-橙色</span>
         <br />
