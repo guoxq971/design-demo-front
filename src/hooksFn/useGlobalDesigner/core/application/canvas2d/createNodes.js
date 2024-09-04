@@ -37,6 +37,7 @@ export function createCanvasNode(view) {
     y: 0,
     fill: 'transparent',
     stroke: '#7e7e7e',
+    visible: false,
     dash: [4.5],
     width: useDesignerContainerEl().containerRect.value.drawWidth,
     height: useDesignerContainerEl().containerRect.value.drawHeight,

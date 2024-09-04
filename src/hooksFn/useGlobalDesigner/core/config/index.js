@@ -29,7 +29,7 @@ export const useDesignerAppConfig = createGlobalState(() => {
 
   /***********--画布配置--start*************/
   // 实际画布大小
-  const canvas_size = 600;
+  const canvas_size = 650;
   // 画布原始大小
   const canvas_size_org = 500;
   // 预览画布大小

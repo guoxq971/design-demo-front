@@ -95,8 +95,8 @@ const activeTemplate = useDesignerApplication().activeTemplate;
 const activeView = useDesignerApplication().activeView;
 const activeDesign = useDesignerApplication().activeDesign;
 const list = [
-  { content: '上一步', component: undoSvg, fn: () => {} },
-  { content: '下一步', component: redoSvg, fn: () => {} },
+  { content: '上一步', component: undoSvg, fn: () => Message.warning('上一步') },
+  { content: '下一步', component: redoSvg, fn: () => Message.warning('下一步') },
   {
     content: '清空',
     component: clearSvg,
@@ -147,9 +147,9 @@ const list = [
       { content: '旋转重置', component: maxSvg, fn: () => activeDesign.value?.rotationReset() },
     ],
   },
-  { content: '平铺', component: tileSvg, fn: () => {} },
-  { content: '快捷键', component: hotkeySvg, fn: () => {} },
-  { content: '设置', component: settingSvg, fn: () => {} },
+  { content: '平铺', component: tileSvg, fn: () => Message.warning('平铺') },
+  { content: '快捷键', component: hotkeySvg, fn: () => Message.warning('快捷键') },
+  { content: '设置', component: settingSvg, fn: () => Message.warning('设置') },
   // { content: '保存', component: saveSvg, fn: () => {} },
   {
     content: '导出',

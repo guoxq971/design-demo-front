@@ -11,18 +11,21 @@
         <img v-show="isShowProdImg" :src="getActiveColorViewImage(item.id)?.texture" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-bg" />
       </div>
       <!--three 容器-->
-      <div v-loading="threeLoading" style="border: 2px dashed #7e7e7e;" v-show="isShowThree">
+      <div v-loading="threeLoading" v-show="isShowThree">
         <div :style="`width:${imgSize}px;height:${imgSize}px;position:relative`" :id="useDesignerAppConfig().three_container_id" />
       </div>
 
       <!--预览图列表 + 精细/通用-->
       <PreviewGroup :left="previewStyle.left" :top="previewStyle.top" />
+
+      <!--icon-->
+      <IconCard style="position: absolute" :style="{ top: iconStyle.top, left: iconStyle.left }" />
     </template>
 
     <!--捕获舞台容器坐标-->
     <div ref="canvasElRef" class="container-el">
       <!--捕获图片坐标的容器-->
-      <div ref="imgElRef" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-el"></div>
+      <div ref="imgElRef" :style="`width:${imgSize}px;height:${imgSize}px;`" class="img-el" style="border: 2px dashed #7e7e7e;" />
     </div>
 
     <!--占位-->
@@ -52,7 +55,7 @@ const { loading, threeLoading, activeTemplate, activeViewId, activeView, getActi
 // 容器
 const { canvasElRef, imgElRef } = useDesignerContainerEl();
 // 预览样式
-const { previewStyle } = usePreviewStyle();
+const { previewStyle, iconStyle } = usePreviewStyle();
 // canvas配置
 const imgSize = useDesignerAppConfig().canvas_size;
 const get2dCanvasId = useDesignerAppConfig().get2dCanvasId;
@@ -95,6 +98,11 @@ function usePreviewStyle() {
     top: '-9999999px',
   });
 
+  const iconStyle = ref({
+    left: '-9999999px',
+    top: '-9999999px',
+  });
+
   const { onUpdate } = useDesignerContainerEl();
   // 容器属性服务
   onUpdate((rect) => {
@@ -103,9 +111,14 @@ function usePreviewStyle() {
       left: `${offsetX}px`,
       top: `${offsetY}px`,
     };
+    iconStyle.value = {
+      left: `${offsetX + drawWidth + 12}px`,
+      top: `${offsetY}px`,
+    };
   });
   return {
     previewStyle,
+    iconStyle,
   };
 }
 </script>
@@ -167,7 +180,8 @@ function usePreviewStyle() {
   align-items: center;
   left: 0;
   top: 0;
-  z-index: -1;
+  //z-index: -1;
+  pointer-events: none;
   .img-el {
     position: absolute;
     z-index: 1;

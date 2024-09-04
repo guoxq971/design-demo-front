@@ -11,12 +11,12 @@ export async function renderMulti(template) {
   try {
     const activeColor = useDesignerApplication().activeColor.value;
     useDesignerApplication().renderLoading.value = true;
-    const data = await template.getSubmitData(template, useDesignerAppConfig().save_template_type_render);
-    console.log('多角度接口请求参数', JSON.parse(JSON.stringify(data)));
+    const data = await template.getSubmitData(useDesignerAppConfig().save_template_type_render);
+    console.log('多角度接口请求参数', data);
     const res = await DRequest(`/designer-web/CMDesignAct/realTimeCutMulti2.act?mediaType=json`, METHOD.POST, data, { timeout: 3 * 60 * 1000 });
     if (res.data.retState !== '0') return Promise.reject('渲染多角度失败');
     // console.log('activeColor', activeColor);
-    console.log('多角度接口返回值', JSON.parse(JSON.stringify(res.data)));
+    // console.log('多角度接口返回值', JSON.parse(JSON.stringify(res.data)));
     template.multi2DList = res.data.cutList;
     for (let item of activeColor.multiImageList) {
       const d = template.multi2DList.find((e) => e.composeId === item.composeId || item.multiId === e.multiId);
