@@ -8,7 +8,7 @@
     </div>
 
     <div class="preview-group" v-if="imageList.length">
-      <div v-loading="item.loading" v-for="(item, index) in imageList" :key="'preview_' + index">
+      <div style="display: flex;justify-content: center;align-items: center;" v-loading="item.loading" v-for="(item, index) in imageList" :key="'preview_' + index">
         <img v-if="showImage(item)" :src="showImage(item)" alt="" class="img" />
       </div>
     </div>
@@ -45,7 +45,9 @@ onBeforeUnmount(() => {
   // base64销毁,3d销毁
   imageList.value.forEach((item) => {
     item.base64 && URL.revokeObjectURL(item.base64);
+    item.base64 = null;
     item.three?.destroy();
+    item.three = null;
   });
 });
 
@@ -87,63 +89,65 @@ imageList.value = template.exportConfig.map((item) => {
 
 // 提交
 function onSubmit() {
-  loading.value = true;
-  try {
-    // base64销毁
-    imageList.value.forEach((item) => {
-      item.base64 && URL.revokeObjectURL(item.base64);
-      item.base64 = '';
-    });
-    const pAll = imageList.value.map((item, index) => {
-      return new Promise((resolve) => {
-        if (!item.three) {
-          item.three = new ThreeWithCamera();
-          return item.three
-            .create({
-              path: process.env.VUE_APP_API_BASE_IMG_URL + item.glbPath,
-              container: templateExportRef.value[index],
-              loadModelBefore: () => (item.loading = true),
-              loadModelFinally: () => (item.loading = false),
-              loadModelSuccess: (_, meshModelList) => {
-                // 加载模型材质
-                bindModelMesh(template, meshModelList, item.three);
-                // 等待渲染完后导出
-                setTimeout(() => {
-                  item.base64 = item.three.exportBase64();
-                  resolve(true);
-                });
-              },
-            })
-            .catch((e) => {
-              console.error('模型加载失败 e', e);
-              Message.warning('模型加载失败');
-              resolve(false);
-            })
-            .finally(() => {
-              item.value = false;
-            });
-        } else {
-          resolve(true);
-        }
-      });
-    });
+  // base64销毁,3d销毁
+  imageList.value.forEach((item) => {
+    item.base64 && URL.revokeObjectURL(item.base64);
+    item.base64 = '';
+    item.three?.destroy();
+    item.three = null;
+  });
 
-    Promise.all(pAll).then((l) => {
-      if (l.every((e) => e)) {
-        createZip();
+  // 创建3d
+  const pAll = imageList.value.map((item, index) => {
+    return new Promise((resolve) => {
+      if (!item.three) {
+        item.three = new ThreeWithCamera();
+        return item.three
+          .create({
+            path: process.env.VUE_APP_API_BASE_IMG_URL + item.glbPath,
+            container: templateExportRef.value[index],
+            loadModelBefore: () => (item.loading = true),
+            loadModelFinally: () => (item.loading = false),
+            loadModelSuccess: (_, meshModelList) => {
+              // 加载模型材质
+              bindModelMesh(template, meshModelList, item.three);
+              // 等待渲染完后导出
+              setTimeout(() => {
+                item.base64 = item.three.exportBase64();
+                resolve(true);
+              });
+            },
+          })
+          .catch((e) => {
+            console.error('模型加载失败 e', e);
+            Message.warning('模型加载失败');
+            resolve(false);
+          })
+          .finally(() => {
+            item.value = false;
+          });
       } else {
-        MessageBox.confirm('存在解析失败的图片，是否继续导出图片?', '提示', {
+        resolve(true);
+      }
+    });
+  });
+
+  // 等待加载完成
+  loading.value = true;
+  Promise.all(pAll)
+    .then(async (l) => {
+      if (l.some((e) => !e)) {
+        await MessageBox.confirm('存在解析失败的图片，是否继续导出图片?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
-        }).then(() => {
-          createZip();
         });
       }
+      createZip();
+    })
+    .finally(() => {
+      loading.value = false;
     });
-  } finally {
-    loading.value = false;
-  }
 }
 
 /**
