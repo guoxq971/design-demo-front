@@ -6,6 +6,18 @@ import { saveTemplate } from '@/hooksFn/useGlobalDesigner/core/application/templ
 
 // 设计器
 export const useDesignerApplication = createGlobalState(() => {
+  /**模板价格*/
+  const templatePriceList = ref([]);
+  /**@type {Ref<boolean>} 模板价格加载中*/
+  const priceLoading = ref(false);
+
+  /**模板特殊类型*/
+  const templateSpecialType = ref('');
+  /**模板工艺*/
+  const templateCraft = ref('');
+  /**@type {Ref<boolean>} 模板工艺加载*/
+  const craftLoading = ref(false);
+
   /**@type {import('d').templateListRef} 模版列表*/
   const templateList = ref([]);
   /**@type {Ref<string>} 激活模板id*/
@@ -132,6 +144,13 @@ export const useDesignerApplication = createGlobalState(() => {
     setColorId,
     setViewId,
     setSizeId,
+    // 模板价格
+    templatePriceList,
+    priceLoading,
+    templateSpecialType,
+    // 模板工艺
+    templateCraft,
+    craftLoading,
     // 基础数据
     templateList,
     activeTemplateId,

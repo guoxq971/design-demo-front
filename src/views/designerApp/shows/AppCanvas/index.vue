@@ -32,9 +32,6 @@
     <div class="canvas-wrap" v-if="false">
       <!--提示语-->
       <TipCard />
-
-      <!--icon-->
-      <IconCard />
     </div>
   </div>
 </template>

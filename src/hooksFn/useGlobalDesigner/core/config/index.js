@@ -126,6 +126,12 @@ export const useDesignerAppConfig = createGlobalState(() => {
   const font_decoration_type_none = 'none';
   /***********--文字--end*************/
 
+  /***********--模板特殊类型--start*************/
+  const template_special_type_0 = '0'; //特殊尺码
+  const template_special_type_1 = '1'; //特殊颜色
+  const template_special_type_2 = '2'; //正常
+  /***********--模板特殊类型--end*************/
+
   // 默认颜色
   const primary_color = '#fc6b20';
   // 颜色列表
@@ -148,6 +154,10 @@ export const useDesignerAppConfig = createGlobalState(() => {
   ];
 
   return {
+    // 模板特殊类型
+    template_special_type_0,
+    template_special_type_1,
+    template_special_type_2,
     // 颜色列表
     default_color_list,
     // 文字

@@ -6,6 +6,7 @@ import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { nextTick } from 'vue';
 import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/template/templateInterface';
 import { getExportConfig } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/exportConfig';
+import { GRequest, METHOD } from '@/utils/request';
 
 /**
  * 设置模板
@@ -24,6 +25,46 @@ export async function setTemplate(detail) {
     // 清空上一个模板
     useDesignerApplication().templateList.value?.forEach((t) => t.destroy && t.destroy());
     useDesignerApplication().templateList.value = [];
+    useDesignerApplication().templatePriceList.value = [];
+    useDesignerApplication().templateCraft.value = '';
+
+    // 获取模板价格
+    useDesignerApplication().priceLoading.value = true;
+    GRequest(`/base-web/CMDesignerAct/listTemplatePrice`, METHOD.GET, { templateNo })
+      .then((res) => {
+        if (res.data.code !== 0) return;
+        // 模板价格返回为空
+        if (Object.keys(res.data.data).length === 0) {
+          useDesignerApplication().templateSpecialType.value = '';
+          useDesignerApplication().templatePriceList.value = [];
+          return;
+        }
+        useDesignerApplication().templateSpecialType.value = res.data.data.templateType;
+        useDesignerApplication().templatePriceList.value = res.data.data.resList.map((e) => {
+          return {
+            prop: e.templateProperty,
+            list: e.priceList, //{price,num}
+          };
+        });
+      })
+      .finally(() => {
+        useDesignerApplication().priceLoading.value = false;
+      });
+
+    // 获取模板工艺
+    useDesignerApplication().craftLoading.value = true;
+    GRequest(`/base-web/CMProductTemplateAct/getTemplateCraftFirstType.act`, METHOD.POST, { templateId: detail.seqId })
+      .then((res) => {
+        if (res.data.retState !== '0') return (this.firstTypeNames = '');
+        useDesignerApplication().templateCraft.value = res.data.firstTypeNames;
+      })
+      .catch((e) => {
+        console.error('获取工艺失败', e);
+        useDesignerApplication().templateCraft.value = '';
+      })
+      .finally(() => {
+        useDesignerApplication().craftLoading.value = false;
+      });
 
     // 如果有精细模板
     if (refineConfig.list.length) {

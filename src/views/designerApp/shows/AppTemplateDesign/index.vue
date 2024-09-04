@@ -3,8 +3,17 @@
     <div class="body" v-if="activeTemplate">
       <div class="title-wrap">{{ activeTemplate.detail.name }}</div>
       <div class="sub-title-wrap">
-        <div class="price">¥ 40.28</div>
-        <div class="info">产品信息、定价和尺码表</div>
+        <div class="price">{{ price }}</div>
+        <pricePop>
+          <div class="el-icon-warning-outline price-icon"></div>
+        </pricePop>
+        <div class="info">产品信息</div>
+      </div>
+      <!--工艺-->
+      <div class="sub-title-wrap" v-if="templateCraft">
+        <span>【工艺】：</span>
+        <span v-if="!craftLoading">{{ templateCraft }}</span>
+        <span v-if="craftLoading" class="el-icon-loading" />
       </div>
 
       <!--颜色-->
@@ -125,16 +134,91 @@ import NoVisibleSvg from '@/views/designerApp/components/svg/noVisibleSvg.vue';
 import LayerBottomSvg from '@/views/designerApp/components/svg/layerBottomSvg.vue';
 import LayerTopSvg from '@/views/designerApp/components/svg/layerTopSvg.vue';
 import CollectSvg from '@/views/designerApp/components/svg/collectSvg.vue';
+import pricePop from './pricePop.vue';
 // utils
 import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { computedAsync, useDebounceFn } from '@vueuse/core';
 
+// 价格维护
+const { price } = usePrice();
+function usePrice() {
+  // 当前价格
+  const price = computed(() => {
+    let price = '';
+    if (templatePriceList.value && !priceLoading.value) {
+      if (templateSpecialType.value === '') {
+        price = '未获取到价格';
+      } else {
+        if (templatePriceList.value?.length) {
+          let prop;
+          if (templateSpecialType.value === useDesignerAppConfig().template_special_type_1) {
+            prop = activeSizeId.value;
+          } else if (templateSpecialType.value === useDesignerAppConfig().template_special_type_0) {
+            prop = activeSizeId.value;
+          }
+          price = `￥${getTemplatePrice(templatePriceList.value, prop, templateSpecialType.value)}`;
+        }
+      }
+    }
+    return price;
+  });
+
+  /**
+   * 获取模板价格根据类型
+   * @param {array} list 模板价格列表
+   * @param {string} prop 类型 例如：尺码 | 颜色 会是激活的id
+   * @param {string} isSpecial 是否是特殊模板 2-正常 1-颜色 0-尺码
+   * @param {number} num 1：获取价格 2：获取数量
+   * @returns {string}
+   * */
+  function getTemplatePrice(list, prop, isSpecial, num = 1) {
+    const appearances = activeTemplate.value.detail.appearances;
+    const sizes = activeTemplate.value.detail.sizes;
+
+    if (list.length === 0) return '';
+    if (list[0].prop === '') return list[0].list.find((e) => e.num === num)?.price;
+    // 颜色
+    if ([useDesignerAppConfig().template_special_type_1].includes(isSpecial)) {
+      const result = appearances.find((e) => e.id == prop);
+      if (!result) return '';
+      return list.find((e) => e.prop === result.name)?.list.find((e) => e.num === num)?.price;
+    }
+    // 尺码
+    if ([useDesignerAppConfig().template_special_type_0].includes(isSpecial)) {
+      const result = sizes.find((e) => e.id == prop);
+      if (!result) return '';
+      return list.find((e) => e.prop === result.name)?.list.find((e) => e.num === num)?.price;
+    }
+    return '';
+  }
+  return {
+    price,
+  };
+}
+
 // 图层开关
 const designListVisible = ref(true);
 // 模板属性
-const { renderLoading, activeTemplate, activeView, activeColor, activeSizeId, activeColorId, setColorId, setSizeId } = useDesignerApplication();
+const {
+  // 价格
+  templateSpecialType,
+  priceLoading,
+  templatePriceList,
+  // 工艺
+  craftLoading,
+  templateCraft,
+  // 基础属性
+  renderLoading,
+  activeTemplate,
+  activeView,
+  activeColor,
+  activeSizeId,
+  activeColorId,
+  setColorId,
+  setSizeId,
+} = useDesignerApplication();
 const { showImagName } = useTemplateData();
 
 // 模板是否有设计
@@ -216,6 +300,14 @@ function useTemplateData() {
       line-height: 2.1rem;
       color: #fc6b20;
       text-shadow: 0px 4px 6px rgba(242, 242, 242, 0.5);
+      margin-right: var(--fn-gap-min);
+    }
+    .price-icon {
+      //font-weight: bold;
+      font-size: 1.4rem;
+      line-height: 2.1rem;
+      color: #fc6b20;
+      //text-shadow: 0px 4px 6px rgba(242, 242, 242, 0.5);
       margin-right: var(--fn-gap);
     }
     .info {
@@ -225,6 +317,10 @@ function useTemplateData() {
       line-height: 1.6rem;
       color: var(--fn-blue-color);
       text-shadow: 0px 4px 6px rgba(242, 242, 242, 0.5);
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
   // 颜色,尺码
@@ -272,6 +368,10 @@ function useTemplateData() {
         }
         &:hover {
           border-color: var(--fn-primary-color);
+          background-color: #fff8f5;
+          .size {
+            color: var(--fn-primary-color) !important;
+          }
         }
       }
       // 尺码
@@ -299,6 +399,10 @@ function useTemplateData() {
       }
       .active {
         border-color: var(--fn-primary-color);
+        background-color: #fff8f5;
+        .size {
+          color: var(--fn-primary-color) !important;
+        }
       }
     }
   }
