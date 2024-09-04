@@ -2,7 +2,6 @@ import { create2dCanvas } from '@/hooksFn/useGlobalDesigner/core/application/can
 import { parseMulti } from '@/hooksFn/useGlobalDesigner/core/application/template/parseMulti';
 import { setMode } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/setMode';
 import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/template/templateInterface';
-import { destroyView } from '@/hooksFn/useGlobalDesigner/core/application/template/destroyView';
 import { addImage } from '@/hooksFn/useGlobalDesigner/core/application/design/addImage';
 import { setNode } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/setNode';
 import { nextTick, shallowRef } from 'vue';
@@ -11,6 +10,7 @@ import { useDebounceFn } from '@vueuse/core';
 import { addColor } from '@/hooksFn/useGlobalDesigner/core/application/design/addColor';
 import { syncViewAttrs } from '@/hooksFn/useGlobalDesigner/core/application/template/sleep';
 import { addText } from '@/hooksFn/useGlobalDesigner/core/application/design/addText';
+import { destroyView } from '@/hooksFn/useGlobalDesigner/core/application/template/destroy';
 
 /**
  * 解析模板详情
