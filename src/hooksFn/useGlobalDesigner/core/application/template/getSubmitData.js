@@ -128,6 +128,7 @@ export async function getSubmitData(template, saveType) {
  * @returns {import('d').templateSubmit.fnData}
  */
 export function getTemplateFnData(template) {
+  // 只取以下属性做保存, 因为这些属性在 template.unsleep 时使用
   return {
     viewList: template.viewList.map((v) => {
       return {
