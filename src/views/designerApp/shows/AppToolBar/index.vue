@@ -61,13 +61,13 @@ import tileSvg from '@/views/designerApp/components/svg/tileSvg.vue';
 import hotkeySvg from '@/views/designerApp/components/svg/hotkeySvg.vue';
 import settingSvg from '@/views/designerApp/components/svg/settingSvg.vue';
 import saveSvg from '@/views/designerApp/components/svg/saveSvg.vue';
+// utils
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 
 const [DefineSvgTemplate, ReuseSvgTemplate] = createReusableTemplate();
 
-const app = useGlobalDesigner().app.tool();
 const activeTemplate = useDesignerApplication().activeTemplate;
 const activeView = useDesignerApplication().activeView;
 const activeDesign = useDesignerApplication().activeDesign;
