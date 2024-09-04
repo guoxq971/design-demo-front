@@ -10,6 +10,8 @@ export const useDesignerApplication = createGlobalState(() => {
   const templatePriceList = ref([]);
   /**@type {Ref<boolean>} 模板价格加载中*/
   const priceLoading = ref(false);
+  /**@type {Ref<boolean>} 模板详情*/
+  const templateVisible = ref(false);
 
   /**模板特殊类型*/
   const templateSpecialType = ref('');
@@ -144,6 +146,8 @@ export const useDesignerApplication = createGlobalState(() => {
     setColorId,
     setViewId,
     setSizeId,
+    // 模板详情
+    templateVisible,
     // 模板价格
     templatePriceList,
     priceLoading,

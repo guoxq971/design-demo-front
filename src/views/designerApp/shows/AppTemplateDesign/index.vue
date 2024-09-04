@@ -7,7 +7,7 @@
         <pricePop>
           <div class="el-icon-warning-outline price-icon"></div>
         </pricePop>
-        <div class="info">产品信息</div>
+        <div class="info" @click="templateVisible = !templateVisible">产品信息</div>
       </div>
       <!--工艺-->
       <div class="sub-title-wrap" v-if="templateCraft">
@@ -202,6 +202,8 @@ function usePrice() {
 const designListVisible = ref(true);
 // 模板属性
 const {
+  // 模板详情
+  templateVisible,
   // 价格
   templateSpecialType,
   priceLoading,
