@@ -19,9 +19,17 @@
 
     <div class="preview-box-group" style="width: fit-content">
       <div class="preview-box" v-for="(item, index) in activeTemplate.viewList" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" :key="'preview' + item.id">
+        <!--产品图-->
         <img :src="getActiveColorViewImage(item.id)?.image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
-        <canvas :id="getPreviewContainerId(item.id)" :width="preview_canvas_size" :height="preview_canvas_size" style="position: absolute;" :style="{ 'clip-path': `url(${`#eyePath_${item.id}`})` }" />
+        <canvas
+          :id="getPreviewContainerId(item.id)"
+          :width="preview_canvas_size"
+          :height="preview_canvas_size"
+          style="position: absolute;"
+          :style="{ 'clip-path': item.print_d ? `url(${`#eyePath_${item.id}`})` : '' }"
+        />
+        <!--背景图-->
         <img :src="getActiveColorViewImage(item.id)?.texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
         <!--裁剪路径-->
