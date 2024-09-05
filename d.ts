@@ -7,6 +7,7 @@ export * from './a-design-app-ts/template-submit';
 export * from './a-design-app-ts/design';
 export * from './a-design-app-ts/design-image-detail';
 export * from './a-design-app-ts/designerAppConfig';
+export * from './a-design-app-ts/design-isOutSide';
 
 // 模算 computed
 export type templateComputed = ComputedRef<template>;

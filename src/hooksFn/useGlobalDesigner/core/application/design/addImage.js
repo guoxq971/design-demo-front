@@ -4,7 +4,7 @@ import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { loadImage } from '@/hooksFn/useGlobalDesigner/core/application/design/loadImage';
 import { createDesign } from '@/hooksFn/useGlobalDesigner/core/application/design/createDesign';
 import { Message } from 'element-ui';
-import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
+import { hasOverRange } from '@/hooksFn/useGlobalDesigner/core/application/design/isOutSide';
 
 /**
  * 添加图片
@@ -133,10 +133,16 @@ async function _addImage(detail, view, options = {}) {
   parentNode.add(node);
   // 添加到view
   view.designList.push(design);
-  // 注册监听事件
+  // 注册监听事件-鼠标按下
   node.on('mousedown', () => {
     view.setNode(design);
     view.setMode(useDesignerAppConfig().mode_type_edit);
+  });
+  // 注册监听事件-超出删除
+  node.on('dragend', () => {
+    if (hasOverRange(design)) {
+      design.remove();
+    }
   });
   // 设置选中
   options.isSet && view.setNode(design);

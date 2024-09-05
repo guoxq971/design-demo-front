@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { useDesignerContainerEl } from '@/hooksFn/useGlobalDesigner/core/contaienr';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
+import { createNodeTransformer, createRotateText } from '@/hooksFn/useGlobalDesigner/core/application/canvas2d/createNodeTransformer';
 
 /**
  * 创建canvas
@@ -44,33 +45,7 @@ export function createCanvasNode(view) {
   });
   staticLayer?.add(bd);
   // 静态-选中框
-  const transformer = new Konva.Transformer({
-    id: useDesignerAppConfig().canvas_nodes_transformer,
-    nodes: [],
-    visible: false,
-    draggable: false, // 是否可拖拽
-    flipEnabled: false, // 允许翻转
-    ignoreStroke: false, // 忽略边框 (锚点不会被边框遮挡)
-    shouldOverdrawWholeArea: true, // 是否允许绘制超出图形边界的区域
-    // 锚点
-    enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
-    anchorFill: '#ffffff', // 锚点的填充色
-    anchorStroke: useDesignerAppConfig().primary_color, // 锚点的边框颜色
-    anchorCornerRadius: 2, // 锚点的圆角
-    anchorStrokeWidth: 1.5, // 锚点的边框宽度
-    anchorSize: 15, // 锚点的大小
-    // 旋转
-    useSingleNodeRotation: true, // 是否使用单节点旋转
-    rotateAnchorOffset: 50, // 旋转按钮的偏移量
-    rotateAnchorCursor: 'pointer', // 旋转按钮的光标
-    // 边框
-    borderDash: [4], // 边框的虚线
-    borderStrokeWidth: 2, // 边框的宽度
-    borderStroke: useDesignerAppConfig().primary_color, // 边框的颜色
-    // 缩放
-    keepRatio: true, // 保持比例 (缩放时保持比例)
-    centeredScaling: true, // 是否启用中心缩放
-  });
+  const transformer = createNodeTransformer();
   staticLayer?.add(transformer);
 
   // 车线-编辑模式-d

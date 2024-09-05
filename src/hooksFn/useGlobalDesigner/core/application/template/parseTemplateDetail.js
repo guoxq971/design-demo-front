@@ -61,7 +61,7 @@ export function parseTemplateDetail(detail) {
       addText: (textOptions, options) => addText(textOptions, v, options),
       /**@typedef {import('d').view.removeDesign}*/
       removeDesign: (design) => {
-        const index = v.designList.findIndex((d) => d === design);
+        const index = v.designList.findIndex((d) => d.attrs.uuid === design.attrs.uuid);
         if (index > -1) {
           v.designList.splice(index, 1);
         }

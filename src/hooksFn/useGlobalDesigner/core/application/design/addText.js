@@ -2,6 +2,7 @@ import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { nextTick } from 'vue';
 import { createDesign } from '@/hooksFn/useGlobalDesigner/core/application/design/createDesign';
+import { hasOverRange } from '@/hooksFn/useGlobalDesigner/core/application/design/isOutSide';
 
 /**
  * 添加文字设计
@@ -66,10 +67,16 @@ export async function addText(textOptions, view, options = {}) {
     parent.add(node);
     // 添加到view
     view.designList.push(design);
-    // 注册监听事件
+    // 注册监听事件-鼠标按下
     design.node.on('mousedown', () => {
       view.setNode(design);
       view.setMode(useDesignerAppConfig().mode_type_edit);
+    });
+    // 注册监听事件-超出删除
+    node.on('dragend', () => {
+      if (hasOverRange(design)) {
+        design.remove();
+      }
     });
     // 设置选中
     options.isSet && view.setNode(design);
@@ -130,28 +137,28 @@ function setSizeAndOffset(design, textOptions) {
   const fontSize = node.fontSize();
 
   // 如果文字和字体大小不一样
-  if (text !== textOptions.text || fontSize !== textOptions.fontSize) {
-    // 创建一个临时的文字对象
-    let tempText = new Konva.Text({
-      text: textOptions.text,
-      fill: textOptions.fill || '#000',
-      fontSize: textOptions.fontSize || 20,
-      fontFamily: textOptions.fontFamily || 'Calibri',
-      fontStyle: textOptions.fontItalic + ' ' + textOptions.fontWeight, // 样式
-      textDecoration: textOptions.textDecoration || 'none', // 下划线
-      // textAnchor: textOptions.textAlign || 'left', // 文字对齐方式
-      // letterSpacing: textOptions.letterSpacing || 0, // 字间距
-      // lineHeight: textOptions.lineHeight || 1, // 行间距
-    });
-    console.log(tempText.width(), tempText.height());
-    node.setAttrs({
-      width: tempText.width(),
-      height: tempText.height(),
-    });
-    // 释放
-    tempText.destroy();
-    tempText = null;
-  }
+  // if (text !== textOptions.text || fontSize !== textOptions.fontSize) {
+  // 创建一个临时的文字对象
+  let tempText = new Konva.Text({
+    text: textOptions.text,
+    fill: textOptions.fill || '#000',
+    fontSize: textOptions.fontSize || 20,
+    fontFamily: textOptions.fontFamily || 'Calibri',
+    fontStyle: textOptions.fontItalic + ' ' + textOptions.fontWeight, // 样式
+    textDecoration: textOptions.textDecoration || 'none', // 下划线
+    // textAnchor: textOptions.textAlign || 'left', // 文字对齐方式
+    // letterSpacing: textOptions.letterSpacing || 0, // 字间距
+    // lineHeight: textOptions.lineHeight || 1, // 行间距
+  });
+  // console.log(tempText.width(), tempText.height());
+  node.setAttrs({
+    width: tempText.width(),
+    height: tempText.height(),
+  });
+  // 释放
+  tempText.destroy();
+  tempText = null;
+  // }
 
   // 设置偏移量
   nextTick(() => {
