@@ -177,9 +177,7 @@ export async function useTemplate(template, prevTemplate) {
   // 如果有上一个模板的数据
   if (prevTemplate) {
     nextTick(() => {
-      // 未命中的视图
-      const missViewList = [];
-      // 是否提示未找到视图
+      // 是否提示
       let isFlag = false;
       // 遍历当前模板,匹配上一个模板的视图
       template.viewList.forEach((view) => {
@@ -195,17 +193,15 @@ export async function useTemplate(template, prevTemplate) {
           });
           if (_designList.length) isFlag = true;
           view.designList.push(..._designList);
-        } else {
-          missViewList.push(view);
         }
       });
-      template.unsleep({
-        isCenter: true,
-        isSort: false,
-      });
 
-      // 如果有未找到的视图
+      // 是否提示
       if (isFlag) {
+        template.unsleep({
+          isCenter: true,
+          isSort: false,
+        });
         Message.warning(`已将设计迁移到新模板`);
       }
     });
