@@ -9,7 +9,6 @@
             <template v-if="isMulti3D(item)">
               <div class="child-box">
                 <img :src="getImg(item.id)" alt="" class="fn-full" />
-                <!--                <canvas :id="getMultiPreviewSmallContainerId(item.id)" width="120" height="120" />-->
               </div>
             </template>
             <template v-else>
@@ -29,7 +28,6 @@
                 <template v-if="isMulti3D(item)">
                   <div class="child-box">
                     <img :src="getImg(item.id)" alt="" class="fn-full" />
-                    <canvas :id="getMultiPreviewBigContainerId(item.id)" height="700" width="700" />
                   </div>
                 </template>
                 <template v-else>
@@ -84,7 +82,7 @@ const {
 } = useDesignerApplication();
 
 // 多角度处理
-const { getMulti3d, isMulti3D, getMultiPreviewSmallContainerId, getMultiContainerId, getMultiPreviewBigContainerId } = useMultiUtil();
+const { isMulti3D, getMultiContainerId } = useMultiUtil();
 // 同步多角度
 const list = ref([]);
 const getImg = computed(() => (id) => {
