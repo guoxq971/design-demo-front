@@ -22,6 +22,7 @@ export interface attrs extends textOptions {
   type: design_type;
   detail: designImageDetail;
   zIndex: number;
+  inch: object; //设计图
 }
 
 // 设计-图

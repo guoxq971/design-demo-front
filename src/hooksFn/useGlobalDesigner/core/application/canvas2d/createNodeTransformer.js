@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { overRed } from '@/hooksFn/useGlobalDesigner/core/application/design/collide';
+import { Message } from 'element-ui';
 
 const canvas_type_transformer_text = 'canvas-transformer-text';
 
@@ -54,22 +55,20 @@ export function createNodeTransformer(view) {
         // }
         //
         // // 最大检测
-        // if (
-        //   isUp &&
-        //   node &&
-        //   [
-        //     //
-        //     DESIGN_TYPE.image,
-        //     DESIGN_TYPE.backgroundImage,
-        //   ].includes(node.attrs.type) &&
-        //   isMax(node)
-        // ) {
-        //   return oldBox; // 返回旧的
-        // } else {
-        //   return newBox; // 返回新的(成功放大)
-        // }
-
-        return newBox;
+        if (
+          isUp &&
+          node &&
+          [
+            //
+            useDesignerAppConfig().design_type_image,
+            useDesignerAppConfig().design_type_background_image,
+          ].includes(node.attrs.type) &&
+          isMax(node)
+        ) {
+          return oldBox; // 返回旧的
+        } else {
+          return newBox; // 返回新的(成功放大)
+        }
       } else {
         // $app.transformerStartType = TRANSFORMER_TYPE.rotation;
         // 绘制旋转角度
@@ -182,4 +181,40 @@ export function createRotateText() {
     fill: useDesignerAppConfig().primary_color,
     offset: { x: 0, y: 100 },
   });
+}
+
+/**
+ * 设计图最大检测
+ * @param {import('d').design.node} image
+ * @returns {boolean} 是否最大 (true: 是, false: 否)
+ */
+let messageInstance = null;
+export function isMax(image) {
+  if (
+    ![
+      //
+      useDesignerAppConfig().design_type_image,
+      useDesignerAppConfig().design_type_background_image,
+    ].includes(image.attrs.type)
+  )
+    return;
+
+  // 设计图的原始
+  const inch = image.attrs.inch;
+
+  // 设计图当前的尺寸
+  const w = image.attrs.width * Math.abs(image.attrs.scaleX);
+  const h = image.attrs.height * Math.abs(image.attrs.scaleY);
+
+  if (w >= inch.width || h >= inch.height) {
+    if (!messageInstance) {
+      messageInstance = Message.warning({
+        message: '已经最大了，不能再大了',
+        onClose: () => (messageInstance = null),
+      });
+    }
+    return true;
+  }
+
+  return false;
 }

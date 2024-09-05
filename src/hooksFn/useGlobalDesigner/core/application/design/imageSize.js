@@ -3,6 +3,7 @@
  * @param {{width,height}} imageSize 图片的宽高 {width,height}
  * @param {number} prodDpi dpi
  * @param {{width,height}} printSize 打印区域的宽高 {width,height}
+ * @returns {{inch:{width:number,height:number},widthRatio:number,heightRatio:number,ratio:{value:number,width:number,height:number},size:{width:number,height:number}}} 宽高
  */
 export function getImageSize(imageSize, prodDpi, printSize) {
   const inch = inchToPx(imageSize, prodDpi);

@@ -126,6 +126,7 @@ async function _addImage(detail, view, options = {}) {
     offsetY: height / 2,
     type: useDesignerAppConfig().design_type_image,
     detail,
+    inch: imageSize.inch,
     ...options.attrs,
   });
   // 创建节点
