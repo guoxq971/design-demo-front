@@ -185,10 +185,12 @@ export async function useTemplate(template, prevTemplate) {
       template.viewList.forEach((view) => {
         const fdView = prevTemplate.viewList.find((v) => v.id == view.id);
         if (fdView) {
-          const _designList = fdView.designList.map((d) => {
+          const _designList = fdView.designList.map((d, i) => {
             return {
               ...d,
-              attrs: pick(d.attrs, ['type', 'zIndex', 'detail', 'fill', 'text', 'viewId']),
+              attrs: {
+                ...pick(d.attrs, ['uuid', 'type', 'zIndex', 'detail', 'fill', 'text', 'viewId']),
+              },
             };
           });
           if (_designList.length) isFlag = true;
@@ -199,13 +201,15 @@ export async function useTemplate(template, prevTemplate) {
       });
       template.unsleep({
         isCenter: true,
+        isSort: false,
       });
 
       // 如果有未找到的视图
-      if (missViewList.length && isFlag) {
-        Message.warning(`已将设计的数据迁移到新模板, 未匹配视图:${missViewList.map((v) => v.id).join(',')}`);
+      if (isFlag) {
+        Message.warning(`已将设计迁移到新模板`);
       }
     });
   }
+
   console.log('使用模板', useDesignerApplication());
 }
