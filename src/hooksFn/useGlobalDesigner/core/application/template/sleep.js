@@ -83,8 +83,18 @@ export function sleep(template) {
  * 恢复休眠
  * @typedef {import('d').template.unsleep}
  * @param {import('d').template} template
+ * @param {import('d').addImageOptions} options
  */
-export async function unsleep(template) {
+export async function unsleep(template, options = {}) {
+  options = Object.assign(
+    {
+      isCenter: false,
+      isSet: false,
+      isSetMode: false,
+      isSort: false,
+    },
+    options,
+  );
   template.isSleep = false;
   // 2d
   /**@type {import('d').design[]}*/
@@ -99,10 +109,7 @@ export async function unsleep(template) {
       // 设计图
       if (_design.isImage) {
         await view.addImage(_design.detail, {
-          isCenter: false,
-          isSet: false,
-          isSetMode: false,
-          isSort: false,
+          ...options,
           attrs: _design.attrs,
         });
       }
@@ -111,10 +118,7 @@ export async function unsleep(template) {
         view.addText(
           { ...getTextOptions(_design.attrs), uuid: '' },
           {
-            isCenter: false,
-            isSet: false,
-            isSetMode: false,
-            isSort: false,
+            ...options,
             attrs: _design.attrs,
           },
         );
@@ -141,10 +145,7 @@ export async function unsleep(template) {
   if (bgImageList.length) {
     const attrsList = bgImageList.map((bgImage) => bgImage.attrs);
     await template.viewList[0].addImage(bgImageList[0].detail, {
-      isCenter: false,
-      isSet: false,
-      isSetMode: false,
-      isSort: false,
+      ...options,
       attrsList,
     });
   }

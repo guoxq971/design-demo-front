@@ -9,6 +9,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { designImageDetail } from './design-image-detail';
 import { ShallowRef } from 'vue';
+import { templateSubmit } from './template-submit';
 
 // 模板尺码
 export interface size {
@@ -269,7 +270,7 @@ export interface template {
   // 睡眠
   sleep: () => {};
   // 醒来
-  unsleep: () => {};
+  unsleep: (options: addImageOptions) => {};
   // 获取视图
   getViewByMaterialName: (materialName: string) => view;
   // 是否有设计
@@ -277,7 +278,9 @@ export interface template {
   // 渲染多角度
   renderMulti: () => {};
   // 获取提交数据
-  getSubmitData: (template: template, saveType: save_template_type) => Promise<object>;
+  getSubmitData: (saveType: save_template_type) => Promise<object>;
+  // 获取fnData
+  getFnData: () => Pick<templateSubmit, 'fnData'>;
 }
 
 // 模板3d配置项

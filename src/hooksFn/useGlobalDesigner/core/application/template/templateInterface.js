@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import { sleep, syncAttrs, unsleep } from '@/hooksFn/useGlobalDesigner/core/application/template/sleep';
 import { destroy } from '@/hooksFn/useGlobalDesigner/core/application/template/destroy';
 import { renderMulti } from '@/hooksFn/useGlobalDesigner/core/application/template/multi';
-import { getSubmitData } from '@/hooksFn/useGlobalDesigner/core/application/template/getSubmitData';
+import { getSubmitData, getTemplateFnData } from '@/hooksFn/useGlobalDesigner/core/application/template/getSubmitData';
 import { createMulti3D } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/createMulti3D';
 
 /**
@@ -47,11 +47,13 @@ export function getTemplateInterface() {
   /**@typedef {import('d').template.syncAttrs}*/
   template.syncAttrs = () => syncAttrs(template);
   /**@typedef {import('d').template.unsleep}*/
-  template.unsleep = () => unsleep(template);
+  template.unsleep = (options) => unsleep(template, options);
   /**@typedef {import('d').template.renderMulti}*/
   template.renderMulti = () => renderMulti(template);
   /**@typedef {import('d').template.getSubmitData}*/
   template.getSubmitData = (saveType) => getSubmitData(template, saveType);
+  /**@typedef {import('d').template.getFndata}*/
+  template.getFnData = () => getTemplateFnData(template);
   /**@typedef {import('d').template.hasDesign}*/
   template.hasDesign = () => template.viewList.some((v) => v.designList.some((d) => d.attrs.visible));
 

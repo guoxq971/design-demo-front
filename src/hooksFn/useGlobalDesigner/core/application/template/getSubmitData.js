@@ -156,7 +156,9 @@ export function useTemplateFnData(fnData, template) {
   if (fnData) {
     template.viewList.forEach((view) => {
       const fdView = fnData.viewList.find((v) => v.id == view.id);
-      view.designList.push(...fdView.designList);
+      if (fdView) {
+        view.designList.push(...fdView.designList);
+      }
     });
     template.unsleep();
   }

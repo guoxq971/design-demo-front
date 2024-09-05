@@ -7,6 +7,7 @@ import { nextTick } from 'vue';
 import { getTemplateInterface } from '@/hooksFn/useGlobalDesigner/core/application/template/templateInterface';
 import { getExportConfig } from '@/hooksFn/useGlobalDesigner/core/application/canvas3d/exportConfig';
 import { GRequest, METHOD } from '@/utils/request';
+import { cloneDeep, pick } from 'lodash';
 
 /**
  * 设置模板
@@ -22,6 +23,8 @@ export async function setTemplate(detail) {
     const commonConfig = await getCommon3dConfig(templateNo);
     // 获取精细模板
     const refineConfig = await getRefineConfig(templateNo);
+    // 临时保留上一个模板的设计
+    const prevTemplate = cloneDeep(useDesignerApplication().activeTemplate.value?.getFnData());
     // 清空上一个模板
     useDesignerApplication().templateList.value?.forEach((t) => t.destroy && t.destroy());
     useDesignerApplication().templateList.value = [];
@@ -90,12 +93,12 @@ export async function setTemplate(detail) {
       template.config = commonConfig.config;
       template.is3d = commonConfig.is3dFlag;
       useDesignerApplication().templateList.value.push(template);
-      await useTemplate(template);
+      await useTemplate(template, prevTemplate);
     }
     // 精细模板可用
     else if (refineConfig.list.length) {
       const template = useDesignerApplication().templateList.value[0];
-      await useTemplate(template);
+      await useTemplate(template, prevTemplate);
     }
     // 都不可用
     else {
@@ -111,8 +114,9 @@ export async function setTemplate(detail) {
 /**
  * 使用模板
  * @param {import('d').template} template
+ * @param {{viewList:import('d').template.viewList}} prevTemplate
  */
-export async function useTemplate(template) {
+export async function useTemplate(template, prevTemplate) {
   // 如果是精细模板, 获取模板详情
   if (!template.detail && template.isRefine) {
     try {
@@ -170,5 +174,38 @@ export async function useTemplate(template) {
   // 激活的模板是否是睡眠状态
   nextTick(() => template.isSleep && template.unsleep());
 
+  // 如果有上一个模板的数据
+  if (prevTemplate) {
+    nextTick(() => {
+      // 未命中的视图
+      const missViewList = [];
+      // 是否提示未找到视图
+      let isFlag = false;
+      // 遍历当前模板,匹配上一个模板的视图
+      template.viewList.forEach((view) => {
+        const fdView = prevTemplate.viewList.find((v) => v.id == view.id);
+        if (fdView) {
+          const _designList = fdView.designList.map((d) => {
+            return {
+              ...d,
+              attrs: pick(d.attrs, ['type', 'zIndex', 'detail', 'fill', 'text', 'viewId']),
+            };
+          });
+          if (_designList.length) isFlag = true;
+          view.designList.push(..._designList);
+        } else {
+          missViewList.push(view);
+        }
+      });
+      template.unsleep({
+        isCenter: true,
+      });
+
+      // 如果有未找到的视图
+      if (missViewList.length && isFlag) {
+        Message.warning(`已将设计的数据迁移到新模板, 未匹配视图:${missViewList.map((v) => v.id).join(',')}`);
+      }
+    });
+  }
   console.log('使用模板', useDesignerApplication());
 }
