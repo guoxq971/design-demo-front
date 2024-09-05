@@ -1,5 +1,5 @@
 <template>
-  <el-popover placement="right" width="240px" trigger="hover" popper-class="icon-popover">
+  <el-popover placement="right" width="240px" trigger="hover" popper-class="recommendSvg-icon-popover">
     <!--    <DefinePsdTemplate>-->
     <!--      <template v-if="!isPsd">-->
     <!--        <template v-if="detail.psdVersion">-->
@@ -116,7 +116,7 @@ function handlerDown() {
 </script>
 
 <style lang="less">
-.icon-popover {
+.recommendSvg-icon-popover {
   width: fit-content;
   //height: 510px;
   background: #fcfcfe;
