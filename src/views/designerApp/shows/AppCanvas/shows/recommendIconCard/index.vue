@@ -1,27 +1,27 @@
 <template>
   <el-popover placement="right" width="240px" trigger="hover" popper-class="icon-popover">
-    <DefinePsdTemplate>
-      <!--      <template v-if="!isPsd">-->
-      <!--        <template v-if="detail.psdVersion">-->
-      <!--          <el-popover popper-class="prod-popover" placement="right-start" width="450" trigger="manual">-->
-      <!--            <el-table :data="detail.designLogs">-->
-      <!--              <el-table-column :resizable="false" label="版本号" prop="version" align="center" />-->
-      <!--              <el-table-column :resizable="false" label="更新时间" prop="createTime" align="center" />-->
-      <!--              <el-table-column :resizable="false" label="备注" prop="remark" align="center" />-->
-      <!--            </el-table>-->
+    <!--    <DefinePsdTemplate>-->
+    <!--      <template v-if="!isPsd">-->
+    <!--        <template v-if="detail.psdVersion">-->
+    <!--          <el-popover popper-class="prod-popover" placement="right-start" width="450" trigger="manual">-->
+    <!--            <el-table :data="detail.designLogs">-->
+    <!--              <el-table-column :resizable="false" label="版本号" prop="version" align="center" />-->
+    <!--              <el-table-column :resizable="false" label="更新时间" prop="createTime" align="center" />-->
+    <!--              <el-table-column :resizable="false" label="备注" prop="remark" align="center" />-->
+    <!--            </el-table>-->
 
-      <!--            <el-button style="padding: 0;" type="text" slot="reference">-->
-      <!--              {{ detail.psdVersion }}-->
-      <!--            </el-button>-->
-      <!--          </el-popover>-->
-      <!--          <br />-->
-      <!--        </template>-->
-      <!--        <el-button class="btn primary" style="width: 100%;" type="primary" size="mini" @click="handlerDown">-->
-      <!--          下载psd-->
-      <!--        </el-button>-->
-      <!--      </template>-->
-      <!--      <span v-else>{{ psd }}</span>-->
-    </DefinePsdTemplate>
+    <!--            <el-button style="padding: 0;" type="text" slot="reference">-->
+    <!--              {{ detail.psdVersion }}-->
+    <!--            </el-button>-->
+    <!--          </el-popover>-->
+    <!--          <br />-->
+    <!--        </template>-->
+    <!--        <el-button class="btn primary" style="width: 100%;" type="primary" size="mini" @click="handlerDown">-->
+    <!--          下载psd-->
+    <!--        </el-button>-->
+    <!--      </template>-->
+    <!--      <span v-else>{{ psd }}</span>-->
+    <!--    </DefinePsdTemplate>-->
 
     <div>
       <div class="fn-mb-gap-min">推荐设计像素宽高: {{ size }}</div>
@@ -49,7 +49,7 @@ import { computed } from 'vue';
 import { createReusableTemplate } from '@vueuse/core';
 import { GRequest, METHOD } from '@/utils/request';
 // import { downloadByFetch } from '@/laod/utils';
-const [DefinePsdTemplate, ReusePsdTemplate] = createReusableTemplate();
+// const [DefinePsdTemplate, ReusePsdTemplate] = createReusableTemplate();
 
 const activeTemplate = useDesignerApplication().activeTemplate;
 const detail = computed(() => activeTemplate.value?.detail);
