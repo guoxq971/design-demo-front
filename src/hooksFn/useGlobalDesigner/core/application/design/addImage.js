@@ -4,7 +4,8 @@ import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { loadImage } from '@/hooksFn/useGlobalDesigner/core/application/design/loadImage';
 import { createDesign } from '@/hooksFn/useGlobalDesigner/core/application/design/createDesign';
 import { Message } from 'element-ui';
-import { hasOverRange } from '@/hooksFn/useGlobalDesigner/core/application/design/isOutSide';
+import { hasOverRange } from '@/hooksFn/useGlobalDesigner/core/application/design/overRange';
+import { overRed } from '@/hooksFn/useGlobalDesigner/core/application/design/collide';
 
 /**
  * 添加图片
@@ -154,6 +155,8 @@ async function _addImage(detail, view, options = {}) {
   options.isSetMode && view.setMode(useDesignerAppConfig().mode_type_edit);
   // 设置index
   options.isSort && view.setDesignListIndex();
+  // 超出红线检查
+  overRed(view);
 
   return design;
 }

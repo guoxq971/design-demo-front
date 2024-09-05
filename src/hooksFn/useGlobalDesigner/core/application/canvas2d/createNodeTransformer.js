@@ -1,8 +1,15 @@
 import Konva from 'konva';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
+import { overRed } from '@/hooksFn/useGlobalDesigner/core/application/design/collide';
 
 const canvas_type_transformer_text = 'canvas-transformer-text';
-export function createNodeTransformer() {
+
+/**
+ * 创建选中框
+ * @param {import('d').view} view
+ * @returns {Transformer}
+ */
+export function createNodeTransformer(view) {
   const transformer = new Konva.Transformer({
     id: useDesignerAppConfig().canvas_nodes_transformer,
     nodes: [],
@@ -98,11 +105,11 @@ export function createNodeTransformer() {
     // 更新模型
     // obj.transformer.node()?.attrs?.$design?.updateMesh();
     // 超出红线
-    // overRed(obj.transformer, viewInfo.print);
+    overRed(view);
   });
   transformer.on('dragmove', () => {
     // 超出红线
-    // overRed(obj.transformer, viewInfo.print);
+    overRed(view);
     // 磁吸
     // opt.$view.magnet(obj.transformer.node()?.attrs?.$design);
   });
@@ -114,7 +121,7 @@ export function createNodeTransformer() {
   });
   transformer.on('transform', () => {
     // 超出红线
-    // overRed(obj.transformer, viewInfo.print);
+    overRed(view);
   });
   // 旋转，缩放结束
   transformer.on('transformend', (transform) => {

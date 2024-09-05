@@ -93,6 +93,8 @@ export interface design {
   max: (type: design_max_type) => {};
   // 是否激活
   hasActive(): boolean;
+  // 是否碰撞
+  hasCollide(): boolean;
   // 如果是激活项则取消激活
   cancelActive: Function;
   // 是否图

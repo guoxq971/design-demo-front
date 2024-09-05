@@ -2,7 +2,8 @@ import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { nextTick } from 'vue';
 import { createDesign } from '@/hooksFn/useGlobalDesigner/core/application/design/createDesign';
-import { hasOverRange } from '@/hooksFn/useGlobalDesigner/core/application/design/isOutSide';
+import { hasOverRange } from '@/hooksFn/useGlobalDesigner/core/application/design/overRange';
+import { overRed } from '@/hooksFn/useGlobalDesigner/core/application/design/collide';
 
 /**
  * 添加文字设计
@@ -91,6 +92,8 @@ export async function addText(textOptions, view, options = {}) {
   view.update2DCanvasDebounce();
   // 设置index
   options.isSort && view.setDesignListIndex();
+  // 超出红线检查
+  overRed(view);
 }
 
 /**

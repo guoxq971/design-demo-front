@@ -45,7 +45,7 @@ export function createCanvasNode(view) {
   });
   staticLayer?.add(bd);
   // 静态-选中框
-  const transformer = createNodeTransformer();
+  const transformer = createNodeTransformer(view);
   staticLayer?.add(transformer);
 
   // 车线-编辑模式-d
@@ -106,32 +106,29 @@ export function createCanvasNode(view) {
     });
     staticLayer.add(path);
   }
-  // 车线-黑色-绘制区域-如果是精细产品不需要(轮廓线黑色)
-  if (/*!isRefine*/ true) {
-    // 轮廓线 - (编辑模式, 黑色, 产品边框)
-    const step = 2;
-    const step2 = step / 2;
-    const w = view.print_width + step;
-    const h = view.print_height + step;
-    // data 的值为 this.print.width和this.print.height 组成的矩形加上step的值
-    const data = `M${-step2},${-step2} L${w - step2},${-step2} L${w - step2},${h - step2} L${-step2},${h - step2} Z`;
-    const path = new Konva.Path({
-      listening: false,
-      type: useDesignerAppConfig().canvas_nodes_draw_area,
-      x: view.offsetX * useDesignerAppConfig().scale,
-      y: view.offsetY * useDesignerAppConfig().scale,
-      scaleX: useDesignerAppConfig().scale,
-      scaleY: useDesignerAppConfig().scale,
-      data: data,
-      fill: null,
-      stroke: '#000',
-      dash: [4],
-      strokeWidth: 1.2,
-      opacity: 0.7,
-      visible: false,
-    });
-    staticLayer.add(path);
-  }
+  // 轮廓线 - (编辑模式, 黑色, 产品边框)
+  const step = 2;
+  const step2 = step / 2;
+  const w = view.print_width + step;
+  const h = view.print_height + step;
+  // data 的值为 this.print.width和this.print.height 组成的矩形加上step的值
+  const data = `M${-step2},${-step2} L${w - step2},${-step2} L${w - step2},${h - step2} L${-step2},${h - step2} Z`;
+  const path = new Konva.Path({
+    listening: false,
+    type: useDesignerAppConfig().canvas_nodes_draw_area,
+    x: view.offsetX * useDesignerAppConfig().scale,
+    y: view.offsetY * useDesignerAppConfig().scale,
+    scaleX: useDesignerAppConfig().scale,
+    scaleY: useDesignerAppConfig().scale,
+    data: data,
+    fill: null,
+    stroke: '#000',
+    dash: [4],
+    strokeWidth: 1.2,
+    opacity: 0.7,
+    visible: false,
+  });
+  staticLayer.add(path);
 
   // 设计层-组
   const designGroup = new Konva.Group({

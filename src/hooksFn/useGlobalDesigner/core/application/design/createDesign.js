@@ -3,6 +3,7 @@ import { getImageSize } from '@/hooksFn/useGlobalDesigner/core/application/desig
 import { getScaleMax } from '@/hooksFn/useGlobalDesigner/core/application/design/scaleMax';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useGlobalDesigner } from '@/hooksFn/useGlobalDesigner/core';
+import { isCollide, overRed } from '@/hooksFn/useGlobalDesigner/core/application/design/collide';
 
 /**
  * 创建设计
@@ -58,6 +59,7 @@ export function createDesign(node, view) {
         await useGlobalDesigner().collectBgImage.getList();
       }
     },
+    hasCollide: () => isCollide(design),
     isCollect: () => {
       return useGlobalDesigner().collectImage.isCollect(node.attrs.detail);
     },
@@ -162,19 +164,23 @@ export function createDesign(node, view) {
       design?.node.x(view.width / 2);
       design?.node.y(view.height / 2);
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     centerX: () => {
       design?.node.x(view.width / 2);
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     centerY: () => {
       design?.node.y(view.height / 2);
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     scale: (n) => {
       design?.node.scaleX(n);
       design?.node.scaleY(n);
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     scaleUp: () => {
       // 翻转状态
@@ -188,6 +194,7 @@ export function createDesign(node, view) {
         scaleY: y * flipY,
       });
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     scaleDown: () => {
       // 翻转状态
@@ -201,22 +208,27 @@ export function createDesign(node, view) {
         scaleY: y * flipY,
       });
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     rotation: (n = 5) => {
       design?.node.rotation(n);
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     rotationLeft: (n = 5) => {
       design?.node.rotation(design.node.rotation() - n);
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     rotationRight: (n = 5) => {
       design?.node.rotation(design.node.rotation() + n);
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     rotationReset: () => {
       design?.node.rotation(0);
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     flipX: () => {
       design?.node.scaleX(design.node.scaleX() * -1);
@@ -273,6 +285,7 @@ export function createDesign(node, view) {
         y: view.height / 2,
       });
       view.update2DCanvasDebounce();
+      overRed(view);
     },
     hasActive: () => {
       return useDesignerApplication().activeDesignId.value === design.attrs.uuid;

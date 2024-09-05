@@ -17,25 +17,18 @@ export function setMode(mode, view) {
       if (view.$template.is3d) {
         targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, { width: view.width, height: view.height }));
       } else {
-        if (view.print_d) {
-          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.print_d));
-        } else {
-          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
-        }
+        const path = view.print_d ? view.print_d : null;
+        targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, path));
       }
       break;
     // 编辑模式
     case useDesignerAppConfig().mode_type_edit:
       // 如果是全幅产品
-      if (view.printout) {
-        // setNodeClipFunc(targetNode, { width: width, height: height, gap: 2 });
+      if (!view.print_d) {
         targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
       } else {
-        if (view.print_d) {
-          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, view.print_d));
-        } else {
-          targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, null));
-        }
+        const path = view.printout_d ? view.printout_d : null;
+        targetNodes.forEach((targetNode) => setNodeClipFunc(targetNode, path));
       }
       break;
   }
