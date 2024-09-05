@@ -8,8 +8,12 @@
         </div>
       </conrner>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item @click.native="onClickTemplateType(template_type_common)" :disabled="commonDisabled">通用设计</el-dropdown-item>
-        <el-dropdown-item @click.native="onClickTemplateType(template_type_refine)" :disabled="refineDisabled">精细设计</el-dropdown-item>
+        <el-dropdown-item @click.native="onClickTemplateType(template_type_common)" :disabled="commonDisabled">
+          通用设计
+        </el-dropdown-item>
+        <el-dropdown-item @click.native="onClickTemplateType(template_type_refine)" :disabled="refineDisabled">
+          精细设计
+        </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
 
@@ -17,9 +21,25 @@
       <div class="preview-box" v-for="(item, index) in activeTemplate.viewList" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" :key="'preview' + item.id">
         <img :src="getActiveColorViewImage(item.id)?.image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
-        <canvas :id="getPreviewContainerId(item.id)" :width="preview_canvas_size" :height="preview_canvas_size" style="position: absolute;" :style="style(item.id)"></canvas>
+        <canvas
+          mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+          :id="getPreviewContainerId(item.id)"
+          :width="preview_canvas_size"
+          :height="preview_canvas_size"
+          style="position: absolute;"
+          :style="{ 'clip-path': `url(${`#eyePath_${item.id}`})` }"
+        />
+        <!--:style="style(item.id)"-->
         <img :src="getActiveColorViewImage(item.id)?.texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
+        <!--裁剪路径-->
+        <svg width="0" height="0">
+          <defs>
+            <clipPath :id="`eyePath_${item.id}`" clipPathUnits="userSpaceOnUse">
+              <path :d="item.print_d" :style="{ transform: `translate(${item.offsetX * radio}px, ${item.offsetY * radio}px) scale(${radio})` }" />
+            </clipPath>
+          </defs>
+        </svg>
       </div>
     </div>
   </div>
@@ -62,6 +82,7 @@ const activeTemplateTypeName = computed(() => (activeTemplateType.value === useD
 const commonDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_common));
 // 模板类型-refine-disabled
 const refineDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_refine));
+
 /**@param{import('d').template_type} type 切换模板类型*/
 async function onClickTemplateType(type) {
   if (useDesignerApplication().activeTemplate.value.type === type) {
@@ -99,6 +120,7 @@ async function onClickTemplateType(type) {
 }
 
 // 裁剪样式
+const radio = sizeNum / useDesignerAppConfig().canvas_size_org;
 const style = computed(() => {
   return (viewId) => {
     const view = activeTemplate.value.viewList.find((item) => item.id === viewId);
@@ -106,7 +128,6 @@ const style = computed(() => {
       return {};
     }
     // return `polygon(0 0, 10px 0, 10px 10px, 0 10px);`;
-    const radio = sizeNum / useDesignerAppConfig().canvas_size_org;
     const x1 = view.offsetX * radio;
     const y1 = view.offsetY * radio;
     const x2 = (view.offsetX + view.width) * radio;
