@@ -31,7 +31,9 @@
         <div class="title">尺码:</div>
         <el-scrollbar class="item-list" :wrapStyle="{ width: '100%' }" :viewStyle="{ display: 'flex' }">
           <div class="box-item size-item" :class="{ active: activeSizeId === item.id }" @click="setSizeId(item)" v-for="item in activeTemplate.sizeList" :key="'size' + item.id">
+            <!--尺码名称-->
             <div class="size">{{ item.size }}</div>
+            <!--设计标识-->
             <div v-if="isTemplateDesign(item.size)" class="design">设计</div>
           </div>
         </el-scrollbar>

@@ -1,5 +1,6 @@
 <template>
   <div class="preview-container" style="width: fit-content" :style="leftStyle">
+    <!--切换模板设计模式-->
     <el-dropdown placement="bottom">
       <conrner>
         <div class="btn-wrap">
@@ -31,7 +32,7 @@ import conrner from '@/views/designerApp/components/conrner.vue';
 // utils
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
-import { Message } from 'element-ui';
+import { Message, MessageBox } from 'element-ui';
 
 const emit = defineEmits(['onView']);
 const props = defineProps({
@@ -41,7 +42,15 @@ const props = defineProps({
 });
 
 // 设计器基础数据
-const { templateList, activeViewId, activeTemplate, setViewId, getActiveColorViewImage } = useDesignerApplication();
+const {
+  //
+  /**@type {import('d').templateListRef}*/
+  templateList,
+  activeViewId,
+  activeTemplate,
+  setViewId,
+  getActiveColorViewImage,
+} = useDesignerApplication();
 const { getPreviewContainerId, preview_canvas_size, template_type_common, template_type_refine } = useDesignerAppConfig();
 // 样式管理
 const { leftStyle, size, sizeNum, scrollGap, gap } = useStyle();
@@ -53,17 +62,35 @@ const activeTemplateTypeName = computed(() => (activeTemplateType.value === useD
 const commonDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_common));
 // 模板类型-refine-disabled
 const refineDisabled = computed(() => !templateList.value.some((t) => t.type === useDesignerAppConfig().template_type_refine));
-// 切换模板类型
-function onClickTemplateType(type) {
+/**@param{import('d').template_type} type 切换模板类型*/
+async function onClickTemplateType(type) {
   if (useDesignerApplication().activeTemplate.value.type === type) {
     return;
   }
+  // 清空设计提示
+  if (templateList.value.some((t) => t.type !== type && t.hasDesign())) {
+    await MessageBox.confirm('切换模板类型后，当前设计将会清空，是否继续？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }).then(() => {
+      templateList.value.forEach(
+        /**@param {import('d').template} t*/
+        (t) => {
+          if (t.type !== type) {
+            t.viewList.forEach((v) => v.clearDesign());
+          }
+        },
+      );
+    });
+  }
+  // 切换为通用设计
   if (type === useDesignerAppConfig().template_type_common) {
-    // Message.success('切换为通用设计');
     const template = templateList.value.find((t) => t.type === type);
     useDesignerApplication().useTemplate(template);
-  } else if (type === useDesignerAppConfig().template_type_refine) {
-    // Message.success('切换为精细设计');
+  }
+  // 切换为精细设计
+  else if (type === useDesignerAppConfig().template_type_refine) {
     const template = templateList.value.find((t) => t.type === type);
     useDesignerApplication().useTemplate(template);
   } else {
@@ -151,10 +178,12 @@ function useStyle() {
     font-size: 1.4rem;
     color: #000c01;
     line-height: 1.9rem;
-    cursor: pointer;
+    cursor: default;
 
     &:hover {
+      color: var(--fn-primary-color);
       opacity: 0.9;
+      background-color: #fff9f5;
     }
   }
 
