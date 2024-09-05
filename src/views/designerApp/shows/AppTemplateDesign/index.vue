@@ -45,7 +45,7 @@
           <div class="multi-box-bd">
             <div class="multi-content">
               <div class="fun-btn render-btn" @click="onRender">渲染</div>
-              <div class="fun-btn preview-btn">预览</div>
+              <div class="fun-btn preview-btn" @click="onPreview">预览</div>
               <el-carousel trigger="click" indicator-position="outside" arrow="always" :loop="false" :autoplay="false">
                 <template v-if="activeColor?.multiImageList">
                   <el-carousel-item v-for="item in activeColor.multiImageList" :key="item.id">
@@ -142,6 +142,7 @@ import { AppUtil } from '@/hooksFn/useGlobalDesigner/utils/utils';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { computedAsync, useDebounceFn } from '@vueuse/core';
+import { useMultiUtil } from '@/hooksFn/useGlobalDesigner/core/application/template/multi';
 
 // 价格维护
 const { price } = usePrice();
@@ -204,6 +205,8 @@ function usePrice() {
 const designListVisible = ref(true);
 // 模板属性
 const {
+  // 效果图预览弹窗
+  previewVisible,
   // 模板详情
   templateVisible,
   // 价格
@@ -233,22 +236,16 @@ const isTemplateDesign = computed(() => {
   };
 });
 
+// 多角度-预览
+function onPreview() {
+  previewVisible.value = true;
+}
 // 多角度-渲染
 function onRender() {
   activeTemplate.value.renderMulti();
 }
 // 多角度-3d
-const { getMultiContainerId } = useDesignerAppConfig();
-const getMulti3d = computed(() => {
-  /**@param {import('d').colorMultiImageItem} item*/
-  return (item) => {
-    return activeTemplate.value?.multi3DList.find((m) => m.multiId === item.multiId || m.composeId === item.composeId);
-  };
-});
-const isMulti3D = computed(() => {
-  /**@param {import('d').colorMultiImageItem} item*/
-  return (item) => getMulti3d.value(item)?.config.glbPath;
-});
+const { getMulti3d, isMulti3D, getMultiContainerId } = useMultiUtil();
 
 // 模板属性
 function useTemplateData() {

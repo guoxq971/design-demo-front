@@ -47,6 +47,8 @@ export const useDesignerApplication = createGlobalState(() => {
   const exportLoading = ref(false);
   /**@type {Ref<boolean>} 导出弹窗*/
   const exportDialogVisible = ref(false);
+  /**@type {Ref<boolean>} 预览效果图*/
+  const previewVisible = ref(false);
 
   /**@type {import('d').templateComputed} 当前激活的模板*/
   const activeTemplate = computed(() => templateList.value?.find((t) => t.uuid === activeTemplateId.value));
@@ -166,6 +168,7 @@ export const useDesignerApplication = createGlobalState(() => {
     loading,
     threeLoading,
     exportDialogVisible,
+    previewVisible,
     renderLoading,
     exportLoading,
     saveLoading,

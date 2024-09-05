@@ -1,6 +1,7 @@
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { DRequest, METHOD } from '@/utils/request';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
+import { computed } from 'vue';
 
 /**
  * 渲染多角度
@@ -25,4 +26,30 @@ export async function renderMulti(template) {
   } finally {
     useDesignerApplication().renderLoading.value = false;
   }
+}
+
+// 多角度处理
+export function useMultiUtil() {
+  // 多角度-3d
+  const { getMultiContainerId, getMultiPreviewSmallContainerId, getMultiPreviewBigContainerId } = useDesignerAppConfig();
+  // 获取多角度
+  const getMulti3d = computed(() => {
+    /**@param {import('d').colorMultiImageItem} item*/
+    return (item) => {
+      return useDesignerApplication().activeTemplate.value?.multi3DList.find((m) => m.multiId === item.multiId || m.composeId === item.composeId);
+    };
+  });
+  // 是否多角度3d
+  const isMulti3D = computed(() => {
+    /**@param {import('d').colorMultiImageItem} item*/
+    return (item) => getMulti3d.value(item)?.config.glbPath;
+  });
+
+  return {
+    getMulti3d,
+    isMulti3D,
+    getMultiContainerId,
+    getMultiPreviewSmallContainerId,
+    getMultiPreviewBigContainerId,
+  };
 }

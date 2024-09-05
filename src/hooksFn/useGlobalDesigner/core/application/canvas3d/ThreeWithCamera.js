@@ -48,6 +48,8 @@ export class ThreeWithCamera {
 
     // 容器
     this.container = opt.container || document.getElementById(opt.id);
+    const width = 1200; //this.container.clientWidth;
+    const height = 1200; //this.container.clientHeight;
 
     // 场景
     this.scene = new THREE.Scene();
@@ -60,8 +62,11 @@ export class ThreeWithCamera {
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace; // 输出颜色空间
     this.renderer.setClearColor(0xffffff, 0);
-    this.renderer.setSize(this.container.clientHeight, this.container.clientHeight);
+    this.renderer.setSize(width, height);
     this.container.appendChild(this.renderer.domElement);
+
+    this.renderer.domElement.style.width = '100%';
+    this.renderer.domElement.style.height = '100%';
 
     // 灯光
     this.light = new THREE.AmbientLight(0xffffff, opt.lightIntensity);

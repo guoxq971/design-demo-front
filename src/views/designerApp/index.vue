@@ -6,6 +6,8 @@
     <exportTemplateDialog :show.sync="exportDialogVisible" v-if="exportDialogVisible" />
     <!--模板详情-->
     <lookDetailDialog v-if="templateVisible" :show.sync="templateVisible" />
+    <!--预览效果图-->
+    <previewDialog v-if="previewVisible" :show.sync="previewVisible" />
 
     <div class="left">
       <AppMenu />
@@ -41,7 +43,8 @@ import SaveTemplateHistoryPop from '@/views/designerApp/components/saveTemplateH
 import exportTemplateDialog from '@/views/designerApp/components/exportTemplateDialog/exportTemplateDialog.vue';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import LookDetailDialog from '@/views/designerApp/components/lookDetailDialog/lookDetailDialog.vue';
-const { exportDialogVisible, templateVisible } = useDesignerApplication();
+import previewDialog from '@/views/designerApp/components/previewDialog';
+const { exportDialogVisible, previewVisible, templateVisible } = useDesignerApplication();
 // 测试键盘事件
 onKeyStroke('ArrowDown', () => {
   Message.success('ArrowDown');

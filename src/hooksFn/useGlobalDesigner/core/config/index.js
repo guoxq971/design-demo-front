@@ -46,6 +46,10 @@ export const useDesignerAppConfig = createGlobalState(() => {
   const getPreviewContainerId = (viewId) => `preview_canvas_${viewId}`;
   // 多角度容器id
   const getMultiContainerId = (id) => `multi_container_${id}`;
+  // 多角度容器id-预览弹窗-左侧
+  const getMultiPreviewSmallContainerId = (id) => `multi_small_preview_container_${id}`;
+  // 多角度容器id-预览弹窗-右侧
+  const getMultiPreviewBigContainerId = (id) => `multi_big_preview_container_${id}`;
   // 预览画布的canvas pixel ratio
   const preview_canvas_pixel_ratio = preview_canvas_size / canvas_size;
   // three画布的canvas pixel ratio
@@ -194,6 +198,8 @@ export const useDesignerAppConfig = createGlobalState(() => {
     get2dCanvasId,
     getPreviewContainerId,
     getMultiContainerId,
+    getMultiPreviewSmallContainerId,
+    getMultiPreviewBigContainerId,
     // canvas节点
     canvas_nodes_bd,
     canvas_nodes_transformer,
