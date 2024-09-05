@@ -18,8 +18,12 @@
       <!--预览图列表 + 精细/通用-->
       <PreviewGroup :left="previewStyle.left" :top="previewStyle.top" />
 
-      <!--icon-->
-      <IconCard style="position: absolute" :style="{ top: iconStyle.top, left: iconStyle.left }" />
+      <div class="icon-group" :style="{ top: iconStyle.top, left: iconStyle.left }">
+        <!--icon-->
+        <IconCard />
+        <!--推荐参数icon-->
+        <recommendIconCard />
+      </div>
     </template>
 
     <!--捕获舞台容器坐标-->
@@ -42,6 +46,7 @@ import { computed, ref } from 'vue';
 // components
 import PreviewGroup from './shows/previewGroup';
 import IconCard from './shows/iconCard';
+import recommendIconCard from './shows/recommendIconCard';
 import TipCard from './shows/tipCard';
 import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/application';
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
@@ -129,11 +134,13 @@ function usePreviewStyle() {
   justify-content: center;
   align-items: center;
   position: relative;
+
   .app-canvas-container {
     position: absolute;
     width: 100%;
     height: 100%;
   }
+
   // 舞台容器
   .stage-container {
     position: absolute;
@@ -144,11 +151,13 @@ function usePreviewStyle() {
     align-items: center;
     left: 0;
     top: 0;
+
     .img {
       position: absolute;
       user-select: none;
       pointer-events: none;
     }
+
     .img-bg {
       position: absolute;
       pointer-events: none;
@@ -179,11 +188,18 @@ function usePreviewStyle() {
   top: 0;
   //z-index: -1;
   pointer-events: none;
+
   .img-el {
     position: absolute;
     z-index: 1;
     user-select: none;
     pointer-events: none;
   }
+}
+.icon-group {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-popover placement="bottom" width="240px" trigger="hover" popper-class="icon-popover">
+  <el-popover placement="right-start" width="240px" trigger="hover" popper-class="icon-popover">
     <div>
       <testCard />
 
@@ -51,10 +51,10 @@
     </div>
 
     <template #reference>
-      <conrner class="icon-container">
+      <div class="icon-container">
         <questionSvg />
         <div class="corner"></div>
-      </conrner>
+      </div>
     </template>
   </el-popover>
 </template>
