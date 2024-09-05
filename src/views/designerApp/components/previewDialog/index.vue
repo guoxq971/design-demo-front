@@ -90,6 +90,9 @@ const list = ref([]);
 const getImg = computed(() => (id) => {
   return list.value.find((item) => item.id === id)?.url;
 });
+onMounted(() => {
+  setTimeout(() => syncMulti());
+});
 onBeforeUnmount(() => {
   list.value.forEach((item) => {
     item.url && URL.revokeObjectURL(item.url);
@@ -107,11 +110,6 @@ function syncMulti() {
     });
   }
 }
-onMounted(() => {
-  setTimeout(() => {
-    syncMulti();
-  });
-});
 
 // 走马灯
 function onCarousel() {

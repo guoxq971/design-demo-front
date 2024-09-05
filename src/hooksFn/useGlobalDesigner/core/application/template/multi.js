@@ -31,7 +31,7 @@ export async function renderMulti(template) {
 // 多角度处理
 export function useMultiUtil() {
   // 多角度-3d
-  const { getMultiContainerId, getMultiPreviewSmallContainerId, getMultiPreviewBigContainerId } = useDesignerAppConfig();
+  const { getMultiContainerId } = useDesignerAppConfig();
   // 获取多角度
   const getMulti3d = computed(() => {
     /**@param {import('d').colorMultiImageItem} item*/
@@ -49,7 +49,5 @@ export function useMultiUtil() {
     getMulti3d,
     isMulti3D,
     getMultiContainerId,
-    getMultiPreviewSmallContainerId,
-    getMultiPreviewBigContainerId,
   };
 }
