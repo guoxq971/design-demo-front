@@ -21,15 +21,7 @@
       <div class="preview-box" v-for="(item, index) in activeTemplate.viewList" :class="{ active: activeViewId === item.id }" @click="setViewId(item.id)" :key="'preview' + item.id">
         <img :src="getActiveColorViewImage(item.id)?.image" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <!--容器id-->
-        <canvas
-          mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-          :id="getPreviewContainerId(item.id)"
-          :width="preview_canvas_size"
-          :height="preview_canvas_size"
-          style="position: absolute;"
-          :style="{ 'clip-path': `url(${`#eyePath_${item.id}`})` }"
-        />
-        <!--:style="style(item.id)"-->
+        <canvas :id="getPreviewContainerId(item.id)" :width="preview_canvas_size" :height="preview_canvas_size" style="position: absolute;" :style="{ 'clip-path': `url(${`#eyePath_${item.id}`})` }" />
         <img :src="getActiveColorViewImage(item.id)?.texture" alt="" style="position: absolute;width: 100%;height:100%;user-select: none;pointer-events: none" />
         <div class="preview-box-label">图层{{ index + 1 }}</div>
         <!--裁剪路径-->
@@ -119,26 +111,8 @@ async function onClickTemplateType(type) {
   }
 }
 
-// 裁剪样式
+// 预览图和原视图的比例
 const radio = sizeNum / useDesignerAppConfig().canvas_size_org;
-const style = computed(() => {
-  return (viewId) => {
-    const view = activeTemplate.value.viewList.find((item) => item.id === viewId);
-    if (!view || !view.printout) {
-      return {};
-    }
-    // return `polygon(0 0, 10px 0, 10px 10px, 0 10px);`;
-    const x1 = view.offsetX * radio;
-    const y1 = view.offsetY * radio;
-    const x2 = (view.offsetX + view.width) * radio;
-    const y2 = view.offsetY * radio;
-    const x3 = (view.offsetX + view.width) * radio;
-    const y3 = (view.offsetY + view.height) * radio;
-    const x4 = view.offsetX * radio;
-    const y4 = (view.offsetY + view.height) * radio;
-    return { 'clip-path': `polygon(${x1}px ${y1}px, ${x2}px ${y2}px, ${x3}px ${y3}px, ${x4}px ${y4}px)` };
-  };
-});
 
 // 样式管理
 function useStyle() {
