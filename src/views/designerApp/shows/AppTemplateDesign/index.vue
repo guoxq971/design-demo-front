@@ -282,7 +282,7 @@ function useTemplateData() {
     font-weight: bold;
     font-size: 1.6rem;
     color: #000c01;
-    line-height: 1.9rem;
+    line-height: 2.1rem;
     text-shadow: 0px 4px 6px rgba(242, 242, 242, 0.5);
     margin-bottom: var(--fn-gap-min);
     // 超出2行显示省略号
