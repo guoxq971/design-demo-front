@@ -85,6 +85,7 @@ import { useDesignerApplication } from '@/hooksFn/useGlobalDesigner/core/applica
 import { useDesignerAppConfig } from '@/hooksFn/useGlobalDesigner/core/config';
 import { computed } from 'vue';
 import { Message } from 'element-ui';
+import { onTest } from './test';
 
 const [DefineSvgTemplate, ReuseSvgTemplate] = createReusableTemplate();
 
@@ -164,10 +165,11 @@ const list = [
     content: '保存产品历史记录',
     component: historySvg,
     fn: () => useGlobalDesigner().templateHistory.trigger(),
-    // children: [
-    //   { content: '保存产品记录', component: saveSvg, fn: () => useGlobalDesigner().templateHistory.trigger() },
-    //   { content: '设计操作记录', component: saveSvg, fn: () => {} },
-    // ],
+  },
+  {
+    content: '测试导出',
+    component: historySvg,
+    fn: () => onTest(),
   },
 ];
 </script>
