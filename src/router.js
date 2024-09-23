@@ -9,6 +9,11 @@ const routes = [
     redirect: '/designerApp/',
   },
   {
+    path: '/testThree/*',
+    name: 'testThree',
+    component: () => import('@/views/testThree'),
+  },
+  {
     path: '/testKonva/*',
     name: 'testKonva',
     component: () => import('@/views/testKonva'),

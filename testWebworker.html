@@ -1,73 +1,60 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Canvas to base64</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 </head>
 <body>
-  <script>
-    function loadImageAsync(url) {
-      if (typeof url !== 'string') {
-        return Promise.reject(new TypeError('must specify a string'));
-      }
+  <div style="background: red;width:400px;height: 200px;clip-path: url(#myClip3);"></div>
+  <svg width="0" height="0">
+  <clipPath id="myClip1" clipPathUnits="userSpaceOnUse">
+    <circle cx="50" cy="50" r="35" />
+  </clipPath>
 
-      return new Promise(function(resolve, reject) {
-        const image = new Image();
-        // 允许 canvas 跨域加载图片
-        image.crossOrigin="anonymous";
-        image.onload = function() {
-          const $canvas = document.createElement('canvas');
-          const ctx = $canvas.getContext('2d');
-          const width = this.width;
-          const height = this.height;
-          let imageData;
-          
-          $canvas.width = width;
-          $canvas.height = height;
-          ctx.drawImage(image, 0, 0, width, height);
-          imageData = ctx.getImageData(0, 0, $canvas.width, $canvas.height);
-          resolve({image, imageData});
-        };
+  <clipPath id="myClip2" clipPathUnits="objectBoundingBox">
+    <circle cx=".5" cy=".5" r=".35" />
+  </clipPath>
 
-        image.onerror = function() {
-          reject(new Error('Could not load image at ' + url));
-        };
+  <clipPath id="myClip4" clipPathUnits="objectBoundingBox">
+    <path d="M 1 0.5 A .75 .75 0 0 1 0 .50 A .75 .75 0 0 1 1 0.5 z" />
+  </clipPath>
 
-        image.src = url;
-      });
-    }
-    
-    function blobToDataURL(blob) {
-      return new Promise((fulfill, reject) => {
-        let reader = new FileReader();
-        reader.onerror = reject;
-        reader.onload = (e) => fulfill(reader.result);
-        reader.readAsDataURL(blob);
-      })
-    }
+  <clipPath id="myClip3" clipPathUnits="userSpaceOnUse">
+    <path d="M95.375,3.754c0.987,0.288,3.214,0,4.625,0c3.625,0,7.25,0,10.875,0c3.044,0.059,6.829,0.216,9.875,0.25
+			c1.979,0.022,4.503-0.286,6.25,0.125c0.917,0,1.833,0,2.75,0c2.09,0.004,5.325-0.078,7.25,0.375c0.875,0,1.75,0,2.625,0
+			c3.171,0.714,6.91,0.14,10,0.875c2.354,0.56,4.703,0.189,7,0.75c1.287,0.314,2.698,0.448,4,0.875
+			c0.511,0.168,1.264,0.627,1.75,0.75c0.208-0.042,0.417-0.083,0.625-0.125c0.437,0.104,1.802,0.758,2,1.125c0,1.916,0,3.834,0,5.75
+			c-0.001,4.738,0.003,9.205,0,13.875c-0.083,12.332-0.167,24.668-0.25,37c-0.083,5.416-0.167,10.834-0.25,16.25
+			c0.144,0.709,0,2.264,0,3.625c0,3.685-0.124,7.498-0.125,11c-0.042,5.583-0.083,11.167-0.125,16.75
+			c0,3.196,0.318,7.272-0.125,9.875c-0.042,6.458-0.083,12.917-0.125,19.375c0,2.084,0.309,4.776-0.125,6.625
+			c-0.373,1.591,0,6.058,0,8.25c-0.083,9.457-0.167,18.918-0.25,28.375c-0.405,1.828-0.125,4.441-0.125,6.5
+			c-0.042,3.666-0.083,7.334-0.125,11c0,1.75,0,3.5,0,5.25c-0.446,2.015-0.125,4.874-0.125,7.125
+			c-0.042,4.166-0.083,8.334-0.125,12.5c-0.145,12.557,0.012,26.99-0.5,38.75c-0.083,11.707-0.167,23.418-0.25,35.125
+			c-0.026,3.88-0.128,8.496,0,12.375c-0.042,1.875-0.083,3.75-0.125,5.625c0.511,2.317,0.125,5.564,0.125,8.125
+			c0,5.73,0.601,14.705-1.125,18.75c-1.102,2.584-3.802,4.084-6.125,5.5c-5.696,3.473-12.895,4.653-20.25,6.625
+			c-3.849,1.032-8.54,0.57-12.5,1.5c-1.19,0.28-2.468,0.008-3.5,0.25c-1.542,0.042-3.084,0.083-4.625,0.125
+			c-1.928,0.424-4.436-0.201-6.5,0.25c-1.715,0.375-5.164,0.403-6.875,0c-1.243-0.293-2.908,0.132-4-0.125c-0.875,0-1.75,0-2.625,0
+			c-2.619-0.591-5.567-0.011-8.25-0.625c-2.35-0.538-4.957-0.264-7.375-0.875c-4.037-1.02-8.307-1.886-12-3.25
+			c-5.723-2.114-12.049-3.419-15.125-8.125c-1.725-2.639-0.65-7.385-1.5-11c0-0.958,0-1.917,0-2.875
+			c-0.889-4.001,0.186-9.143-0.75-13.125c-0.227-0.967,0.067-2.309-0.125-3.125c-0.236-1.006,0.076-2.395-0.125-3.25
+			c-0.405-1.722,0.125-3.654-0.25-5.25c-0.443-1.886,0.165-4.231-0.25-6c-0.083-3.083-0.167-6.167-0.25-9.25
+			c-0.379-1.709,0.164-3.751-0.25-5.625c-0.28-1.266-0.125-3.144-0.125-4.625c0-3.041,0-6.084,0-9.125c0-1.958,0-3.917,0-5.875
+			c-0.083-12.124-0.167-24.251-0.25-36.375c0-3.083,0-6.167,0-9.25c0-1.436,0.161-3.28-0.125-4.5c0-1.083,0-2.167,0-3.25
+			c0-3.116,0.268-7.101-0.25-9.5c0-1.5,0-3,0-4.5c0-2.059,0.186-6.017-0.25-7.875c-0.431-1.835,0.271-4.191-0.125-5.875
+			c0-1.916,0-3.834,0-5.75c-0.349-1.571,0.258-3.775-0.125-5.5c-0.458-2.062-0.25-5.462-0.25-7.375c0-1.359,0.144-3.104-0.125-4.25
+			c-0.208-11.832-0.417-23.668-0.625-35.5c-0.357-1.611,0.266-3.86-0.125-5.625c-0.366-1.65,0.275-3.945-0.125-5.75
+			c-0.344-1.551-0.067-3.73-0.125-5.5c-0.065-1.997-0.068-4.763-0.25-6.75c-0.185-2.015,0.15-4.823-0.125-6.25
+			c-0.36-1.871,0.274-4.177-0.125-5.875c0-0.875,0-1.75,0-2.625c-0.042-1.542-0.083-3.083-0.125-4.625c0-1.283,0.127-2.928-0.125-4
+			c0-0.958,0-1.917,0-2.875c-0.042-1.708-0.083-3.417-0.125-5.125c0-1.321,0.135-3.016-0.125-4.125c0-1.042,0-2.083,0-3.125
+			c-0.042-2.083-0.083-4.167-0.125-6.25c0-1.359,0.144-3.104-0.125-4.25c0-1.5,0-3,0-4.5c-0.083-2.5-0.167-5-0.25-7.5
+			c-0.102-1.851,0.258-4.119-0.125-5.75c0-2.125,0-4.25,0-6.375c-0.388-1.758-0.117-4.265-0.125-6.25
+			c-0.083-2.833-0.167-5.667-0.25-8.5c-0.002-1.908-0.518-6.407,0.25-7.5c0.577-1.576,2.023-1.395,3.75-1.875
+			c1.834-0.51,3.991-0.9,5.875-1.375c0.75-0.042,1.5-0.083,2.25-0.125c3.859-0.886,8.469-0.733,12.5-1.625
+			c2.075-0.459,4.406-0.071,6.375-0.5c0.708,0,1.417,0,2.125,0c2.083-0.454,4.742-0.037,6.875-0.5
+			c2.791-0.083,5.584-0.167,8.375-0.25C92.708,3.879,94.695,4.178,95.375,3.754z" />
+  </clipPath>
+</svg>
 
-    document.addEventListener("DOMContentLoaded", function () {
-      loadImageAsync('https://cdn-images-1.medium.com/max/1600/1*4lHHyfEhVB0LnQ3HlhSs8g.png')
-        .then(function (image) {
-          // jpeg-web-worker.js https://github.com/kentmw/jpeg-web-worker
-          const worker = new Worker('jpeg-web-worker.js');
-          worker.postMessage({
-            image: image.imageData,
-            quality: 50
-          });
-          worker.onmessage = function(e) {
-            // e.data is the imageData of the jpeg. {data: U8IntArray, height: int, width: int}
-            // you can still convert the jpeg imageData into a blog like this:
-            const blob = new Blob( [e.data.data], {type: 'image/png'} );
-            blobToDataURL(blob).then((imageURL) => {
-              console.log('imageUrl:', imageURL);
-            })
-          }
-        })
-        .catch(function (err) {
-          console.log('Error：', err.message);
-        });
-    });
-  </script>
 </body>
 </html>
